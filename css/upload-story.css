@@ -1,5 +1,5 @@
 .modal {
-    display: flex; /* Asegúrate de que esté configurado para mostrarse */
+    display: none; /* Ocultar por defecto */
     justify-content: center;
     align-items: center;
     position: fixed;
@@ -7,8 +7,12 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo gris semitransparente */
     z-index: 1000;
+}
+
+.modal.show {
+    display: flex; /* Mostrar el modal cuando tenga la clase 'show' */
 }
 
 .modal-content {
@@ -27,6 +31,7 @@
 }
 
 #story-preview-container {
+    display: none; /* Ocultar la vista previa por defecto */
     position: relative;
     width: 100%;
     height: 300px;

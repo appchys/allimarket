@@ -3,6 +3,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const previewImage = document.getElementById('preview-image');
     const publishStoryBtn = document.getElementById('publish-story-btn');
     const closeStoryModal = document.getElementById('close-story-modal');
+    const postStoryModal = document.getElementById('post-story-modal'); // Modal principal
+
+    // Mostrar el modal al cargar la página
+    postStoryModal.classList.add('show');
 
     // Abrir automáticamente el selector de archivos de la galería
     const openGallery = () => {
@@ -38,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Cerrar modal
     closeStoryModal.addEventListener('click', () => {
-        const slug = window.location.pathname.split('/').filter(Boolean)[0]; // Obtiene el slug de la URL
-        window.location.href = `/${slug}`; // Redirige al perfil de la tienda
+        postStoryModal.classList.remove('show'); // Oculta el modal
     });
 });
