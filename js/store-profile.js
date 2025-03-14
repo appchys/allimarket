@@ -42,7 +42,7 @@ export async function loadStoreProfile(db, storage, auth) {
     auth.onAuthStateChanged(async (user) => {
         console.log('Estado de autenticación cambiado - Usuario:', user ? user.uid : 'No autenticado');
 
-        let slug = new URLSearchParams(window.location.search).get('slug');
+        let slug = window.location.pathname.split('/').filter(Boolean)[0];
         console.log('Slug detectado en URL:', slug);
 
         if (!slug && user) {
