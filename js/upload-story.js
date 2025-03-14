@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Mostrar el modal al cargar la página
     postStoryModal.classList.add('show');
 
-    // Abrir automáticamente el selector de archivos de la galería
+    // Función para abrir la galería
     const openGallery = () => {
         const input = document.createElement('input');
         input.type = 'file';
