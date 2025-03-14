@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multishop - Configurar Perfil</title>
+    <title>All I Market - Configurar Perfil</title>
     <link rel="stylesheet" href="css/styles.css">
     <style>
         .modal {
@@ -37,7 +37,7 @@
 </head>
 <body>
     <header>
-        <h1>Multishop</h1>
+        <h1>All I Market</h1>
     </header>
     <main>
         <section style="display: none;" id="profile-form-section">
@@ -185,8 +185,7 @@
                 }, { merge: true });
 
                 alert('Perfil creado con éxito');
-                window.location.href = selectedRole === 'store' ? `store.html?slug=${slug}` : 'index.html';
-            } catch (error) {
+                window.location.href = selectedRole === 'store' ? `/${slug}` : 'index.html';            } catch (error) {
                 console.error('Error al crear perfil:', error);
                 alert('Error al crear el perfil: ' + error.message);
             }
