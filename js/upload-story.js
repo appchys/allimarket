@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Cerrar modal
     closeStoryModal.addEventListener('click', () => {
-        window.location.href = '/store.html'; // Redirige de vuelta al perfil de la tienda
+        const slug = window.location.pathname.split('/').filter(Boolean)[0]; // Obtiene el slug de la URL
+        window.location.href = `/${slug}`; // Redirige al perfil de la tienda
     });
 });
