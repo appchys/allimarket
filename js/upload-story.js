@@ -1,18 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const storyCameraBtn = document.getElementById('story-camera');
-    const storyGalleryBtn = document.getElementById('story-gallery');
     const storyPreviewContainer = document.getElementById('story-preview-container');
     const previewImage = document.getElementById('preview-image');
     const publishStoryBtn = document.getElementById('publish-story-btn');
     const closeStoryModal = document.getElementById('close-story-modal');
 
-    // Abrir cámara
-    storyCameraBtn.addEventListener('click', () => {
-        alert('Funcionalidad de cámara no implementada aún.');
-    });
-
-    // Seleccionar imagen desde galería
-    storyGalleryBtn.addEventListener('click', () => {
+    // Abrir automáticamente el selector de archivos de la galería
+    const openGallery = () => {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
@@ -28,7 +21,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
         input.click();
-    });
+    };
+
+    // Llama a la función para abrir la galería al cargar la página
+    openGallery();
 
     // Publicar historia
     publishStoryBtn.addEventListener('click', () => {
