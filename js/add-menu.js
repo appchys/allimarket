@@ -68,12 +68,7 @@ export function initializeAddMenu(auth, db, storage) {
                 e.stopPropagation();
                 console.log('Opción Añadir Historia clicada');
                 addMenu.style.display = 'none'; // Cierra el menú al seleccionar
-                const postStoryModal = document.getElementById('post-story-modal');
-                if (postStoryModal) {
-                    postStoryModal.style.display = 'flex';
-                } else {
-                    redirectToStoreOrAlert(userData);
-                }
+                window.location.href = 'upload-story.html'; // Redirige a la página de subir historias
             });
         }
     });
