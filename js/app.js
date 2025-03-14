@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Cargar contenido de la página según la ruta
     const isIndexPage = window.location.pathname === '/' || window.location.pathname.includes('index.html');
-    const isStorePage = window.location.pathname.includes('store.html');
+    const isStorePage = window.location.pathname !== '/' && !window.location.pathname.includes('index.html');
     
     if (isIndexPage) {
         console.log('Cargando contenido de Inicio en DOMContentLoaded...');
