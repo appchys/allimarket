@@ -1,5 +1,5 @@
 .modal {
-    display: flex;
+    display: flex; /* Asegúrate de que esté configurado para mostrarse */
     justify-content: center;
     align-items: center;
     position: fixed;
