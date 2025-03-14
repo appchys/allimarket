@@ -88,7 +88,7 @@ export function initializeAddMenu(auth, db, storage) {
     // Función auxiliar para redirigir o mostrar alerta
     function redirectToStoreOrAlert(userData) {
         if (userData.role === 'store' && userData.storeId) {
-            window.location.href = `store.html?slug=${userData.storeId}`;
+            window.location.href = `/${userData.storeId}`;
         } else {
             alert('Necesitas configurar una tienda para esta acción.');
         }

@@ -50,7 +50,7 @@ export function setupUI(db, storage, auth, loadStoreProfile) {
             if (userDoc.exists() && userDoc.data().storeId) {
                 const storeDoc = await getDoc(doc(db, 'stores', userDoc.data().storeId));
                 if (storeDoc.exists()) {
-                    window.location.href = `store.html?slug=${storeDoc.data().slug}`;
+                    window.location.href = `/${userData.storeId}`;
                 } else {
                     alert('Error: No se encontró la tienda asociada');
                 }

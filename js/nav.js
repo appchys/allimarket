@@ -69,7 +69,7 @@ export function initializeNavEvents(auth, db, storage, provider) {
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
                     if (userData.role === 'store' && userData.storeId) {
-                        window.location.href = `store.html?slug=${userData.storeId}`;
+                        window.location.href = `/${userData.storeId}`;
                     } else if (userData.role === 'client' || userData.role === 'creator') {
                         window.location.href = 'profile.html';
                     } else {

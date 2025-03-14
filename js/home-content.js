@@ -123,7 +123,7 @@ export async function loadHomeContent(db) {
                     productElement.innerHTML = `
                         <div class="product-image-container">
                             <img src="${product.imageUrl}" alt="${product.name}" loading="lazy">
-                            <a href="store.html?slug=${slug}" class="store-name-overlay">${store.name}</a>
+                            <a href="/${slug}" class="store-name-overlay">${store.name}</a>
                         </div>
                         <div class="product-details">
                             <h3>${product.name}</h3>

@@ -46,7 +46,7 @@ export function setupAuth(auth, provider, db) {
                 window.location.href = 'create-store.html';
             } else {
                 const storeDoc = await getDoc(doc(db, 'stores', userDoc.data().storeId));
-                window.location.href = `store.html?slug=${storeDoc.data().slug}`;
+                window.location.href = `/${userData.storeId}`;
             }
         });
     }

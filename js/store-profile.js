@@ -52,7 +52,7 @@ export async function loadStoreProfile(db, storage, auth) {
                 slug = userDoc.data().storeId;
                 console.log('Slug obtenido del usuario:', slug);
                 if (window.location.search !== `?slug=${slug}`) {
-                    window.history.pushState({}, '', `store.html?slug=${slug}`);
+                    window.history.pushState({}, '', `/${slug}`);
                 }
             }
         }
