@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subir Historia</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/upload-story.css">
+</head>
+<body>
+    <header>
+        <h1>Subir Historia</h1>
+    </header>
+    <main>
+        <div id="post-story-modal" class="modal">
+            <div class="modal-content">
+                <div id="story-source-options">
+                    <button id="story-camera">Desde Cámara</button>
+                    <button id="story-gallery">Desde Galería</button>
+                </div>
+                <div id="story-preview-container" style="display: none;">
+                    <img id="preview-image" alt="Vista previa">
+                    <div id="preview-tags"></div>
+                    <div id="story-actions">
+                        <button id="tag-products-btn" title="Etiquetar Productos">🏷️</button>
+                        <button id="publish-story-btn" title="Publicar">✔️</button>
+                    </div>
+                    <select id="story-product" style="display: none;"></select>
+                </div>
+                <button id="close-story-modal" class="close-btn">✖</button>
+            </div>
+        </div>
+    </main>
+    <script type="module" src="js/upload-story.js"></script>
+</body>
+</html>
