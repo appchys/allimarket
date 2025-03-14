@@ -65,12 +65,14 @@ export async function loadStoreProfile(db, storage, auth) {
         }
 
         try {
-            const storeDoc = await getDoc(doc(db, 'stores', slug));
-            if (!storeDoc.exists()) {
-                console.error('Tienda no encontrada:', slug);
-                elements.storeName.textContent = 'Tienda no encontrada';
-                return;
-            }
+            console.log('Buscando tienda con slug:', slug);
+const storeDoc = await getDoc(doc(db, 'stores', slug));
+if (!storeDoc.exists()) {
+    console.error('Tienda no encontrada:', slug);
+    elements.storeName.textContent = 'Tienda no encontrada';
+    return;
+}
+console.log('Datos de la tienda:', storeDoc.data());
 
             const store = storeDoc.data();
             console.log('Datos de la tienda cargados:', store);
