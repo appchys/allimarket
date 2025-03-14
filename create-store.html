@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multishop - Configurar Perfil</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .role-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .role-buttons button {
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Multishop</h1>
+    </header>
+    <main>
+        <section style="display: none;" id="profile-form-section">
+            <h2>Configurar Perfil</h2>
+            <form id="create-store-form">
+                <input type="text" id="profile-name" placeholder="Nombres" required>
+                <input type="text" id="profile-slug" placeholder="Usuario (único, ej: miusuario)" required>
+                <input type="tel" id="profile-phone" placeholder="Celular (ej: 0985985684)" required>
+                <textarea id="profile-description" placeholder="Descripción" required></textarea>
+                <input type="file" id="profile-image" accept="image/*">
+                <button type="submit">Crear Perfil</button>
+            </form>
+        </section>
+    </main>
+
+    <!-- Modal para elegir rol -->
+    <div id="role-modal" class="modal" style="display: flex;">
+        <div class="modal-content">
+            <h2>¿Qué eres?</h2>
+            <div class="role-buttons">
+                <button id="role-client">Cliente</button>
+                <button id="role-store">Tienda</button>
+                <button id="role-creator">Creador</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK Modular y lógica -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { getFirestore, doc, setDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+        import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js';
+        import { getAuth, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAAAFDJ_utlimCezUR-_i8Y2yUare9yZ1k",
+            authDomain: "multitienda-69778.firebaseapp.com",
+            projectId: "multitienda-69778",
+            storageBucket: "multitienda-69778.firebasestorage.app",
+            messagingSenderId: "939925630795",
+            appId: "1:939925630795:web:713aca499392bfa36482ce"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        // Elementos del DOM
+        const roleModal = document.getElementById('role-modal');
+        const profileFormSection = document.getElementById('profile-form-section');
+        const createStoreForm = document.getElementById('create-store-form');
+        const nameInput = document.getElementById('profile-name');
+        const slugInput = document.getElementById('profile-slug');
+        const phoneInput = document.getElementById('profile-phone');
+        const descriptionInput = document.getElementById('profile-description');
+
+        // Variable para almacenar el rol seleccionado
+        let selectedRole = 'client';
+
+        // Función para actualizar los placeholders según el rol
+        function updateFormFields(role) {
+            selectedRole = role;
+            switch (role) {
+                case 'client':
+                    nameInput.placeholder = 'Nombres';
+                    slugInput.placeholder = 'Usuario (único, ej: miusuario)';
+                    phoneInput.placeholder = 'Celular (ej: 0985985684)';
+                    descriptionInput.placeholder = 'Descripción';
+                    break;
+                case 'store':
+                    nameInput.placeholder = 'Nombre de la tienda';
+                    slugInput.placeholder = 'Usuario (único, ej: mi-tienda)';
+                    phoneInput.placeholder = 'Celular (ej: 0985985684)';
+                    descriptionInput.placeholder = 'Descripción';
+                    break;
+                case 'creator':
+                    nameInput.placeholder = 'Nombres';
+                    slugInput.placeholder = 'Usuario (único, ej: micreador)';
+                    phoneInput.placeholder = 'Celular (ej: 0985985684)';
+                    descriptionInput.placeholder = 'Descripción';
+                    break;
+            }
+            roleModal.style.display = 'none';
+            profileFormSection.style.display = 'block';
+        }
+
+        // Eventos para los botones de rol
+        document.getElementById('role-client').addEventListener('click', () => updateFormFields('client'));
+        document.getElementById('role-store').addEventListener('click', () => updateFormFields('store'));
+        document.getElementById('role-creator').addEventListener('click', () => updateFormFields('creator'));
+
+        // Manejar el envío del formulario
+        createStoreForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!auth.currentUser) {
+                alert('Debes iniciar sesión primero');
+                return;
+            }
+
+            const slug = slugInput.value;
+            const name = nameInput.value;
+            const description = descriptionInput.value;
+            const phone = phoneInput.value;
+            const imageFile = document.getElementById('profile-image').files[0];
+
+            try {
+                let imageUrl = '';
+                if (imageFile) {
+                    const storagePath = selectedRole === 'store' ? `stores/${slug}/profile.jpg` : `users/${auth.currentUser.uid}/profile.jpg`;
+                    const storageRef = ref(storage, storagePath);
+                    // Agregar metadatos con el propietario
+                    const metadata = {
+                        customMetadata: {
+                            owner: auth.currentUser.uid
+                        }
+                    };
+                    await uploadBytes(storageRef, imageFile, metadata);
+                    imageUrl = await getDownloadURL(storageRef);
+                }
+
+                // Guardar datos según el rol
+                if (selectedRole === 'store') {
+                    await setDoc(doc(db, 'stores', slug), {
+                        name,
+                        description,
+                        phone,
+                        imageUrl,
+                        owner: auth.currentUser.uid,
+                        createdAt: new Date().toISOString()
+                    });
+                }
+
+                // Guardar perfil del usuario en 'users'
+                await setDoc(doc(db, 'users', auth.currentUser.uid), {
+                    ...(selectedRole === 'store' ? { storeId: slug } : {}),
+                    role: selectedRole,
+                    name,
+                    slug,
+                    description,
+                    phone,
+                    imageUrl,
+                    createdAt: new Date().toISOString()
+                }, { merge: true });
+
+                alert('Perfil creado con éxito');
+                window.location.href = selectedRole === 'store' ? `store.html?slug=${slug}` : 'index.html';
+            } catch (error) {
+                console.error('Error al crear perfil:', error);
+                alert('Error al crear el perfil: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+@import url('base.css');
+@import url('header.css');
+@import url('stories.css');
+@import url('feed.css');
+@import url('modal.css');
+@import url('nav.css');
+@import url('forms.css');
+
+/* Estilos para el botón "Añadir al carrito" */
+.add-to-cart-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.add-to-cart-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Ajuste para el feed de index.html: hacer que .add-to-cart-btn coincida con .action-btn */
+.product-actions .add-to-cart-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    padding: 0;
+    color: #333;
+    margin-top: 0; /* Eliminar el margen superior en el feed */
+    transition: color 0.2s ease;
+}
+
+/* Cambiar solo el color del ícono en hover, sin fondo */
+.product-actions .add-to-cart-btn:hover,
+.product-actions .add-to-cart-btn:hover i {
+    background: none; /* Asegurar que no haya fondo */
+    color: #3897f0; /* Cambiar solo el color del ícono */
+}
+
+/* Estilos para los botones de acción en el feed (like, comment, add-to-cart) */
+.product-actions .action-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    padding: 0;
+    color: #333;
+    margin-top: 0;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.product-actions .action-btn:hover,
+.product-actions .action-btn:hover i {
+    background: none; /* Asegurar que no haya fondo */
+    color: #3897f0; /* Cambiar solo el color del ícono */
+}
+
+/* Burbuja del carrito */
+#cart-bubble {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    line-height: 50px;
+    font-size: 18px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    display: none;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+#cart-bubble i {
+    margin-right: 5px;
+}
+
+/* Modal del carrito */
+#cart-modal .modal-content {
+    width: 90%;
+    max-width: 600px;
+    padding: 20px;
+}
+
+.cart-store-section {
+    margin-bottom: 20px;
+}
+
+.cart-store-section h3 {
+    margin: 0 0 10px;
+    font-size: 18px;
+}
+
+.cart-store-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 10px;
+}
+
+.cart-store-section li {
+    padding: 5px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cart-store-section .remove-item {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0;
+}
+
+.cart-store-section .remove-item:hover {
+    color: #b02a37;
+}
+
+.checkout-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.checkout-btn:hover {
+    background-color: #218838;
+}

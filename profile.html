@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All I Market - Mi Perfil</title>
+    <link rel="stylesheet" href="css/profile.css">
+    <link rel="stylesheet" href="css/add-menu.css">
+</head>
+<body>
+    <header>
+        <h1>All I Market</h1>
+        <div class="header-right">
+            <div id="search-container" style="display: none;">
+                <input type="text" id="search-input" placeholder="Buscar...">
+                <button id="search-toggle-btn"><i class="bi bi-search"></i></button>
+            </div>
+            <div id="auth-section">
+                <button id="login-btn">Iniciar Sesión con Google</button>
+                <button id="logout-btn" style="display:none;"><i class="bi bi-box-arrow-right"></i></button>
+            </div>
+        </div>
+    </header>
+    <main>
+        <section id="user-profile" class="store-profile">
+            <img id="profile-image" src="https://placehold.co/100x100" alt="Foto de perfil">
+            <div class="store-info">
+                <h2 id="profile-name">Nombre</h2>
+                <p id="profile-slug">@usuario</p>
+                <p id="profile-description">Descripción</p>
+                <p id="profile-phone">Celular: No disponible</p>
+                <div id="profile-actions">
+                    <button id="edit-profile-btn">Editar Perfil</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Punto de inserción para la barra de navegación -->
+    <div id="nav-container"></div>
+
+    <!-- Burbuja del carrito -->
+    <div id="cart-bubble" style="position: fixed; bottom: 20px; right: 20px; display: none; background-color: #007bff; color: white; border-radius: 50%; width: 50px; height: 50px; text-align: center; line-height: 50px; font-size: 18px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); cursor: pointer;">
+        <i class="bi bi-cart"></i> <span id="cart-count">0</span>
+    </div>
+
+    <!-- Modal del carrito -->
+    <div id="cart-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h2>Carrito de Compras</h2>
+            <div id="cart-items"></div>
+            <button id="close-cart-modal" class="close-btn">✖</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAAAFDJ_utlimCezUR-_i8Y2yUare9yZ1k",
+            authDomain: "multitienda-69778.firebaseapp.com",
+            projectId: "multitienda-69778",
+            storageBucket: "multitienda-69778.firebasestorage.app",
+            messagingSenderId: "939925630795",
+            appId: "1:939925630795:web:713aca499392bfa36482ce"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    document.getElementById('profile-name').textContent = userData.name;
+                    document.getElementById('profile-slug').textContent = `@${userData.slug}`;
+                    document.getElementById('profile-description').textContent = userData.description;
+                    document.getElementById('profile-phone').textContent = `Celular: ${userData.phone || 'No disponible'}`;
+                    if (userData.imageUrl) {
+                        document.getElementById('profile-image').src = userData.imageUrl;
+                    }
+                }
+            }
+        });
+
+        fetch('nav.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('nav-container').innerHTML = html;
+            })
+            .catch(error => console.error('Error al cargar nav.html:', error));
+    </script>
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

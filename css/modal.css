@@ -1,0 +1,305 @@
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 90%;
+    width: 500px;
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #333;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    color: #3897f0;
+}
+
+/* Perfil de Tienda */
+#store-profile {
+    padding: 20px;
+    background-color: #fff;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+#store-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.store-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#store-name {
+    font-size: 24px;
+}
+
+#store-followers {
+    font-size: 16px;
+    color: #666;
+}
+
+#store-description {
+    font-size: 14px;
+}
+
+#store-actions {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Vista de Historia en Perfil */
+#story-view-container {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+}
+
+#story-image {
+    max-width: 100%;
+    max-height: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    object-fit: contain;
+}
+
+/* Modal para Publicar Historia */
+#post-story-modal .modal-content {
+    padding: 0;
+    width: 100%;
+    max-width: 600px;
+    height: 90vh;
+    border-radius: 0;
+    overflow: hidden;
+    background: transparent;
+}
+
+#story-source-options {
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+#story-source-options button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    background-color: #3897f0;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#story-source-options button:hover {
+    background-color: #287acc;
+}
+
+#story-preview-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+#story-actions {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    display: flex;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 5px;
+    border-radius: 4px;
+}
+
+#story-actions button {
+    font-size: 24px;
+    background: none;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+}
+
+#story-actions button:hover {
+    color: #3897f0;
+}
+
+#story-product {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 200px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+#preview-tags {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.preview-tag {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 5px;
+    border-radius: 4px;
+    font-size: 12px;
+    transform: translate(-50%, -50%);
+}
+
+/* Modal para elegir acción de añadir */
+#add-action-modal .modal-content {
+    padding: 20px;
+    text-align: center;
+}
+
+#add-action-modal h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+.action-options {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+#add-action-modal button {
+    padding: 8px 16px;
+    background-color: #3897f0;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+#add-action-modal button:hover {
+    background-color: #287acc;
+}
+
+#add-action-modal .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    color: #333;
+    font-size: 24px;
+}
+
+/* Sidebar para Editar Perfil */
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 300px;
+    height: 100%;
+    background-color: #fff;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+    transition: right 0.3s ease;
+    z-index: 2000;
+}
+
+.sidebar[style*="display: block"] {
+    right: 0;
+}
+
+.sidebar-content {
+    padding: 20px;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.sidebar-content h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+.sidebar-content h3 {
+    font-size: 16px;
+    margin: 20px 0 10px;
+}
+
+#edit-store-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#edit-store-form input,
+#edit-store-form textarea {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+#edit-store-form textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+#edit-store-form button {
+    padding: 10px;
+    background-color: #3897f0;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#edit-store-form button:hover {
+    background-color: #287acc;
+}

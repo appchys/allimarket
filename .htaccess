@@ -1,0 +1,4 @@
+RewriteEngine On
+
+# Redirigir /Sync a /store.html?slug=Sync internamente
+RewriteRule ^([^/]+)$ /store.html?slug=$1 [L,QSA]

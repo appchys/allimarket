@@ -1,0 +1,46 @@
+/* styles.css o el archivo donde está definido bottom-nav */
+.bottom-nav {
+    position: fixed; /* Fija la barra en la pantalla */
+    bottom: 0; /* Siempre en la parte inferior */
+    left: 0;
+    width: 100%; /* Ocupa todo el ancho */
+    background-color: #fff;
+    border-top: 1px solid #ddd;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    z-index: 1000; /* Asegura que esté por encima del contenido */
+    box-sizing: border-box; /* Incluye padding en el cálculo del tamaño */
+}
+
+/* Estilos para los botones de la barra */
+.nav-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px 15px;
+    color: #333;
+}
+
+.nav-btn.active {
+    color: #3897f0;
+}
+
+/* Ajustar el contenido principal para no superponerse a la barra */
+main {
+    padding-bottom: 70px; /* Espacio suficiente para la altura de la barra (10px padding + 24px botones + margen) */
+}
+
+/* Media queries para pantallas pequeñas */
+@media (max-width: 768px) {
+    .bottom-nav {
+        padding: 5px 0;
+    }
+    .nav-btn {
+        font-size: 20px;
+    }
+    main {
+        padding-bottom: 60px; /* Ajuste para pantallas pequeñas */
+    }
+}

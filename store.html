@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All I Market - Perfil de Tienda</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/add-menu.css">
+</head>
+<body>
+    <header>
+        <h1>Multishop</h1>
+        <div id="auth-section">
+            <button id="login-btn">Iniciar Sesión con Google</button>
+            <button id="logout-btn" style="display:none;"><i class="bi bi-box-arrow-right"></i></button>
+        </div>
+    </header>
+    <main>
+        <section id="store-profile" class="store-profile">
+            <img id="store-image" src="https://placehold.co/100x100" alt="Foto de la tienda">
+            <div class="store-info">
+                <h2 id="store-name">Nombre de la Tienda</h2>
+                <p id="store-followers">0 seguidores</p>
+                <p id="store-description">Descripción de la tienda</p>
+                <div id="store-actions">
+                    <!-- Botones dinámicos se insertarán aquí vía JS -->
+                </div>
+            </div>
+        </section>
+        <section id="store-stories" class="stories">
+            <div id="stories-container" class="stories-grid"></div>
+        </section>
+        <section id="store-feed" class="feed">
+            <h2>Productos</h2>
+            <div id="feed-container" class="grid"></div>
+        </section>
+    </main>
+
+    <!-- Punto de inserción para la barra de navegación -->
+    <div id="nav-container"></div>
+
+    <!-- Panel lateral para editar perfil -->
+    <aside id="edit-profile-sidebar" class="sidebar" style="display:none;">
+        <div class="sidebar-content">
+            <button id="close-sidebar" class="close-btn">✖</button>
+            <h2>Editar Perfil</h2>
+            <section id="store-data-section">
+                <h3>Datos de la tienda</h3>
+                <form id="edit-store-form">
+                    <input type="text" id="edit-store-name" placeholder="Nombre de la tienda" required>
+                    <textarea id="edit-store-description" placeholder="Descripción" required></textarea>
+                    <input type="tel" id="edit-store-phone" placeholder="Teléfono (WhatsApp)" required>
+                    <img id="edit-store-image-preview" src="https://placehold.co/100x100" alt="Vista previa de la imagen" style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%; margin: 10px 0;">
+                    <input type="file" id="edit-store-image" accept="image/*">
+                    <button type="submit">Guardar cambios</button>
+                </form>
+            </section>
+            <section id="products-section">
+                <h3>Productos</h3>
+                <p>Aquí puedes gestionar tus productos (funcionalidad por implementar).</p>
+            </section>
+        </div>
+    </aside>
+
+      <!-- Modal para publicar historia -->
+    <div id="post-story-modal" class="modal" style="display:none;">
+        <div class="modal-content" style="padding: 0; position: relative;">
+            <div id="story-source-options" style="display: flex; flex-direction: column; gap: 10px; padding: 20px;">
+                <button id="story-camera">Desde Cámara</button>
+                <button id="story-gallery">Desde Galería</button>
+            </div>
+            <div id="story-preview-container" style="display: none; position: relative; width: 100%; height: 100%;">
+                <img id="preview-image" style="width: 100%; height: 100%; object-fit: contain;">
+                <div id="preview-tags" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
+                <div id="story-actions" style="position: absolute; bottom: 10px; right: 10px; display: flex; gap: 10px;">
+                    <button id="tag-products-btn" title="Etiquetar Productos">🏷️</button>
+                    <button id="publish-story-btn" title="Publicar">✔️</button>
+                </div>
+                <select id="story-product" style="display: none; position: absolute; top: 10px; left: 10px; width: 200px;"></select>
+            </div>
+            <button id="close-story-modal" class="close-btn">✖</button>
+        </div>
+    </div>
+
+    <!-- Modal para elegir acción de añadir -->
+    <div id="add-action-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h2>¿Qué quieres añadir?</h2>
+            <div class="action-options">
+                <button id="add-product-option">Producto</button>
+                <button id="add-story-option">Historia</button>
+            </div>
+            <button id="close-add-action" class="close-btn">✖</button>
+        </div>
+    </div>
+
+    <!-- Contenedor para ver Historia (sin modal) -->
+    <div id="story-view-container" style="display:none;">
+        <img id="story-image" src="" alt="Historia">
+        <div id="product-tags"></div>
+        <button id="close-story-view">✖</button>
+    </div>
+
+    <!-- Burbuja del carrito -->
+    <div id="cart-bubble" style="position: fixed; bottom: 20px; right: 20px; display: none; background-color: #007bff; color: white; border-radius: 50%; width: 50px; height: 50px; text-align: center; line-height: 50px; font-size: 18px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); cursor: pointer;">
+        <i class="bi bi-cart"></i> <span id="cart-count">0</span>
+    </div>
+
+    <!-- Modal del carrito -->
+    <div id="cart-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h2>Carrito de Compras</h2>
+            <div id="cart-items"></div>
+            <button id="close-cart-modal" class="close-btn">✖</button>
+        </div>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+    <script type="module" src="js/store-profile.js"></script>
+    <script type="module" src="js/store-owner.js"></script>
+    <script type="module" src="js/store-utils.js"></script>
+    <script>
+        fetch('nav.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('nav-container').innerHTML = html;
+            })
+            .catch(error => console.error('Error al cargar nav.html:', error));
+    </script>
+</body>
+</html>

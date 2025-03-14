@@ -1,0 +1,14 @@
+<!-- add-product.html -->
+<div id="add-product-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <h2>Añadir Producto</h2>
+        <form id="add-product-form">
+            <input type="text" id="product-name" placeholder="Nombre del producto" required>
+            <input type="number" id="product-price" placeholder="Precio" step="0.01" required>
+            <textarea id="product-description" placeholder="Descripción" required></textarea>
+            <input type="file" id="product-image" accept="image/*" required>
+            <button type="submit">Añadir</button>
+        </form>
+        <button id="close-product-modal" class="close-btn">✖</button>
+    </div>
+</div>
