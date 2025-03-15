@@ -126,7 +126,6 @@ export function initializeAddMenu(auth, db, storage) {
             return;
         }
     
-        // Deshabilitar botones si ya hay una imagen seleccionada
         function updateButtonState() {
             if (storyImageFile) {
                 storyCameraBtn.disabled = true;
@@ -137,7 +136,6 @@ export function initializeAddMenu(auth, db, storage) {
             }
         }
     
-        // Botón Cámara
         storyCameraBtn.addEventListener('click', () => {
             if (storyImageFile) {
                 console.log('Ya hay una imagen seleccionada, no se permite otra');
@@ -152,7 +150,6 @@ export function initializeAddMenu(auth, db, storage) {
             input.click();
         });
     
-        // Botón Galería
         storyGalleryBtn.addEventListener('click', () => {
             if (storyImageFile) {
                 console.log('Ya hay una imagen seleccionada, no se permite otra');
@@ -166,7 +163,6 @@ export function initializeAddMenu(auth, db, storage) {
             input.click();
         });
     
-        // Botón Etiquetar Productos
         tagProductsBtn.addEventListener('click', () => {
             console.log('Botón Etiquetar Productos clicado');
             storyProductSelect.style.display = 'block';
@@ -174,7 +170,6 @@ export function initializeAddMenu(auth, db, storage) {
             populateStoryProductSelect();
         });
     
-        // Clic en la imagen para etiquetar
         previewImage.addEventListener('click', (e) => {
             if (storyProductSelect.style.display !== 'block') return;
             const productId = storyProductSelect.value;
@@ -196,9 +191,10 @@ export function initializeAddMenu(auth, db, storage) {
             previewTags.appendChild(tag);
         });
     
-        // Botón Publicar
+        // Botón Publicar con depuración
         publishStoryBtn.addEventListener('click', async () => {
-            if (!storyImageFile) {
+            console.log('Botón Publicar clicado, estado de storyImageFile:', storyImageFile);
+            if (!storyImageFile || !(storyImageFile instanceof File)) {
                 alert('Por favor selecciona una imagen primero');
                 return;
             }
@@ -206,8 +202,10 @@ export function initializeAddMenu(auth, db, storage) {
             try {
                 const storyPath = `stores/${slug}/stories/${Date.now()}_${storyImageFile.name}`;
                 const storageRef = ref(storage, storyPath);
+                console.log('Subiendo imagen a:', storyPath);
                 await uploadBytes(storageRef, storyImageFile);
                 const imageUrl = await getDownloadURL(storageRef);
+                console.log('URL de la imagen subida:', imageUrl);
     
                 const storyData = {
                     imageUrl,
@@ -216,6 +214,7 @@ export function initializeAddMenu(auth, db, storage) {
                 };
     
                 await addDoc(collection(db, 'stores', slug, 'stories'), storyData);
+                console.log('Historia publicada con éxito');
                 alert('Historia publicada con éxito');
                 uploadStoryModal.style.display = 'none';
                 resetModal();
@@ -225,14 +224,12 @@ export function initializeAddMenu(auth, db, storage) {
             }
         });
     
-        // Botón Cerrar
         closeStoryModal.addEventListener('click', () => {
             console.log('Botón Cerrar clicado');
             uploadStoryModal.style.display = 'none';
             resetModal();
         });
     
-        // Cerrar el modal al hacer clic fuera del contenido
         uploadStoryModal.addEventListener('click', (e) => {
             if (e.target === uploadStoryModal) {
                 uploadStoryModal.style.display = 'none';
@@ -240,11 +237,10 @@ export function initializeAddMenu(auth, db, storage) {
             }
         });
     
-        // Manejar selección de imagen
         function handleImageSelect(e) {
             storyImageFile = e.target.files[0];
             if (storyImageFile) {
-                console.log('Imagen seleccionada:', storyImageFile.name);
+                console.log('Imagen seleccionada:', storyImageFile.name, 'Tamaño:', storyImageFile.size);
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     previewImage.src = event.target.result;
@@ -252,13 +248,14 @@ export function initializeAddMenu(auth, db, storage) {
                     storyPreviewContainer.style.display = 'block';
                     storyProductSelect.style.display = 'none';
                     previewTags.innerHTML = '';
-                    updateButtonState(); // Deshabilitar botones después de seleccionar
+                    updateButtonState();
                 };
                 reader.readAsDataURL(storyImageFile);
+            } else {
+                console.log('No se seleccionó ninguna imagen');
             }
         }
     
-        // Rellenar el select de productos
         async function populateStoryProductSelect() {
             const productsSnapshot = await getDocs(collection(db, 'stores', slug, 'products'));
             storyProductSelect.innerHTML = '<option value="">Selecciona un producto</option>';
@@ -271,7 +268,6 @@ export function initializeAddMenu(auth, db, storage) {
             });
         }
     
-        // Resetear el estado del modal
         function resetModal() {
             taggedProducts = [];
             storyImageFile = null;
@@ -280,10 +276,9 @@ export function initializeAddMenu(auth, db, storage) {
             storyPreviewContainer.style.display = 'none';
             storyProductSelect.style.display = 'none';
             previewImage.src = '';
-            updateButtonState(); // Habilitar botones al resetear
+            updateButtonState();
         }
     
-        // Inicializar estado de los botones
         updateButtonState();
     }
 }
