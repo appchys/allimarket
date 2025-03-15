@@ -35,27 +35,22 @@ export function initializeAddMenu(auth, db, storage) {
 
         const userData = userDoc.data();
 
-        // Ocultar el menú completo para clientes (esto ya está bien)
         if (userData.role === 'client') {
             addMenu.style.display = 'none';
             return;
         }
 
-        // Personalizar opciones según el rol
         if (userData.role === 'store') {
-            // Tiendas ven ambas opciones: Producto e Historia
             addMenu.innerHTML = `
                 <button id="add-product-option"><i class="bi bi-box"></i> Producto</button>
                 <button id="add-story-option"><i class="bi bi-image"></i> Historia</button>
             `;
         } else if (userData.role === 'creator') {
-            // Creadores solo ven Historia
             addMenu.innerHTML = `
                 <button id="add-story-option"><i class="bi bi-image"></i> Historia</button>
             `;
         }
 
-        // Configurar eventos para las opciones
         const addStoryOption = document.getElementById('add-story-option');
         const addProductOption = document.getElementById('add-product-option');
 
@@ -79,24 +74,25 @@ export function initializeAddMenu(auth, db, storage) {
                 e.stopPropagation();
                 console.log('Opción Añadir Producto clicada');
                 addMenu.style.display = 'none';
-                // Aquí puedes agregar la lógica para abrir un modal o redirigir a una página para añadir productos
-                if (userData.storeId) {
-                    window.location.href = `/${userData.storeId}/add-product`; // Ejemplo de redirección
+                const addProductModal = document.getElementById('add-product-modal');
+                if (addProductModal) {
+                    addProductModal.style.display = 'flex'; // Abrir el modal
+                    const feedContainer = document.querySelector('.feed-container') || document.createElement('div');
+                    initializeAddProduct(db, storage, userData.storeId || 'unknown', feedContainer); // Inicializar con el slug correcto
                 } else {
-                    alert('Necesitas configurar una tienda para añadir productos.');
+                    console.error('Modal #add-product-modal no encontrado en el DOM');
                 }
             });
         }
     });
 
-    // Cerrar el menú si se hace clic fuera de él
     document.addEventListener('click', (e) => {
         if (!addMenu.contains(e.target) && e.target !== newBtn) {
             addMenu.style.display = 'none';
         }
     });
 
-    // Resto del código sigue igual...
+    // ... (resto del código) ...
 }
 
 function addStoryOption(option) {

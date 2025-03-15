@@ -133,7 +133,7 @@ function updateNavBasedOnRole(userData) {
         .then(html => {
             const nav = document.querySelector('.bottom-nav');
             if (nav) {
-                nav.insertAdjacentHTML('beforeend', html); // Inserta add-menu dentro de bottom-nav
+                nav.insertAdjacentHTML('beforeend', html);
                 initializeAddMenu(auth, db, storage);
             } else {
                 console.error('No se encontró .bottom-nav para insertar add-menu');
@@ -146,10 +146,21 @@ function updateNavBasedOnRole(userData) {
         .then(response => response.text())
         .then(html => {
             const body = document.body;
-            body.insertAdjacentHTML('beforeend', html); // Inserta el carrito en el DOM
-            initializeCart(db); // Inicializa la lógica del carrito
+            body.insertAdjacentHTML('beforeend', html);
+            initializeCart(db);
         })
         .catch(error => console.error('Error al cargar cart.html:', error));
+
+    // Cargar el modal de productos dinámicamente
+    fetch('add-product.html')
+        .then(response => response.text())
+        .then(html => {
+            const body = document.body;
+            body.insertAdjacentHTML('beforeend', html); // Inserta el modal en el DOM
+            const feedContainer = document.querySelector('.feed-container') || document.createElement('div'); // Asegúrate de tener un contenedor para el feed
+            initializeAddProduct(db, storage, auth.currentUser ? auth.currentUser.storeId : 'unknown', feedContainer); // Inicializa la lógica del modal
+        })
+        .catch(error => console.error('Error al cargar add-product.html:', error));
 
     assignHomeButtonEvent();
     assignCartButtonEvent();
