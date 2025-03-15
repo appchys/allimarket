@@ -1,6 +1,7 @@
 import { getDoc, setDoc, doc, collection, query, orderBy, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 import { loadOwnerFeatures } from './store-owner.js';
 import { normalizePhoneNumber } from './store-utils.js';
+import { loadStoreFeed } from './store-feed.js';
 
 // Carrito global almacenado en localStorage
 let cart = JSON.parse(localStorage.getItem('cart')) || {};
@@ -193,6 +194,9 @@ console.log('Datos de la tienda:', storeDoc.data());
             elements.closeCartModal.addEventListener('click', () => {
                 elements.cartModal.style.display = 'none';
             });
+
+            // Cargar el feed dinámicamente
+            await loadStoreFeed(db, slug);
 
         } catch (error) {
             console.error('Error en loadStoreProfile:', error.message);

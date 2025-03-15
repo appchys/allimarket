@@ -4,6 +4,20 @@ import { setDoc, doc, addDoc, collection, getDocs, updateDoc, deleteDoc } from '
 import { initializeAddProduct } from './add-product.js';
 
 export async function loadOwnerFeatures(db, storage, auth, slug, store, elements) {
+    // Verificar si el feed está cargado
+    if (!elements.feedContainer) {
+        console.log('Cargando feed dinámicamente...');
+        await fetch('store-feed.html')
+            .then(response => response.text())
+            .then(html => {
+                const feedContainer = document.createElement('div');
+                feedContainer.innerHTML = html;
+                document.querySelector('main').appendChild(feedContainer);
+                elements.feedContainer = document.getElementById('feed-container');
+            })
+            .catch(error => console.error('Error al cargar store-feed.html:', error));
+    }
+
     const editBtn = document.createElement('button');
     editBtn.textContent = 'Editar Perfil';
     editBtn.id = 'edit-btn';

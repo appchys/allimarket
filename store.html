@@ -36,6 +36,8 @@
             <h2>Productos</h2>
             <div id="feed-container" class="grid"></div>
         </section>
+        <!-- El feed se cargará dinámicamente aquí -->
+        <div id="store-feed-container"></div>
     </main>
 
     <!-- Punto de inserción para la barra de navegación -->
@@ -124,6 +126,19 @@
                 document.getElementById('nav-container').innerHTML = html;
             })
             .catch(error => console.error('Error al cargar nav.html:', error));
+
+        // Cargar dinámicamente el feed
+        fetch('store-feed.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('store-feed-container').innerHTML = html;
+                import('./js/store-feed.js').then(module => {
+                    const db = {}; // Configura tu instancia de Firestore aquí
+                    const slug = new URLSearchParams(window.location.search).get('slug');
+                    module.loadStoreFeed(db, slug);
+                });
+            })
+            .catch(error => console.error('Error al cargar store-feed.html:', error));
     </script>
 </body>
 </html>
