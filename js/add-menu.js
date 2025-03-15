@@ -105,7 +105,7 @@ export function initializeAddMenu(auth, db, storage) {
         const previewImage = document.getElementById('preview-image');
         const previewTags = document.getElementById('preview-tags');
         const tagProductsBtn = document.getElementById('tag-products-btn');
-        const storyProductSelect = document.getElementById('story-product');
+        const storyProductSelect = document.getElementById('story-story-product');
         const publishStoryBtn = document.getElementById('publish-story-btn');
         const closeStoryModal = document.getElementById('close-story-modal');
     
@@ -199,10 +199,16 @@ export function initializeAddMenu(auth, db, storage) {
             previewTags.appendChild(tag);
         });
     
+        // Bloqueo para evitar múltiples clics
+        let isPublishing = false;
         publishStoryBtn.addEventListener('click', async () => {
+            if (isPublishing) return; // Evitar múltiples disparos
+            isPublishing = true;
+    
             console.log('Botón Publicar clicado, estado de storyImageFile:', storyImageFile);
             if (!storyImageFile || !(storyImageFile instanceof File)) {
                 alert('Por favor selecciona una imagen primero');
+                isPublishing = false;
                 return;
             }
     
@@ -210,6 +216,7 @@ export function initializeAddMenu(auth, db, storage) {
                 const storyPath = `stores/${slug}/stories/${Date.now()}_${storyImageFile.name}`;
                 const storageRef = ref(storage, storyPath);
                 console.log('Subiendo imagen a:', storyPath);
+                console.log('Antes de subir, storyImageFile:', storyImageFile);
                 await uploadBytes(storageRef, storyImageFile);
                 const imageUrl = await getDownloadURL(storageRef);
                 console.log('URL de la imagen subida:', imageUrl);
@@ -228,6 +235,8 @@ export function initializeAddMenu(auth, db, storage) {
             } catch (error) {
                 console.error('Error al publicar la historia:', error);
                 alert('Error al publicar la historia: ' + error.message);
+            } finally {
+                isPublishing = false; // Liberar el bloqueo
             }
         });
     
