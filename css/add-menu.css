@@ -95,8 +95,8 @@
 
 #story-source-options button, 
 #tag-products-btn, 
-#publish-story-btn, 
-#close-story-modal {
+#publish-story-btn
+ {
     display: flex;
     align-items: center;
     gap: 8px; /* Espacio entre ícono y texto */
@@ -113,8 +113,8 @@
 
 #story-source-options button:hover, 
 #tag-products-btn:hover, 
-#publish-story-btn:hover, 
-#close-story-modal:hover {
+#publish-story-btn:hover
+ {
     background-color: #0056b3;
 }
 
