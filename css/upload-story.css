@@ -22,7 +22,8 @@
 
 #story-source-options {
     display: flex;
-    justify-content: space-around;
+    flex-direction: column; /* Apila los botones verticalmente */
+    gap: 10px; /* Espacio entre los botones */
     margin-bottom: 20px;
 }
 
@@ -61,11 +62,15 @@
     position: absolute;
     top: 10px;
     right: 10px;
-    background-color: #dc3545;
+    background: none; /* Sin fondo */
+    border: none; /* Sin borde */
+    color: #333; /* Color del texto */
+    font-size: 20px; /* Tamaño de la "X" */
+    cursor: pointer; /* Cambia el cursor a puntero */
 }
 
 #close-story-modal:hover {
-    background-color: #b02a37;
+    color: #dc3545; /* Cambia a rojo al pasar el cursor */
 }
 
 .preview-wrapper {
