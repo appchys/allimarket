@@ -33,7 +33,15 @@ export function initializeAddMenu(auth, db, storage) {
             return;
         }
 
-        // Permitir que todos los usuarios puedan subir historias
+        const userData = userDoc.data();
+
+        // Ocultar el botón "Añadir" para clientes
+        if (userData.role === 'client') {
+            addMenu.style.display = 'none'; // Oculta el menú para clientes
+            return;
+        }
+
+        // Permitir que otros roles vean las opciones del menú
         addMenu.innerHTML = `
             <button id="add-story-option"><i class="bi bi-image"></i> Historia</button>
         `;
@@ -50,7 +58,7 @@ export function initializeAddMenu(auth, db, storage) {
                 if (uploadStoryModal) {
                     uploadStoryModal.style.display = 'flex';
                     // Asegurarse de que el DOM esté listo antes de inicializar
-                    setTimeout(() => initializeStoryModal(auth, db, storage, userDoc.data()), 0);
+                    setTimeout(() => initializeStoryModal(auth, db, storage, userData), 0);
                 } else {
                     console.error('Modal #upload-story-modal no encontrado en el DOM');
                 }
