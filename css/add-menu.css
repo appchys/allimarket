@@ -178,21 +178,21 @@
 .btn-option {
     display: flex;
     align-items: center;
-    gap: 5px;
-    padding: 10px 15px;
-    font-size: 16px;
+    gap: 5px; /* Espacio entre el ícono y el texto */
+    padding: 10px 15px; /* Espaciado interno */
+    font-size: 16px; /* Tamaño del texto */
     border: none;
-    border-radius: 5px;
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    border-radius: 5px; /* Bordes redondeados */
+    background-color: #007bff; /* Fondo azul */
+    color: white; /* Texto blanco */
+    cursor: pointer; /* Cambia el cursor a puntero */
+    transition: background-color 0.3s ease; /* Transición suave */
 }
 
 .btn-option:hover {
-    background-color: #0056b3;
+    background-color: #0056b3; /* Azul más oscuro al pasar el cursor */
 }
 
 .btn-option i {
-    font-size: 18px;
+    font-size: 18px; /* Tamaño del ícono */
 }
