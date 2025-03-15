@@ -27,7 +27,7 @@ export function initializeNavEvents(auth, db, storage, provider) {
             homeBtn.style.display = 'block';
             cartBtn.style.display = 'none';
             profileBtn.style.display = 'block';
-        } else if (userData && (userData.role === 'client' || userData.role === 'creator')) {
+        } else if (userData && userData.role === 'client') { // Cambio: Solo "client", no "creator"
             homeBtn.style.display = 'block';
             cartBtn.style.display = 'block';
             profileBtn.style.display = 'block';
@@ -104,7 +104,6 @@ export function initializeNavEvents(auth, db, storage, provider) {
                     cartModal: document.getElementById('cart-modal'),
                     cartItems: document.getElementById('cart-items'),
                     cartCount: document.getElementById('cart-count'),
-                    cartBubble: document.getElementById('cart-bubble'),
                     closeCartModal: document.getElementById('close-cart-modal')
                 };
                 if (!elements.cartModal || !elements.cartItems) return;
