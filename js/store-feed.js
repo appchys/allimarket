@@ -1,4 +1,4 @@
-import { collection, query, orderBy, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+import { collection, query, orderBy, getDocs, getDoc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 
 export async function loadStoreFeed(db, slug, auth) {
     const feedContainer = document.getElementById('feed-container');
@@ -122,7 +122,7 @@ function setupOwnerOptions(db, slug, feedContainer) {
     });
 }
 
-// Función para manejar el botón "Añadir al carrito" (tomada de store-profile.js)
+// Función para manejar el botón "Añadir al carrito"
 function setupCartButtons(slug, db, feedContainer) {
     const addToCartButtons = feedContainer.querySelectorAll('.add-to-cart-btn');
     addToCartButtons.forEach((button) => {
@@ -139,13 +139,13 @@ function setupCartButtons(slug, db, feedContainer) {
                     price: product.price
                 });
                 localStorage.setItem('cart', JSON.stringify(cart));
-                updateCartBubble(); // Necesitarás mover esta función aquí o importarla
+                updateCartBubble();
             }
         });
     });
 }
 
-// Actualizar la burbuja del carrito (adaptada de store-profile.js)
+// Actualizar la burbuja del carrito
 function updateCartBubble() {
     const cartBubble = document.getElementById('cart-bubble');
     const cartCount = document.getElementById('cart-count');
