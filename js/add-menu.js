@@ -217,7 +217,6 @@ export function initializeAddMenu(auth, db, storage) {
                 const storageRef = ref(storage, storyPath);
                 console.log('Subiendo imagen a:', storyPath);
                 console.log('Antes de subir, storyImageFile:', storyImageFile);
-                await uploadBytes(storageRef, storyImageFile);
                 const imageUrl = await getDownloadURL(storageRef);
                 console.log('URL de la imagen subida:', imageUrl);
     
