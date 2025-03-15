@@ -1,3 +1,5 @@
+import { collection, query, orderBy, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+
 export async function loadStoreFeed(db, slug) {
     const feedContainer = document.getElementById('feed-container');
     if (!feedContainer) {
@@ -9,8 +11,12 @@ export async function loadStoreFeed(db, slug) {
     feedContainer.innerHTML = '<p>Cargando productos...</p>';
 
     try {
-        // Consulta los productos de la tienda desde Firestore
-        const productsSnapshot = await db.collection('stores').doc(slug).collection('products').orderBy('createdAt', 'desc').get();
+        // Consulta los productos de la tienda desde Firestore usando la API modular
+        const productsQuery = query(
+            collection(db, 'stores', slug, 'products'),
+            orderBy('createdAt', 'desc')
+        );
+        const productsSnapshot = await getDocs(productsQuery);
 
         // Verifica si hay productos
         if (productsSnapshot.empty) {
