@@ -89,7 +89,7 @@
 #story-source-options {
     display: flex;
     flex-direction: column; /* Apila los botones verticalmente */
-    gap: 10px; /* Espacio entre los botones */
+    gap: 5px; /* Espacio entre los botones */
     margin-bottom: 20px; /* Espacio debajo del contenedor */
 }
 
