@@ -146,7 +146,11 @@ export function initializeAddMenu(auth, db, storage) {
             input.type = 'file';
             input.accept = 'image/*';
             input.capture = 'camera';
-            input.onchange = (e) => handleImageSelect(e);
+            input.onchange = (e) => {
+                console.log('Evento onchange disparado para Cámara');
+                console.log('Archivos disponibles:', e.target.files);
+                handleImageSelect(e);
+            };
             input.click();
         });
     
@@ -159,7 +163,11 @@ export function initializeAddMenu(auth, db, storage) {
             const input = document.createElement('input');
             input.type = 'file';
             input.accept = 'image/*';
-            input.onchange = (e) => handleImageSelect(e);
+            input.onchange = (e) => {
+                console.log('Evento onchange disparado para Galería');
+                console.log('Archivos disponibles:', e.target.files);
+                handleImageSelect(e);
+            };
             input.click();
         });
     
@@ -191,7 +199,6 @@ export function initializeAddMenu(auth, db, storage) {
             previewTags.appendChild(tag);
         });
     
-        // Botón Publicar con depuración
         publishStoryBtn.addEventListener('click', async () => {
             console.log('Botón Publicar clicado, estado de storyImageFile:', storyImageFile);
             if (!storyImageFile || !(storyImageFile instanceof File)) {
@@ -238,8 +245,9 @@ export function initializeAddMenu(auth, db, storage) {
         });
     
         function handleImageSelect(e) {
-            storyImageFile = e.target.files[0];
-            if (storyImageFile) {
+            const file = e.target.files[0];
+            if (file) {
+                storyImageFile = file;
                 console.log('Imagen seleccionada:', storyImageFile.name, 'Tamaño:', storyImageFile.size);
                 const reader = new FileReader();
                 reader.onload = (event) => {
@@ -252,7 +260,7 @@ export function initializeAddMenu(auth, db, storage) {
                 };
                 reader.readAsDataURL(storyImageFile);
             } else {
-                console.log('No se seleccionó ninguna imagen');
+                console.log('No se seleccionó ninguna imagen en esta captura');
             }
         }
     
