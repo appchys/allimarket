@@ -33,37 +33,13 @@ export function initializeAddMenu(auth, db, storage) {
             return;
         }
 
-        const userData = userDoc.data();
-        if (userData.role === 'store') {
-            addMenu.innerHTML = `
-                <button id="add-product-option"><i class="bi bi-box"></i> Producto</button>
-                <button id="add-story-option"><i class="bi bi-image"></i> Historia</button>
-            `;
-        } else if (userData.role === 'client' || userData.role === 'creator') {
-            addMenu.innerHTML = `
-                <button id="add-story-option"><i class="bi bi-image"></i> Historia</button>
-            `;
-        } else {
-            addMenu.innerHTML = '<button disabled><i class="bi bi-x-circle"></i> Rol no permitido</button>';
-        }
+        // Permitir que todos los usuarios puedan subir historias
+        addMenu.innerHTML = `
+            <button id="add-story-option"><i class="bi bi-image"></i> Historia</button>
+        `;
 
         // Configurar eventos para las opciones
-        const addProductOption = document.getElementById('add-product-option');
         const addStoryOption = document.getElementById('add-story-option');
-
-        if (addProductOption) {
-            addProductOption.addEventListener('click', (e) => {
-                e.stopPropagation();
-                console.log('Opción Añadir Producto clicada');
-                addMenu.style.display = 'none';
-                const addProductModal = document.getElementById('add-product-modal');
-                if (addProductModal) {
-                    addProductModal.style.display = 'flex';
-                } else {
-                    redirectToStoreOrAlert(userData);
-                }
-            });
-        }
 
         if (addStoryOption) {
             addStoryOption.addEventListener('click', (e) => {
@@ -74,7 +50,7 @@ export function initializeAddMenu(auth, db, storage) {
                 if (uploadStoryModal) {
                     uploadStoryModal.style.display = 'flex';
                     // Asegurarse de que el DOM esté listo antes de inicializar
-                    setTimeout(() => initializeStoryModal(auth, db, storage, userData), 0);
+                    setTimeout(() => initializeStoryModal(auth, db, storage, userDoc.data()), 0);
                 } else {
                     console.error('Modal #upload-story-modal no encontrado en el DOM');
                 }
