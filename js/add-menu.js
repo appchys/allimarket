@@ -1,6 +1,8 @@
 import { getDoc, doc, collection, getDocs, addDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 import { ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js';
 
+console.log("add-menu.js cargado correctamente");
+
 export function initializeAddMenu(auth, db, storage) {
     const newBtn = document.getElementById('new-btn');
     const addMenu = document.getElementById('add-menu');
@@ -308,4 +310,9 @@ export function initializeAddMenu(auth, db, storage) {
 
         updateButtonState();
     }
+}
+
+function addStoryOption(option) {
+    // Lógica para manejar la opción de historia
+    console.log("Opción seleccionada:", option);
 }
