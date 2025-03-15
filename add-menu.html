@@ -2,12 +2,17 @@
 <div id="add-menu" class="add-menu" style="display: none;"></div>
 
 <!-- Modal para subir historias -->
-<div id="upload-story-modal" class="upload-story-modal" style="display: none;">
+<div id="upload-story-modal" class="upload-story-modal add-menu" style="display: none;">
     <div class="upload-story-content">
         <h2>Subir Historia</h2>
         <div id="story-source-options">
-            <button id="story-camera"><i class="bi bi-camera"></i> Cámara</button>
-            <button id="story-gallery"><i class="bi bi-image"></i> Galería</button>
+            <!-- Botones con estilo del popover -->
+            <button id="story-camera" class="btn-option">
+                <i class="bi bi-camera"></i> Cámara
+            </button>
+            <button id="story-gallery" class="btn-option">
+                <i class="bi bi-image"></i> Galería
+            </button>
         </div>
         <div id="story-preview-container" style="display: none;">
             <div class="preview-wrapper">
@@ -17,10 +22,16 @@
             <select id="story-product" style="display: none;">
                 <option value="">Selecciona un producto</option>
             </select>
-            <button id="tag-products-btn"><i class="bi bi-tag"></i> Etiquetar productos</button>
-            <button id="publish-story-btn"><i class="bi bi-upload"></i> Publicar</button>
+            <button id="tag-products-btn" class="btn-option">
+                <i class="bi bi-tag"></i> Etiquetar productos
+            </button>
+            <button id="publish-story-btn" class="btn-option">
+                <i class="bi bi-upload"></i> Publicar
+            </button>
         </div>
-        <button id="close-story-modal"><i class="bi bi-x"></i> Cerrar</button>
+        <button id="close-story-modal" class="btn-option">
+            <i class="bi bi-x"></i> Cerrar
+        </button>
     </div>
 </div>
 
