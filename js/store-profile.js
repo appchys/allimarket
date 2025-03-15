@@ -7,7 +7,10 @@ import { loadStoreFeed } from './store-feed.js';
 let cart = JSON.parse(localStorage.getItem('cart')) || {};
 
 export async function loadStoreProfile(db, storage, auth) {
-    if (window.isProfileLoading) return; // Evitar múltiples ejecuciones simultáneas
+    if (window.isProfileLoading) {
+        console.log('loadStoreProfile ya está en ejecución, omitiendo llamada adicional');
+        return;
+    }
     window.isProfileLoading = true;
 
     console.log('Iniciando loadStoreProfile - Fecha:', new Date().toISOString());
@@ -28,183 +31,201 @@ export async function loadStoreProfile(db, storage, auth) {
         closeCartModal: document.getElementById('close-cart-modal'),
     };
 
+    // Depuración inicial del DOM
     console.log('Verificando elementos del DOM:');
     Object.entries(elements).forEach(([key, el]) => {
         console.log(`${key}: ${el ? 'encontrado' : 'no encontrado'}`);
     });
 
+    // Verifica si los elementos esenciales están presentes
     if (!elements.storeName || !elements.storeImage || !elements.storeActions || !elements.storiesContainer || !elements.feedContainer) {
-        console.error('Faltan elementos esenciales del DOM');
+        console.error('Faltan elementos esenciales del DOM para cargar el perfil de la tienda');
         window.isProfileLoading = false;
         return;
     }
 
-    // Escuchar cambios en el estado de autenticación solo una vez
-    auth.onAuthStateChanged(async (user) => {
-        console.log('Estado de autenticación cambiado - Usuario:', user ? user.uid : 'No autenticado');
+    // Esperar a que el estado de autenticación esté listo
+    const user = await new Promise((resolve) => {
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            unsubscribe();
+            resolve(user);
+        });
+    });
+    console.log('Usuario actual (después de esperar):', user ? user.uid : 'No autenticado');
 
-        let slug = window.location.pathname.split('/').filter(Boolean)[0];
-        console.log('Slug detectado en URL:', slug);
+    let slug = window.location.pathname.split('/').filter(Boolean)[0];
+    console.log('Slug detectado en URL:', slug);
 
-        if (!slug && user) {
-            console.log('No hay slug, intentando obtenerlo del usuario:', user.uid);
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            if (userDoc.exists() && userDoc.data().storeId) {
-                slug = userDoc.data().storeId;
-                console.log('Slug obtenido del usuario:', slug);
-                if (window.location.search !== `?slug=${slug}`) {
-                    window.history.pushState({}, '', `/${slug}`);
-                }
+    if (!slug && user) {
+        console.log('No hay slug en la URL, intentando obtenerlo del usuario:', user.uid);
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists() && userDoc.data().storeId) {
+            slug = userDoc.data().storeId;
+            console.log('Slug obtenido del usuario:', slug);
+            if (window.location.search !== `?slug=${slug}`) {
+                window.history.pushState({}, '', `/${slug}`);
             }
         }
+    }
 
-        if (!slug) {
-            console.error('No se proporcionó slug y no se pudo obtener del usuario');
-            elements.storeName.textContent = user ? 'Configura tu tienda primero' : 'Error: Tienda no especificada';
-            window.isProfileLoading = false;
+    if (!slug) {
+        console.error('No se proporcionó slug y no se pudo obtener del usuario');
+        elements.storeName.textContent = user ? 'Configura tu tienda primero' : 'Error: Tienda no especificada';
+        window.isProfileLoading = false;
+        return;
+    }
+
+    try {
+        console.log('Buscando tienda con slug:', slug);
+        const storeDoc = await getDoc(doc(db, 'stores', slug));
+        if (!storeDoc.exists()) {
+            console.error('Tienda no encontrada:', slug);
+            elements.storeName.textContent = 'Tienda no encontrada';
             return;
         }
+        console.log('Datos de la tienda:', storeDoc.data());
 
-        try {
-            console.log('Buscando tienda con slug:', slug);
-const storeDoc = await getDoc(doc(db, 'stores', slug));
-if (!storeDoc.exists()) {
-    console.error('Tienda no encontrada:', slug);
-    elements.storeName.textContent = 'Tienda no encontrada';
-    return;
-}
-console.log('Datos de la tienda:', storeDoc.data());
+        const store = storeDoc.data();
+        console.log('Datos de la tienda cargados:', store);
 
-            const store = storeDoc.data();
-            console.log('Datos de la tienda cargados:', store);
-            elements.storeImage.src = store.imageUrl || 'https://placehold.co/100x100';
-            elements.storeName.textContent = store.name || 'Sin nombre';
-            elements.storeFollowers.textContent = `${store.followers || 0} seguidores`;
-            elements.storeDescription.textContent = store.description || 'Sin descripción';
+        elements.storeImage.src = store.imageUrl || 'https://placehold.co/100x100';
+        elements.storeName.textContent = store.name || 'Sin nombre';
+        elements.storeFollowers.textContent = `${store.followers || 0} seguidores`;
+        elements.storeDescription.textContent = store.description || 'Sin descripción';
 
-            const isOwner = user && store.owner === user.uid;
-            console.log('Es propietario:', isOwner);
-            elements.storeActions.innerHTML = '';
+        const isOwner = user && store.owner === user.uid;
+        console.log('Es propietario:', isOwner);
+        elements.storeActions.innerHTML = '';
 
-            if (isOwner) {
-                await loadOwnerFeatures(db, storage, auth, slug, store, elements);
+        if (isOwner) {
+            await loadOwnerFeatures(db, storage, auth, slug, store, elements);
+        } else {
+            const followBtn = document.createElement('button');
+            followBtn.textContent = 'Seguir';
+            followBtn.id = 'follow-btn';
+            elements.storeActions.appendChild(followBtn);
+
+            const whatsappBtn = document.createElement('button');
+            whatsappBtn.textContent = 'WhatsApp';
+            whatsappBtn.id = 'whatsapp-btn';
+            elements.storeActions.appendChild(whatsappBtn);
+
+            if (store.phone) {
+                whatsappBtn.onclick = () => window.open(`https://wa.me/${normalizePhoneNumber(store.phone)}`, '_blank');
             } else {
-                const followBtn = document.createElement('button');
-                followBtn.textContent = 'Seguir';
-                followBtn.id = 'follow-btn';
-                elements.storeActions.appendChild(followBtn);
-
-                const whatsappBtn = document.createElement('button');
-                whatsappBtn.textContent = 'WhatsApp';
-                whatsappBtn.id = 'whatsapp-btn';
-                elements.storeActions.appendChild(whatsappBtn);
-
-                if (store.phone) {
-                    whatsappBtn.onclick = () => window.open(`https://wa.me/${normalizePhoneNumber(store.phone)}`, '_blank');
-                } else {
-                    whatsappBtn.style.display = 'none';
-                }
-
-                followBtn.addEventListener('click', async () => {
-                    const updatedFollowers = (store.followers || 0) + 1;
-                    await setDoc(doc(db, 'stores', slug), { followers: updatedFollowers }, { merge: true });
-                    elements.storeFollowers.textContent = `${updatedFollowers} seguidores`;
-                    followBtn.textContent = 'Siguiendo';
-                    followBtn.disabled = true;
-                });
+                whatsappBtn.style.display = 'none';
             }
 
-            const storiesQuery = query(collection(db, 'stores', slug, 'stories'), orderBy('createdAt', 'desc'));
-            const storiesSnapshot = await getDocs(storiesQuery);
-            elements.storiesContainer.innerHTML = '';
-            console.log(`Historias encontradas: ${storiesSnapshot.size}`);
-            storiesSnapshot.forEach((storyDoc) => {
-                const story = storyDoc.data();
-                const storyElement = document.createElement('div');
-                storyElement.classList.add('story');
-                storyElement.innerHTML = `<img src="${story.imageUrl}" alt="Story" loading="lazy"><span>${store.name}</span>`;
-                storyElement.addEventListener('click', async () => {
-                    document.getElementById('story-image').src = story.imageUrl;
-                    document.getElementById('product-tags').innerHTML = '';
-                    if (story.taggedProducts?.length > 0) {
-                        for (const tag of story.taggedProducts) {
-                            const productDoc = await getDoc(doc(db, 'stores', slug, 'products', tag.productId));
-                            if (productDoc.exists()) {
-                                const product = productDoc.data();
-                                const tagElement = document.createElement('div');
-                                tagElement.classList.add('product-tag');
-                                tagElement.style.left = `${tag.x}%`;
-                                tagElement.style.top = `${tag.y}%`;
-                                tagElement.innerHTML = `
-                                    <img src="${product.imageUrl}" alt="${product.name}">
-                                    <h3>${product.name}</h3>
-                                    <p>$${product.price}</p>
-                                    <button class="add-to-cart-btn" data-store-id="${slug}" data-product-id="${tag.productId}">Añadir al carrito</button>
-                                `;
-                                document.getElementById('product-tags').appendChild(tagElement);
-                            }
-                        }
-                        setupCartButtons(slug, db, elements);
-                    }
-                    elements.storyViewContainer.style.display = 'block';
-                });
-                elements.storiesContainer.appendChild(storyElement);
+            followBtn.addEventListener('click', async () => {
+                const updatedFollowers = (store.followers || 0) + 1;
+                await setDoc(doc(db, 'stores', slug), { followers: updatedFollowers }, { merge: true });
+                elements.storeFollowers.textContent = `${updatedFollowers} seguidores`;
+                followBtn.textContent = 'Siguiendo';
+                followBtn.disabled = true;
             });
+        }
 
-            document.getElementById('close-story-view').addEventListener('click', () => {
-                elements.storyViewContainer.style.display = 'none';
+        const storiesQuery = query(collection(db, 'stores', slug, 'stories'), orderBy('createdAt', 'desc'));
+        const storiesSnapshot = await getDocs(storiesQuery);
+        elements.storiesContainer.innerHTML = '';
+        console.log(`Historias encontradas: ${storiesSnapshot.size}`);
+        storiesSnapshot.forEach((storyDoc) => {
+            const story = storyDoc.data();
+            const storyElement = document.createElement('div');
+            storyElement.classList.add('story');
+            storyElement.innerHTML = `<img src="${story.imageUrl}" alt="Story" loading="lazy"><span>${store.name}</span>`;
+            storyElement.addEventListener('click', async () => {
+                document.getElementById('story-image').src = story.imageUrl;
                 document.getElementById('product-tags').innerHTML = '';
-            });
-
-            const productsQuery = query(collection(db, 'stores', slug, 'products'), orderBy('createdAt', 'desc'));
-            const productsSnapshot = await getDocs(productsQuery);
-            elements.feedContainer.innerHTML = '';
-            if (productsSnapshot.empty) {
-                elements.feedContainer.innerHTML = '<p>No hay productos disponibles</p>';
-            } else {
-                productsSnapshot.forEach((productDoc) => {
-                    const product = productDoc.data();
-                    const productElement = document.createElement('div');
-                    productElement.classList.add('product', 'store-product');
-                    productElement.dataset.productId = productDoc.id;
-                    productElement.innerHTML = `
-                        <div class="product-image-container">
-                            <img src="${product.imageUrl || 'https://placehold.co/100x100'}" alt="${product.name}" loading="lazy">
-                        </div>
-                        <div class="product-actions">
-                            ${!isOwner ? '<button class="add-to-cart-btn" data-product-id="' + productDoc.id + '"><i class="bi bi-cart-plus"></i> Añadir al carrito</button>' : ''}
-                        </div>
-                        <div class="product-details">
-                            <h3>${product.name || 'Sin nombre'}</h3>
-                            <p class="description">${product.description || 'Sin descripción'}</p>
-                            <p class="price">$${product.price || '0'}</p>
-                        </div>
-                    `;
-                    elements.feedContainer.appendChild(productElement);
-                });
-                if (!isOwner) {
+                if (story.taggedProducts?.length > 0) {
+                    for (const tag of story.taggedProducts) {
+                        const productDoc = await getDoc(doc(db, 'stores', slug, 'products', tag.productId));
+                        if (productDoc.exists()) {
+                            const product = productDoc.data();
+                            const tagElement = document.createElement('div');
+                            tagElement.classList.add('product-tag');
+                            tagElement.style.left = `${tag.x}%`;
+                            tagElement.style.top = `${tag.y}%`;
+                            tagElement.innerHTML = `
+                                <img src="${product.imageUrl}" alt="${product.name}">
+                                <h3>${product.name}</h3>
+                                <p>$${product.price}</p>
+                                <button class="add-to-cart-btn" data-store-id="${slug}" data-product-id="${tag.productId}">Añadir al carrito</button>
+                            `;
+                            document.getElementById('product-tags').appendChild(tagElement);
+                        }
+                    }
                     setupCartButtons(slug, db, elements);
                 }
+                elements.storyViewContainer.style.display = 'block';
+            });
+            elements.storiesContainer.appendChild(storyElement);
+        });
+
+        document.getElementById('close-story-view').addEventListener('click', () => {
+            elements.storyViewContainer.style.display = 'none';
+            document.getElementById('product-tags').innerHTML = '';
+        });
+
+        const productsQuery = query(collection(db, 'stores', slug, 'products'), orderBy('createdAt', 'desc'));
+        const productsSnapshot = await getDocs(productsQuery);
+        elements.feedContainer.innerHTML = '';
+        if (productsSnapshot.empty) {
+            elements.feedContainer.innerHTML = '<p>No hay productos disponibles</p>';
+        } else {
+            productsSnapshot.forEach((productDoc) => {
+                const product = productDoc.data();
+                const productElement = document.createElement('div');
+                productElement.classList.add('product', 'store-product');
+                productElement.dataset.productId = productDoc.id;
+                productElement.innerHTML = `
+                    <div class="product-image-container">
+                        <img src="${product.imageUrl || 'https://placehold.co/100x100'}" alt="${product.name}" loading="lazy">
+                    </div>
+                    <div class="product-actions">
+                        ${!isOwner ? '<button class="add-to-cart-btn" data-product-id="' + productDoc.id + '"><i class="bi bi-cart-plus"></i> Añadir al carrito</button>' : ''}
+                    </div>
+                    <div class="product-details">
+                        <h3>${product.name || 'Sin nombre'}</h3>
+                        <p class="description">${product.description || 'Sin descripción'}</p>
+                        <p class="price">$${product.price || '0'}</p>
+                    </div>
+                `;
+                elements.feedContainer.appendChild(productElement);
+            });
+            if (!isOwner) {
+                setupCartButtons(slug, db, elements);
             }
-
-            updateCartBubble(elements);
-            elements.cartBubble.addEventListener('click', () => {
-                showCartModal(db, elements, slug, store.name);
-            });
-            elements.closeCartModal.addEventListener('click', () => {
-                elements.cartModal.style.display = 'none';
-            });
-
-            // Cargar el feed dinámicamente
-            await loadStoreFeed(db, slug);
-
-        } catch (error) {
-            console.error('Error en loadStoreProfile:', error.message);
-            elements.storeName.textContent = 'Error al cargar la tienda: ' + error.message;
-        } finally {
-            window.isProfileLoading = false;
         }
-    });
+
+        updateCartBubble(elements);
+        elements.cartBubble && elements.cartBubble.addEventListener('click', () => {
+            showCartModal(db, elements, slug, store.name);
+        });
+        elements.closeCartModal && elements.closeCartModal.addEventListener('click', () => {
+            elements.cartModal.style.display = 'none';
+        });
+
+        await loadStoreFeed(db, slug);
+
+    } catch (error) {
+        console.error('Error en loadStoreProfile:', error.message);
+        const storeNameElement = document.getElementById('store-name');
+        if (storeNameElement) {
+            storeNameElement.textContent = 'Error al cargar la tienda: ' + error.message;
+        } else {
+            console.error('No se pudo actualizar el nombre de la tienda: el elemento #store-name no se encontró en el DOM');
+            const main = document.querySelector('main');
+            if (main && !document.getElementById('store-name')) {
+                const newStoreName = document.createElement('h2');
+                newStoreName.id = 'store-name';
+                newStoreName.textContent = 'Error al cargar la tienda: ' + error.message;
+                main.insertBefore(newStoreName, main.firstChild);
+            }
+        }
+    } finally {
+        window.isProfileLoading = false;
+    }
 }
 
 // Configurar eventos para los botones "Añadir al carrito"
@@ -241,8 +262,12 @@ export function setupCartButtons(slug, db, elements) {
 // Actualizar la burbuja del carrito
 export function updateCartBubble(elements) {
     const totalItems = Object.values(cart).reduce((sum, items) => sum + items.length, 0);
-    elements.cartCount.textContent = totalItems;
-    elements.cartBubble.style.display = totalItems > 0 ? 'block' : 'none';
+    if (elements.cartCount) {
+        elements.cartCount.textContent = totalItems;
+    }
+    if (elements.cartBubble) {
+        elements.cartBubble.style.display = totalItems > 0 ? 'block' : 'none';
+    }
 }
 
 // Mostrar el contenido del carrito en el modal
@@ -298,3 +323,28 @@ export function showCartModal(db, elements, currentSlug, currentStoreName) {
     }
     elements.cartModal.style.display = 'flex';
 }
+
+// Ejecutar loadStoreProfile cuando el DOM esté listo y Firebase esté inicializado
+window.addEventListener('load', () => {
+    console.log('store-profile.js cargado, esperando Firebase...');
+    if (!window.db || !window.storage || !window.auth) {
+        console.error('Firebase no está inicializado, esperando autenticación...');
+        window.auth.onAuthStateChanged((user) => {
+            if (window.db && window.storage && window.auth) {
+                console.log('Firebase inicializado, ejecutando loadStoreProfile');
+                loadStoreProfile(window.db, window.storage, window.auth);
+            } else {
+                console.error('Firebase aún no está completamente inicializado');
+                const storeName = document.getElementById('store-name');
+                if (storeName) {
+                    storeName.textContent = 'Error: Firebase no inicializado';
+                } else {
+                    console.error('Elemento #store-name no encontrado para mostrar el error');
+                }
+            }
+        });
+    } else {
+        console.log('Firebase inicializado, ejecutando loadStoreProfile');
+        loadStoreProfile(window.db, window.storage, window.auth);
+    }
+});
