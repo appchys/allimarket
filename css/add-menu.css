@@ -88,8 +88,9 @@
 
 #story-source-options {
     display: flex;
-    justify-content: space-around;
-    margin-bottom: 20px;
+    flex-direction: column; /* Apila los botones verticalmente */
+    gap: 10px; /* Espacio entre los botones */
+    margin-bottom: 20px; /* Espacio debajo del contenedor */
 }
 
 #story-source-options button, 
@@ -121,12 +122,17 @@
     position: absolute;
     top: 10px;
     right: 10px;
-    background-color: #dc3545;
+    background: none; /* Sin fondo */
+    border: none; /* Sin borde */
+    color: #333; /* Color del texto, por ejemplo, gris oscuro */
+    font-size: 20px; /* Tamaño de la "X" */
+    cursor: pointer; /* Cursor tipo puntero para indicar que es clicable */
 }
 
 #close-story-modal:hover {
-    background-color: #b02a37;
+    color: #dc3545; /* Cambia a rojo al pasar el cursor, para interactividad */
 }
+
 
 .preview-wrapper {
     position: relative;
@@ -179,15 +185,14 @@
     display: flex;
     align-items: center;
     gap: 8px; /* Espacio entre ícono y texto */
-    width: 100%; /* Ocupa todo el ancho del contenedor */
-    padding: 8px 12px; /* Espaciado interno igual al de add-menu */
+    width: 100%; /* Ocupa todo el ancho disponible */
+    padding: 8px 12px; /* Espaciado interno */
     background: none; /* Sin fondo */
     border: none; /* Sin bordes */
-    color: #333; /* Texto negro */
-    font-size: 14px; /* Tamaño de fuente igual al de add-menu */
+    color: #333; /* Color del texto */
+    font-size: 14px; /* Tamaño de fuente */
     text-align: left; /* Alineación del texto */
-    cursor: pointer; /* Cursor de mano al pasar por encima */
-    transition: background-color 0.2s ease; /* Transición suave para el hover */
+    cursor: pointer; /* Cursor tipo puntero */
 }
 
 .btn-option:hover {
