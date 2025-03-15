@@ -178,21 +178,23 @@
 .btn-option {
     display: flex;
     align-items: center;
-    gap: 5px; /* Espacio entre el ícono y el texto */
-    padding: 10px 15px; /* Espaciado interno */
-    font-size: 16px; /* Tamaño del texto */
-    border: none;
-    border-radius: 5px; /* Bordes redondeados */
-    background-color: #007bff; /* Fondo azul */
-    color: white; /* Texto blanco */
-    cursor: pointer; /* Cambia el cursor a puntero */
-    transition: background-color 0.3s ease; /* Transición suave */
+    gap: 8px; /* Espacio entre ícono y texto */
+    width: 100%; /* Ocupa todo el ancho del contenedor */
+    padding: 8px 12px; /* Espaciado interno igual al de add-menu */
+    background: none; /* Sin fondo */
+    border: none; /* Sin bordes */
+    color: #333; /* Texto negro */
+    font-size: 14px; /* Tamaño de fuente igual al de add-menu */
+    text-align: left; /* Alineación del texto */
+    cursor: pointer; /* Cursor de mano al pasar por encima */
+    transition: background-color 0.2s ease; /* Transición suave para el hover */
 }
 
 .btn-option:hover {
-    background-color: #0056b3; /* Azul más oscuro al pasar el cursor */
+    background-color: #f5f5f5; /* Fondo gris claro al pasar el ratón */
 }
 
 .btn-option i {
-    font-size: 18px; /* Tamaño del ícono */
+    font-size: 16px; /* Tamaño del ícono */
+    color: #007bff; /* Ícono azul */
 }
