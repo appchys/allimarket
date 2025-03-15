@@ -88,6 +88,7 @@ export async function loadStoreProfile(db, storage, auth) {
         }
 
         const store = storeDoc.data();
+        console.log('Datos de la tienda cargados:', store);
         elements.storeImage.src = store.imageUrl || 'https://placehold.co/100x100';
         elements.storeName.textContent = store.name || 'Sin nombre';
         elements.storeFollowers.textContent = `${store.followers || 0} seguidores`;
@@ -95,9 +96,17 @@ export async function loadStoreProfile(db, storage, auth) {
 
         const isOwner = auth.currentUser && store.owner === auth.currentUser.uid;
         elements.storeActions.innerHTML = '';
+        console.log('Es propietario:', isOwner);
 
+        // Cargar características adicionales en bloques try-catch separados
         if (isOwner) {
-            await loadOwnerFeatures(db, storage, auth, slug, store, elements);
+            try {
+                console.log('Cargando características del propietario...');
+                await loadOwnerFeatures(db, storage, auth, slug, store, elements);
+            } catch (ownerError) {
+                console.error('Error al cargar características del propietario:', ownerError.message);
+                elements.storeActions.innerHTML = '<p>Error al cargar opciones de edición</p>';
+            }
         } else {
             const followBtn = document.createElement('button');
             followBtn.textContent = 'Seguir';
@@ -116,29 +125,190 @@ export async function loadStoreProfile(db, storage, auth) {
             }
 
             followBtn.addEventListener('click', async () => {
-                const updatedFollowers = (store.followers || 0) + 1;
-                await setDoc(doc(db, 'stores', slug), { followers: updatedFollowers }, { merge: true });
-                elements.storeFollowers.textContent = `${updatedFollowers} seguidores`;
-                followBtn.textContent = 'Siguiendo';
-                followBtn.disabled = true;
+                try {
+                    const updatedFollowers = (store.followers || 0) + 1;
+                    await setDoc(doc(db, 'stores', slug), { followers: updatedFollowers }, { merge: true });
+                    elements.storeFollowers.textContent = `${updatedFollowers} seguidores`;
+                    followBtn.textContent = 'Siguiendo';
+                    followBtn.disabled = true;
+                } catch (followError) {
+                    console.error('Error al seguir la tienda:', followError.message);
+                    alert('Error al seguir la tienda: ' + followError.message);
+                }
             });
         }
 
-        await loadStoreFeed(db, slug); // Cargar el feed
-        // Resto de la lógica (historias, carrito, etc.) se mantiene igual...
+        // Cargar el feed en un bloque separado
+        try {
+            console.log('Cargando feed de productos...');
+            await loadStoreFeed(db, slug);
+        } catch (feedError) {
+            console.error('Error al cargar el feed:', feedError.message);
+            elements.feedContainer.innerHTML = '<p>Error al cargar los productos</p>';
+        }
+
+        // Cargar historias
+        try {
+            const storiesQuery = query(collection(db, 'stores', slug, 'stories'), orderBy('createdAt', 'desc'));
+            const storiesSnapshot = await getDocs(storiesQuery);
+            elements.storiesContainer.innerHTML = '';
+            console.log(`Historias encontradas: ${storiesSnapshot.size}`);
+            storiesSnapshot.forEach((storyDoc) => {
+                const story = storyDoc.data();
+                const storyElement = document.createElement('div');
+                storyElement.classList.add('story');
+                storyElement.innerHTML = `<img src="${story.imageUrl}" alt="Story" loading="lazy"><span>${store.name}</span>`;
+                storyElement.addEventListener('click', async () => {
+                    try {
+                        document.getElementById('story-image').src = story.imageUrl;
+                        document.getElementById('product-tags').innerHTML = '';
+                        if (story.taggedProducts?.length > 0) {
+                            for (const tag of story.taggedProducts) {
+                                const productDoc = await getDoc(doc(db, 'stores', slug, 'products', tag.productId));
+                                if (productDoc.exists()) {
+                                    const product = productDoc.data();
+                                    const tagElement = document.createElement('div');
+                                    tagElement.classList.add('product-tag');
+                                    tagElement.style.left = `${tag.x}%`;
+                                    tagElement.style.top = `${tag.y}%`;
+                                    tagElement.innerHTML = `
+                                        <img src="${product.imageUrl}" alt="${product.name}">
+                                        <h3>${product.name}</h3>
+                                        <p>$${product.price}</p>
+                                        <button class="add-to-cart-btn" data-store-id="${slug}" data-product-id="${tag.productId}">Añadir al carrito</button>
+                                    `;
+                                    document.getElementById('product-tags').appendChild(tagElement);
+                                }
+                            }
+                            setupCartButtons(slug, db, elements);
+                        }
+                        elements.storyViewContainer.style.display = 'block';
+                    } catch (storyError) {
+                        console.error('Error al mostrar historia:', storyError.message);
+                    }
+                });
+                elements.storiesContainer.appendChild(storyElement);
+            });
+
+            document.getElementById('close-story-view').addEventListener('click', () => {
+                elements.storyViewContainer.style.display = 'none';
+                document.getElementById('product-tags').innerHTML = '';
+            });
+        } catch (storiesError) {
+            console.error('Error al cargar historias:', storiesError.message);
+            elements.storiesContainer.innerHTML = '<p>Error al cargar historias</p>';
+        }
+
+        // Configurar carrito
+        updateCartBubble(elements);
+        elements.cartBubble.addEventListener('click', () => {
+            showCartModal(db, elements, slug, store.name);
+        });
+        elements.closeCartModal.addEventListener('click', () => {
+            elements.cartModal.style.display = 'none';
+        });
 
     } catch (error) {
-        console.error('Error en loadStoreProfile:', error.message);
+        console.error('Error crítico en loadStoreProfile:', error.message);
         elements.storeName.textContent = 'Error al cargar la tienda: ' + error.message;
     } finally {
         window.isProfileLoading = false;
     }
 }
 
-// ... resto de las funciones (setupCartButtons, updateCartBubble, showCartModal) sin cambios ...
+export function setupCartButtons(slug, db, elements) {
+    const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+    console.log(`Ejecutando setupCartButtons - Botones encontrados: ${addToCartButtons.length}`);
+    addToCartButtons.forEach(button => {
+        if (button.dataset.listenerAdded) return;
+        button.dataset.listenerAdded = 'true';
+
+        button.addEventListener('click', async () => {
+            const productId = button.dataset.productId;
+            const storeId = button.dataset.storeId || slug;
+            try {
+                const productDoc = await getDoc(doc(db, 'stores', storeId, 'products', productId));
+                if (productDoc.exists()) {
+                    const product = productDoc.data();
+                    if (!cart[storeId]) cart[storeId] = [];
+                    cart[storeId].push({
+                        productId,
+                        name: product.name,
+                        price: product.price
+                    });
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    updateCartBubble(elements);
+                    console.log('Producto añadido al carrito:', { storeId, productId, name: product.name });
+                }
+            } catch (cartError) {
+                console.error('Error al añadir al carrito:', cartError.message);
+            }
+        });
+    });
+}
+
+export function updateCartBubble(elements) {
+    const totalItems = Object.values(cart).reduce((sum, items) => sum + items.length, 0);
+    elements.cartCount.textContent = totalItems;
+    elements.cartBubble.style.display = totalItems > 0 ? 'block' : 'none';
+}
+
+export function showCartModal(db, elements, currentSlug, currentStoreName) {
+    elements.cartItems.innerHTML = '';
+    if (Object.keys(cart).length === 0) {
+        elements.cartItems.innerHTML = '<p>El carrito está vacío</p>';
+    } else {
+        Object.entries(cart).forEach(([slug, items]) => {
+            const storeSection = document.createElement('div');
+            storeSection.classList.add('cart-store-section');
+            const storeDocRef = doc(db, 'stores', slug);
+
+            getDoc(storeDocRef).then(storeDoc => {
+                const storeName = storeDoc.exists() ? storeDoc.data().name : slug;
+                storeSection.innerHTML = `<h3>${storeName}</h3>`;
+
+                const itemsList = document.createElement('ul');
+                items.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `${item.name} - $${item.price} <button class="remove-item" data-store-id="${slug}" data-index="${index}">Eliminar</button>`;
+                    itemsList.appendChild(li);
+                });
+                storeSection.appendChild(itemsList);
+
+                const checkoutBtn = document.createElement('button');
+                checkoutBtn.textContent = 'Confirmar';
+                checkoutBtn.className = 'checkout-btn';
+                checkoutBtn.addEventListener('click', () => {
+                    alert(`Checkout para ${storeName} - Total: $${items.reduce((sum, item) => sum + item.price, 0).toFixed(2)}`);
+                });
+                storeSection.appendChild(checkoutBtn);
+
+                const removeButtons = storeSection.querySelectorAll('.remove-item');
+                removeButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const storeId = button.dataset.storeId;
+                        const index = parseInt(button.dataset.index);
+                        cart[storeId].splice(index, 1);
+                        if (cart[storeId].length === 0) delete cart[storeId];
+                        localStorage.setItem('cart', JSON.stringify(cart));
+                        showCartModal(db, elements, currentSlug, currentStoreName);
+                        updateCartBubble(elements);
+                    });
+                });
+            }).catch(error => {
+                console.error('Error al obtener nombre de tienda para carrito:', error);
+                storeSection.innerHTML = `<h3>${slug} (Nombre no disponible)</h3>`;
+            });
+
+            elements.cartItems.appendChild(storeSection);
+        });
+    }
+    elements.cartModal.style.display = 'flex';
+}
 
 // Ejecutar solo si Firebase está listo
 if (window.db && window.storage && window.auth) {
+    console.log('Firebase inicializado, ejecutando loadStoreProfile');
     loadStoreProfile(window.db, window.storage, window.auth);
 } else {
     console.error('Esperando inicialización de Firebase...');
