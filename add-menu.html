@@ -1,32 +1,26 @@
 <!-- add-menu.html -->
 <div id="add-menu" class="add-menu" style="display: none;"></div>
 
-<!-- Modal para publicar historia -->
-<div id="post-story-modal" class="modal" style="display:none;">
-    <div class="modal-content" style="padding: 0; position: relative;">
-        <div id="story-source-options" style="display: flex; flex-direction: column; gap: 10px; padding: 20px;">
-            <!-- Botones con el mismo estilo que add-menu -->
-            <button id="story-camera" class="btn-option">
-                <i class="bi bi-camera"></i> Desde Cámara
-            </button>
-            <button id="story-gallery" class="btn-option">
-                <i class="bi bi-image"></i> Desde Galería
-            </button>
+<!-- Modal para subir historias -->
+<div id="upload-story-modal" class="upload-story-modal" style="display: none;">
+    <div class="upload-story-content">
+        <h2>Subir Historia</h2>
+        <div id="story-source-options">
+            <button id="story-camera"><i class="bi bi-camera"></i> Cámara</button>
+            <button id="story-gallery"><i class="bi bi-image"></i> Galería</button>
         </div>
-        <div id="story-preview-container" style="display: none; position: relative; width: 100%; height: 100%;">
-            <img id="preview-image" style="width: 100%; height: 100%; object-fit: contain;">
-            <div id="preview-tags" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
-            <div id="story-actions" style="position: absolute; bottom: 10px; right: 10px; display: flex; gap: 10px;">
-                <button id="tag-products-btn" class="btn-option">
-                    <i class="bi bi-tag"></i> Etiquetar Productos
-                </button>
-                <button id="publish-story-btn" class="btn-option">
-                    <i class="bi bi-upload"></i> Publicar
-                </button>
+        <div id="story-preview-container" style="display: none;">
+            <div class="preview-wrapper">
+                <img id="preview-image" src="" alt="Vista previa de la historia">
+                <div id="preview-tags"></div>
             </div>
-            <select id="story-product" style="display: none; position: absolute; top: 10px; left: 10px; width: 200px;"></select>
+            <select id="story-product" style="display: none;">
+                <option value="">Selecciona un producto</option>
+            </select>
+            <button id="tag-products-btn"><i class="bi bi-tag"></i> Etiquetar productos</button>
+            <button id="publish-story-btn"><i class="bi bi-upload"></i> Publicar</button>
         </div>
-        <button id="close-story-modal" class="close-btn">✖</button>
+        <button id="close-story-modal"><i class="bi bi-x"></i> Cerrar</button>
     </div>
 </div>
 
