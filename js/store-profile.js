@@ -34,7 +34,12 @@ export async function loadStoreProfile(db, storage, auth) {
     });
 
     if (!elements.storeName || !elements.storeImage || !elements.storeActions || !elements.storiesContainer || !elements.feedContainer) {
-        console.error('Faltan elementos esenciales del DOM');
+        console.error('Faltan elementos esenciales del DOM. Abortando carga del perfil.');
+        if (elements.storeName) {
+            elements.storeName.textContent = 'Error: Elementos del DOM no encontrados';
+        } else {
+            console.error('No se puede mostrar mensaje de error porque store-name es null');
+        }
         window.isProfileLoading = false;
         return;
     }
@@ -67,13 +72,13 @@ export async function loadStoreProfile(db, storage, auth) {
 
         try {
             console.log('Buscando tienda con slug:', slug);
-const storeDoc = await getDoc(doc(db, 'stores', slug));
-if (!storeDoc.exists()) {
-    console.error('Tienda no encontrada:', slug);
-    elements.storeName.textContent = 'Tienda no encontrada';
-    return;
-}
-console.log('Datos de la tienda:', storeDoc.data());
+            const storeDoc = await getDoc(doc(db, 'stores', slug));
+            if (!storeDoc.exists()) {
+                console.error('Tienda no encontrada:', slug);
+                elements.storeName.textContent = 'Tienda no encontrada';
+                return;
+            }
+            console.log('Datos de la tienda:', storeDoc.data());
 
             const store = storeDoc.data();
             console.log('Datos de la tienda cargados:', store);
@@ -156,36 +161,8 @@ console.log('Datos de la tienda:', storeDoc.data());
                 document.getElementById('product-tags').innerHTML = '';
             });
 
-            const productsQuery = query(collection(db, 'stores', slug, 'products'), orderBy('createdAt', 'desc'));
-            const productsSnapshot = await getDocs(productsQuery);
-            elements.feedContainer.innerHTML = '';
-            if (productsSnapshot.empty) {
-                elements.feedContainer.innerHTML = '<p>No hay productos disponibles</p>';
-            } else {
-                productsSnapshot.forEach((productDoc) => {
-                    const product = productDoc.data();
-                    const productElement = document.createElement('div');
-                    productElement.classList.add('product', 'store-product');
-                    productElement.dataset.productId = productDoc.id;
-                    productElement.innerHTML = `
-                        <div class="product-image-container">
-                            <img src="${product.imageUrl || 'https://placehold.co/100x100'}" alt="${product.name}" loading="lazy">
-                        </div>
-                        <div class="product-actions">
-                            ${!isOwner ? '<button class="add-to-cart-btn" data-product-id="' + productDoc.id + '"><i class="bi bi-cart-plus"></i> Añadir al carrito</button>' : ''}
-                        </div>
-                        <div class="product-details">
-                            <h3>${product.name || 'Sin nombre'}</h3>
-                            <p class="description">${product.description || 'Sin descripción'}</p>
-                            <p class="price">$${product.price || '0'}</p>
-                        </div>
-                    `;
-                    elements.feedContainer.appendChild(productElement);
-                });
-                if (!isOwner) {
-                    setupCartButtons(slug, db, elements);
-                }
-            }
+            // Cargar el feed dinámicamente para mantener su funcionalidad
+            await loadStoreFeed(db, slug);
 
             updateCartBubble(elements);
             elements.cartBubble.addEventListener('click', () => {
@@ -195,12 +172,13 @@ console.log('Datos de la tienda:', storeDoc.data());
                 elements.cartModal.style.display = 'none';
             });
 
-            // Cargar el feed dinámicamente
-            await loadStoreFeed(db, slug);
-
         } catch (error) {
             console.error('Error en loadStoreProfile:', error.message);
-            elements.storeName.textContent = 'Error al cargar la tienda: ' + error.message;
+            if (elements.storeName) {
+                elements.storeName.textContent = 'Error al cargar la tienda: ' + error.message;
+            } else {
+                console.error('No se puede actualizar store-name porque es null');
+            }
         } finally {
             window.isProfileLoading = false;
         }
