@@ -1,5 +1,5 @@
 .modal {
-    display: flex; /* Mostrar el modal */
+    display: none; /* Oculto por defecto */
     justify-content: center;
     align-items: center;
     position: fixed;
@@ -12,7 +12,7 @@
 }
 
 .modal.show {
-    display: flex; /* Mostrar el modal cuando tenga la clase 'show' */
+    display: flex; /* Mostrar el modal solo cuando tenga la clase 'show' */
 }
 
 .modal-content {
@@ -22,12 +22,6 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     max-width: 500px;
     width: 100%;
-}
-
-#story-source-options {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
 }
 
 #story-preview-container {
@@ -50,4 +44,14 @@
     right: 10px;
     display: flex;
     gap: 10px;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
 }

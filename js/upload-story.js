@@ -19,12 +19,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     previewImage.src = event.target.result;
-                    storyPreviewContainer.style.display = 'block';
+                    storyPreviewContainer.style.display = 'block'; // Mostrar la previsualización
                 };
                 reader.readAsDataURL(file);
             }
         };
-        input.click();
+        input.click(); // Abrir la galería automáticamente
     };
 
     // Llama a la función para abrir la galería al cargar la página
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Publicar historia
     publishStoryBtn.addEventListener('click', () => {
-        if (!previewImage.src) {
+        if (!previewImage.src || previewImage.src === window.location.href) {
             alert('Por favor, selecciona una imagen antes de publicar.');
             return;
         }
@@ -42,6 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Cerrar modal
     closeStoryModal.addEventListener('click', () => {
-        postStoryModal.classList.remove('show'); // Oculta el modal
+        postStoryModal.style.display = 'none'; // Ocultar el modal directamente
     });
 });
