@@ -1,4 +1,4 @@
-import { collection, query, orderBy, getDocs, getDoc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+import { collection, query, orderBy, getDocs, getDoc, updateDoc, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 
 export async function loadStoreFeed(db, slug, auth) {
     const feedContainer = document.getElementById('feed-container');
