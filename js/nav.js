@@ -3,6 +3,7 @@ import { getDoc, doc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-
 import { signInWithPopup } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
 import { showCartModal } from './store-profile.js';
 import { initializeAddMenu } from './add-menu.js';
+import { initializeCart } from './cart.js';
 
 export function initializeNavEvents(auth, db, storage, provider) {
     const loginBtn = document.getElementById('login-btn');
@@ -127,6 +128,16 @@ export function initializeNavEvents(auth, db, storage, provider) {
             }
         })
         .catch(error => console.error('Error al cargar add-menu.html:', error));
+
+    // Cargar el carrito dinámicamente
+    fetch('cart.html')
+        .then(response => response.text())
+        .then(html => {
+            const body = document.body;
+            body.insertAdjacentHTML('beforeend', html); // Inserta el carrito en el DOM
+            initializeCart(db); // Inicializa la lógica del carrito
+        })
+        .catch(error => console.error('Error al cargar cart.html:', error));
 
     assignHomeButtonEvent();
     assignCartButtonEvent();
