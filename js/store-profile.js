@@ -306,6 +306,20 @@ export function showCartModal(db, elements, currentSlug, currentStoreName) {
     elements.cartModal.style.display = 'flex';
 }
 
+import { collection, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+
+export async function loadStoreFeed(db, slug) {
+    try {
+        const productsCollection = collection(db, 'stores', slug, 'products');
+        const productsSnapshot = await getDocs(productsCollection);
+        console.log(`Productos encontrados: ${productsSnapshot.size}`);
+        // Procesa los productos aquí...
+    } catch (error) {
+        console.error('Error al cargar los productos:', error.message);
+        throw error;
+    }
+}
+
 // Ejecutar solo si Firebase está listo
 if (window.db && window.storage && window.auth) {
     console.log('Firebase inicializado, ejecutando loadStoreProfile');
