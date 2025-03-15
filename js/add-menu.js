@@ -108,27 +108,41 @@ export function initializeAddMenu(auth, db, storage) {
         const storyProductSelect = document.getElementById('story-product');
         const publishStoryBtn = document.getElementById('publish-story-btn');
         const closeStoryModal = document.getElementById('close-story-modal');
-
+    
         let taggedProducts = [];
         let storyImageFile = null;
-        const slug = userData.storeId; // Asumimos que storeId es el slug de la tienda
-
+        const slug = userData.storeId;
+    
         if (!slug) {
             alert('No se pudo determinar la tienda. Configura tu perfil con un storeId.');
             uploadStoryModal.style.display = 'none';
             return;
         }
-
-        // Verificar que todos los elementos existen
+    
         if (!storyCameraBtn || !storyGalleryBtn || !closeStoryModal || !previewImage || !previewTags || !tagProductsBtn || !storyProductSelect || !publishStoryBtn) {
             console.error('Faltan elementos en el modal de historias:', {
                 storyCameraBtn, storyGalleryBtn, closeStoryModal, previewImage, previewTags, tagProductsBtn, storyProductSelect, publishStoryBtn
             });
             return;
         }
-
+    
+        // Deshabilitar botones si ya hay una imagen seleccionada
+        function updateButtonState() {
+            if (storyImageFile) {
+                storyCameraBtn.disabled = true;
+                storyGalleryBtn.disabled = true;
+            } else {
+                storyCameraBtn.disabled = false;
+                storyGalleryBtn.disabled = false;
+            }
+        }
+    
         // Botón Cámara
         storyCameraBtn.addEventListener('click', () => {
+            if (storyImageFile) {
+                console.log('Ya hay una imagen seleccionada, no se permite otra');
+                return;
+            }
             console.log('Botón Cámara clicado');
             const input = document.createElement('input');
             input.type = 'file';
@@ -137,9 +151,13 @@ export function initializeAddMenu(auth, db, storage) {
             input.onchange = (e) => handleImageSelect(e);
             input.click();
         });
-
+    
         // Botón Galería
         storyGalleryBtn.addEventListener('click', () => {
+            if (storyImageFile) {
+                console.log('Ya hay una imagen seleccionada, no se permite otra');
+                return;
+            }
             console.log('Botón Galería clicado');
             const input = document.createElement('input');
             input.type = 'file';
@@ -147,7 +165,7 @@ export function initializeAddMenu(auth, db, storage) {
             input.onchange = (e) => handleImageSelect(e);
             input.click();
         });
-
+    
         // Botón Etiquetar Productos
         tagProductsBtn.addEventListener('click', () => {
             console.log('Botón Etiquetar Productos clicado');
@@ -155,7 +173,7 @@ export function initializeAddMenu(auth, db, storage) {
             previewImage.style.cursor = 'crosshair';
             populateStoryProductSelect();
         });
-
+    
         // Clic en la imagen para etiquetar
         previewImage.addEventListener('click', (e) => {
             if (storyProductSelect.style.display !== 'block') return;
@@ -164,11 +182,11 @@ export function initializeAddMenu(auth, db, storage) {
                 alert('Selecciona un producto para etiquetar');
                 return;
             }
-
+    
             const rect = previewImage.getBoundingClientRect();
             const x = ((e.clientX - rect.left) / rect.width) * 100;
             const y = ((e.clientY - rect.top) / rect.height) * 100;
-
+    
             taggedProducts.push({ productId, x, y });
             const tag = document.createElement('div');
             tag.classList.add('preview-tag');
@@ -177,63 +195,51 @@ export function initializeAddMenu(auth, db, storage) {
             tag.textContent = storyProductSelect.options[storyProductSelect.selectedIndex].text;
             previewTags.appendChild(tag);
         });
-
+    
         // Botón Publicar
         publishStoryBtn.addEventListener('click', async () => {
             if (!storyImageFile) {
                 alert('Por favor selecciona una imagen primero');
                 return;
             }
-
+    
             try {
                 const storyPath = `stores/${slug}/stories/${Date.now()}_${storyImageFile.name}`;
                 const storageRef = ref(storage, storyPath);
                 await uploadBytes(storageRef, storyImageFile);
                 const imageUrl = await getDownloadURL(storageRef);
-
+    
                 const storyData = {
                     imageUrl,
                     createdAt: new Date().toISOString(),
                     taggedProducts: taggedProducts.length > 0 ? taggedProducts : []
                 };
-
+    
                 await addDoc(collection(db, 'stores', slug, 'stories'), storyData);
                 alert('Historia publicada con éxito');
                 uploadStoryModal.style.display = 'none';
-                taggedProducts = [];
-                storyImageFile = null;
-                previewTags.innerHTML = '';
-                storySourceOptions.style.display = 'flex';
-                storyPreviewContainer.style.display = 'none';
+                resetModal();
             } catch (error) {
                 console.error('Error al publicar la historia:', error);
                 alert('Error al publicar la historia: ' + error.message);
             }
         });
-
+    
         // Botón Cerrar
         closeStoryModal.addEventListener('click', () => {
             console.log('Botón Cerrar clicado');
             uploadStoryModal.style.display = 'none';
-            taggedProducts = [];
-            storyImageFile = null;
-            previewTags.innerHTML = '';
-            storySourceOptions.style.display = 'flex';
-            storyPreviewContainer.style.display = 'none';
+            resetModal();
         });
-
+    
         // Cerrar el modal al hacer clic fuera del contenido
         uploadStoryModal.addEventListener('click', (e) => {
             if (e.target === uploadStoryModal) {
                 uploadStoryModal.style.display = 'none';
-                taggedProducts = [];
-                storyImageFile = null;
-                previewTags.innerHTML = '';
-                storySourceOptions.style.display = 'flex';
-                storyPreviewContainer.style.display = 'none';
+                resetModal();
             }
         });
-
+    
         // Manejar selección de imagen
         function handleImageSelect(e) {
             storyImageFile = e.target.files[0];
@@ -246,11 +252,12 @@ export function initializeAddMenu(auth, db, storage) {
                     storyPreviewContainer.style.display = 'block';
                     storyProductSelect.style.display = 'none';
                     previewTags.innerHTML = '';
+                    updateButtonState(); // Deshabilitar botones después de seleccionar
                 };
                 reader.readAsDataURL(storyImageFile);
             }
         }
-
+    
         // Rellenar el select de productos
         async function populateStoryProductSelect() {
             const productsSnapshot = await getDocs(collection(db, 'stores', slug, 'products'));
@@ -263,5 +270,20 @@ export function initializeAddMenu(auth, db, storage) {
                 storyProductSelect.appendChild(option);
             });
         }
+    
+        // Resetear el estado del modal
+        function resetModal() {
+            taggedProducts = [];
+            storyImageFile = null;
+            previewTags.innerHTML = '';
+            storySourceOptions.style.display = 'flex';
+            storyPreviewContainer.style.display = 'none';
+            storyProductSelect.style.display = 'none';
+            previewImage.src = '';
+            updateButtonState(); // Habilitar botones al resetear
+        }
+    
+        // Inicializar estado de los botones
+        updateButtonState();
     }
 }
