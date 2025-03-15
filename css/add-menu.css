@@ -122,11 +122,13 @@
     position: absolute;
     top: 10px;
     right: 10px;
-    background: none; /* Sin fondo */
-    border: none; /* Sin borde */
-    color: #333; /* Color del texto, por ejemplo, gris oscuro */
-    font-size: 20px; /* Tamaño de la "X" */
-    cursor: pointer; /* Cursor tipo puntero para indicar que es clicable */
+    background: none;
+    border: none;
+    color: rgb(39, 39, 39);
+    font-size: 16px;
+    padding: 0; /* Sin relleno adicional */
+    margin: 0; /* Sin margen adicional */
+    cursor: pointer;
 }
 
 #close-story-modal:hover {
