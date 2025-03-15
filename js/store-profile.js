@@ -125,6 +125,7 @@ export async function loadStoreProfile(db, storage, auth) {
             });
         }
 
+        // Cargar historias
         const storiesQuery = query(collection(db, 'stores', slug, 'stories'), orderBy('createdAt', 'desc'));
         const storiesSnapshot = await getDocs(storiesQuery);
         elements.storiesContainer.innerHTML = '';
@@ -167,36 +168,8 @@ export async function loadStoreProfile(db, storage, auth) {
             document.getElementById('product-tags').innerHTML = '';
         });
 
-        const productsQuery = query(collection(db, 'stores', slug, 'products'), orderBy('createdAt', 'desc'));
-        const productsSnapshot = await getDocs(productsQuery);
-        elements.feedContainer.innerHTML = '';
-        if (productsSnapshot.empty) {
-            elements.feedContainer.innerHTML = '<p>No hay productos disponibles</p>';
-        } else {
-            productsSnapshot.forEach((productDoc) => {
-                const product = productDoc.data();
-                const productElement = document.createElement('div');
-                productElement.classList.add('product', 'store-product');
-                productElement.dataset.productId = productDoc.id;
-                productElement.innerHTML = `
-                    <div class="product-image-container">
-                        <img src="${product.imageUrl || 'https://placehold.co/100x100'}" alt="${product.name}" loading="lazy">
-                    </div>
-                    <div class="product-actions">
-                        ${!isOwner ? '<button class="add-to-cart-btn" data-product-id="' + productDoc.id + '"><i class="bi bi-cart-plus"></i> Añadir al carrito</button>' : ''}
-                    </div>
-                    <div class="product-details">
-                        <h3>${product.name || 'Sin nombre'}</h3>
-                        <p class="description">${product.description || 'Sin descripción'}</p>
-                        <p class="price">$${product.price || '0'}</p>
-                    </div>
-                `;
-                elements.feedContainer.appendChild(productElement);
-            });
-            if (!isOwner) {
-                setupCartButtons(slug, db, elements);
-            }
-        }
+        // Cargar el feed de productos
+        await loadStoreFeed(db, slug, auth);
 
         updateCartBubble(elements);
         elements.cartBubble && elements.cartBubble.addEventListener('click', () => {
@@ -205,8 +178,6 @@ export async function loadStoreProfile(db, storage, auth) {
         elements.closeCartModal && elements.closeCartModal.addEventListener('click', () => {
             elements.cartModal.style.display = 'none';
         });
-
-        await loadStoreFeed(db, slug);
 
     } catch (error) {
         console.error('Error en loadStoreProfile:', error.message);
