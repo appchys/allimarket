@@ -22,22 +22,34 @@ export function initializeNavEvents(auth, db, storage, provider) {
         }
     }
 
-    function updateNavBasedOnRole(userData) {
-        if (!homeBtn || !cartBtn || !profileBtn) return;
-        if (userData && userData.role === 'store') {
-            homeBtn.style.display = 'block';
-            cartBtn.style.display = 'none';
-            profileBtn.style.display = 'block';
-        } else if (userData && userData.role === 'client') { // Cambio: Solo "client", no "creator"
-            homeBtn.style.display = 'block';
-            cartBtn.style.display = 'block';
-            profileBtn.style.display = 'block';
-        } else {
-            homeBtn.style.display = 'block';
-            cartBtn.style.display = 'none';
-            profileBtn.style.display = 'block';
-        }
+    // nav.js
+function updateNavBasedOnRole(userData) {
+    if (!homeBtn || !cartBtn || !profileBtn) return;
+
+    const newBtn = document.getElementById('new-btn'); // Agregar referencia al botón "Añadir"
+
+    if (userData && userData.role === 'store') {
+        homeBtn.style.display = 'block';
+        cartBtn.style.display = 'none';
+        profileBtn.style.display = 'block';
+        newBtn.style.display = 'block'; // Visible para tiendas
+    } else if (userData && userData.role === 'creator') {
+        homeBtn.style.display = 'block';
+        cartBtn.style.display = 'none'; // Creadores no tienen carrito
+        profileBtn.style.display = 'block';
+        newBtn.style.display = 'block'; // Visible para creadores
+    } else if (userData && userData.role === 'client') {
+        homeBtn.style.display = 'block';
+        cartBtn.style.display = 'block';
+        profileBtn.style.display = 'block';
+        newBtn.style.display = 'none'; // Oculto para clientes
+    } else {
+        homeBtn.style.display = 'block';
+        cartBtn.style.display = 'none';
+        profileBtn.style.display = 'block';
+        newBtn.style.display = 'none'; // Oculto si no hay rol definido
     }
+}
 
     auth.onAuthStateChanged(async (user) => {
         updateAuthUI(user);
