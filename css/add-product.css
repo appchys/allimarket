@@ -9,7 +9,7 @@
     background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semitransparente */
     justify-content: center;
     align-items: center;
-    z-index: 2001; /* Ya está bien, asegura que esté por encima del options-btn (z-index: 1002) */
+    z-index: 2000; /* Asegúrate de que sea mayor que el z-index de .options-btn */
 }
 
 /* Contenido del modal */
