@@ -71,23 +71,31 @@ export async function loadStoreFeed(db, slug, auth) {
                     feedContainer.querySelectorAll('.popover').forEach((p) => {
                         p.style.display = 'none';
                     });
-
+        
                     // Mostrar u ocultar el popover actual
-                    popover.style.display = isVisible ? 'none' : 'block';
+                    if (!isVisible) {
+                        // Calcular la posición del popover justo debajo del botón
+                        const rect = btn.getBoundingClientRect();
+                        popover.style.top = `${rect.height + 5}px`; // 5px de margen
+                        popover.style.left = `-${popover.offsetWidth - btn.offsetWidth}px`; // Ajuste para que aparezca a la derecha del botón
+                        popover.style.display = 'block';
+                    } else {
+                        popover.style.display = 'none';
+                    }
                 });
             });
-
-            // Manejar clics en los botones del popover
+        
+            // Manejar clics en los botones del popover (mismo código que antes)
             feedContainer.addEventListener('click', async (e) => {
                 const target = e.target.closest('button');
                 if (!target) return;
-
+        
                 const productCard = target.closest('.store-product');
                 if (!productCard) return;
-
+        
                 const productId = productCard.dataset.productId;
                 const productRef = doc(db, 'stores', slug, 'products', productId);
-
+        
                 if (target.classList.contains('edit-product-btn')) {
                     const newName = prompt('Nuevo nombre del producto:', productCard.querySelector('h3').textContent);
                     const newPrice = prompt('Nuevo precio:', productCard.querySelector('.price').textContent.replace('$', ''));
@@ -129,7 +137,7 @@ export async function loadStoreFeed(db, slug, auth) {
                         }
                     }
                 }
-
+        
                 // Ocultar el popover después de la acción
                 const popover = target.closest('.popover');
                 if (popover) popover.style.display = 'none';
