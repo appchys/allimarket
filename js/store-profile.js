@@ -1,3 +1,4 @@
+// store-profile.js
 import { getDoc, setDoc, doc, collection, query, orderBy, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 import { loadStoreFeed } from './store-feed.js';
 import { normalizePhoneNumber } from './store-utils.js';
@@ -77,6 +78,7 @@ export async function loadStoreProfile(db, storage, auth) {
         if (!storeDoc.exists()) {
             console.error('Tienda no encontrada:', slug);
             elements.storeName.textContent = 'Tienda no encontrada';
+            window.isProfileLoading = false;
             return;
         }
         console.log('Datos de la tienda:', storeDoc.data());
@@ -91,12 +93,20 @@ export async function loadStoreProfile(db, storage, auth) {
         console.log('Es propietario:', isOwner);
         elements.storeActions.innerHTML = '';
 
+        // Cargar el feed de productos primero (delegado a store-feed.js)
+        console.log('Cargando el feed de productos...');
+        await loadStoreFeed(db, slug, auth);
+        console.log('Feed de productos cargado.');
+
+        // Cargar las funcionalidades del propietario después del feed
         if (isOwner) {
-            // Lógica de propietario (delegada a store-owner.js)
+            console.log('Usuario es propietario, cargando funcionalidades de propietario...');
             await import('./store-owner.js').then(module => {
-                module.loadOwnerFeatures(db, storage, auth, slug, store, elements);
+                return module.loadOwnerFeatures(db, storage, auth, slug, store, elements);
             });
+            console.log('Funcionalidades de propietario cargadas.');
         } else {
+            console.log('Usuario no es propietario, cargando botones de cliente...');
             const followBtn = document.createElement('button');
             followBtn.textContent = 'Seguir';
             followBtn.id = 'follow-btn';
@@ -165,9 +175,6 @@ export async function loadStoreProfile(db, storage, auth) {
             document.getElementById('product-tags').innerHTML = '';
         });
 
-        // Cargar el feed de productos (delegado a store-feed.js)
-        await loadStoreFeed(db, slug, auth);
-
         updateCartBubble(elements);
         elements.cartBubble && elements.cartBubble.addEventListener('click', () => {
             showCartModal(db, elements, slug, store.name);
@@ -193,6 +200,7 @@ export async function loadStoreProfile(db, storage, auth) {
         }
     } finally {
         window.isProfileLoading = false;
+        console.log('Finalizando loadStoreProfile - Fecha:', new Date().toISOString());
     }
 }
 
@@ -290,26 +298,36 @@ export function showCartModal(db, elements, currentSlug, currentStoreName) {
     elements.cartModal.style.display = 'flex';
 }
 
-window.addEventListener('load', () => {
+// Mejorar la inicialización para esperar a Firebase
+window.addEventListener('load', async () => {
     console.log('store-profile.js cargado, esperando Firebase...');
-    if (!window.db || !window.storage || !window.auth) {
-        console.error('Firebase no está inicializado, esperando autenticación...');
-        window.auth.onAuthStateChanged((user) => {
-            if (window.db && window.storage && window.auth) {
-                console.log('Firebase inicializado, ejecutando loadStoreProfile');
-                loadStoreProfile(window.db, window.storage, window.auth);
-            } else {
-                console.error('Firebase aún no está completamente inicializado');
-                const storeName = document.getElementById('store-name');
-                if (storeName) {
-                    storeName.textContent = 'Error: Firebase no inicializado';
+    
+    // Función para esperar a que Firebase esté inicializado
+    const waitForFirebase = async () => {
+        return new Promise((resolve) => {
+            const checkFirebase = () => {
+                if (window.db && window.storage && window.auth) {
+                    resolve();
                 } else {
-                    console.error('Elemento #store-name no encontrado para mostrar el error');
+                    console.log('Firebase no está completamente inicializado, esperando...');
+                    setTimeout(checkFirebase, 100);
                 }
-            }
+            };
+            checkFirebase();
         });
-    } else {
+    };
+
+    try {
+        await waitForFirebase();
         console.log('Firebase inicializado, ejecutando loadStoreProfile');
-        loadStoreProfile(window.db, window.storage, window.auth);
+        await loadStoreProfile(window.db, window.storage, window.auth);
+    } catch (error) {
+        console.error('Error al inicializar Firebase o cargar el perfil:', error);
+        const storeName = document.getElementById('store-name');
+        if (storeName) {
+            storeName.textContent = 'Error: Firebase no inicializado';
+        } else {
+            console.error('Elemento #store-name no encontrado para mostrar el error');
+        }
     }
 });
