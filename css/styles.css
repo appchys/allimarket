@@ -239,26 +239,26 @@
     background: #0056b3;
 }
 
-/* Estilo para el popover */
+/* Estilo para el contenedor del popover */
 .popover {
     position: absolute;
-    bottom: calc(100% + 5px); /* Justo encima del botón con un pequeño margen */
-    left: 50%;
-    transform: translateX(-50%);
+    top: calc(100% + 5px); /* Justo debajo del botón con un pequeño margen */
+    right: 0; /* Alineado a la derecha del botón */
     background-color: #ffffff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    border-radius: 8px;
-    padding: 8px 0;
-    width: 160px;
-    z-index: 1001;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    display: none; /* Inicialmente oculto */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Sombreado ligero */
+    border-radius: 8px; /* Bordes redondeados */
+    padding: 8px 0; /* Espaciado interno vertical */
+    width: 160px; /* Ancho fijo para un diseño compacto */
+    z-index: 1001; /* Por encima de otros elementos */
+    border: 1px solid rgba(0, 0, 0, 0.1); /* Borde sutil */
+    display: none; /* Oculto por defecto */
 }
 
+/* Estilo para los botones dentro del popover */
 .popover button {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 8px; /* Espacio entre ícono y texto */
     width: 100%;
     padding: 8px 12px;
     background: none;
@@ -270,33 +270,40 @@
     transition: background-color 0.2s ease;
 }
 
+/* Efecto hover para los botones */
 .popover button:hover {
-    background-color: #f5f5f5;
+    background-color: #f5f5f5; /* Fondo gris claro al pasar el ratón */
 }
 
+/* Estilo para los íconos dentro de los botones */
 .popover button i {
-    font-size: 16px;
-    color: #007bff;
+    font-size: 16px; /* Tamaño del ícono */
+    color: #007bff; /* Color azul para los íconos */
 }
 
+/* Estilo para botones deshabilitados (opcional) */
 .popover button[disabled] {
     color: #999;
     cursor: not-allowed;
 }
 
-/* Ajuste para el contenedor del botón de opciones */
-.product-image-container {
-    position: relative;
-}
-
+/* Estilo para el botón de tres puntos (opcional, para mejor visibilidad) */
 .options-btn {
     position: absolute;
     top: 5px;
     right: 5px;
-    background: none;
+    background: rgba(255, 255, 255, 0.8);
     border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
     cursor: pointer;
-    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.options-btn i {
+    font-size: 16px;
     color: #333;
-    z-index: 1000;
 }
