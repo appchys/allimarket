@@ -257,7 +257,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1002; /* Asegura que esté por encima de otros elementos */
+    z-index: 1000; /* Asegura que esté por encima de otros elementos */
 }
 
 .options-btn i {
