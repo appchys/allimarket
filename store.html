@@ -26,7 +26,6 @@
                 <div id="store-actions">
                     <!-- Botones dinámicos se insertarán aquí vía JS -->
                 </div>
-                
             </div>
         </section>
         <section id="store-stories" class="stories">
@@ -36,8 +35,6 @@
             <h2>Productos</h2>
             <div id="feed-container" class="grid"></div>
         </section>
-        <!-- El feed se cargará dinámicamente aquí -->
-        <div id="store-feed-container"></div>
     </main>
 
     <!-- Punto de inserción para la barra de navegación -->
@@ -66,11 +63,10 @@
         </div>
     </aside>
 
-      <!-- Modal para publicar historia -->
+    <!-- Modal para publicar historia -->
     <div id="post-story-modal" class="modal" style="display:none;">
         <div class="modal-content" style="padding: 0; position: relative;">
             <div id="story-source-options" style="display: flex; flex-direction: column; gap: 10px; padding: 20px;">
-                <!-- Botones con el mismo estilo que add-menu -->
                 <button id="story-camera" class="btn-option"><i class="bi bi-camera"></i> Desde Cámara</button>
                 <button id="story-gallery" class="btn-option"><i class="bi bi-image"></i> Desde Galería</button>
             </div>
@@ -106,7 +102,7 @@
         <button id="close-story-view">✖</button>
     </div>
 
-        <!-- Modal del carrito -->
+    <!-- Modal del carrito -->
     <div id="cart-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <h2>Carrito de Compras</h2>
@@ -115,30 +111,25 @@
         </div>
     </div>
 
+    <!-- Burbuja del carrito -->
+    <div id="cart-bubble" style="display:none; position: fixed; bottom: 20px; right: 20px; background: red; color: white; border-radius: 50%; width: 30px; height: 30px; text-align: center; line-height: 30px;">
+        <span id="cart-count">0</span>
+    </div>
+
     <script type="module" src="js/app.js"></script>
     <script type="module" src="js/store-profile.js"></script>
     <script type="module" src="js/store-owner.js"></script>
     <script type="module" src="js/store-utils.js"></script>
+    <script type="module" src="js/store-feed.js"></script>
     <script>
+        // Cargar la barra de navegación
         fetch('nav.html')
             .then(response => response.text())
             .then(html => {
                 document.getElementById('nav-container').innerHTML = html;
             })
             .catch(error => console.error('Error al cargar nav.html:', error));
-
-        // Cargar dinámicamente el feed
-        fetch('store-feed.html')
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('store-feed-container').innerHTML = html;
-                import('./js/store-feed.js').then(module => {
-                    const db = {}; // Configura tu instancia de Firestore aquí
-                    const slug = new URLSearchParams(window.location.search).get('slug');
-                    module.loadStoreFeed(db, slug);
-                });
-            })
-            .catch(error => console.error('Error al cargar store-feed.html:', error));
     </script>
+    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'921108a4a9781d6c',t:'MTc0MjA5NDM3Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>

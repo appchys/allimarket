@@ -1,9 +1,24 @@
+// store-feed.js
 import { collection, query, orderBy, getDocs, getDoc, updateDoc, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 
 export async function loadStoreFeed(db, slug, auth) {
     const feedContainer = document.getElementById('feed-container');
     if (!feedContainer) {
-        console.error('No se encontró el contenedor del feed');
+        console.error('No se encontró el contenedor del feed (#feed-container)');
+        return;
+    }
+
+    // Cargar dinámicamente store-feed.html si es necesario
+    try {
+        const response = await fetch('store-feed.html');
+        const html = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const feedContent = doc.getElementById('feed-container').innerHTML; // Solo el contenido interno
+        feedContainer.innerHTML = feedContent; // Carga el contenedor limpio
+    } catch (error) {
+        console.error('Error al cargar store-feed.html:', error);
+        feedContainer.innerHTML = '<p>Error al cargar el contenedor del feed</p>';
         return;
     }
 
@@ -63,7 +78,6 @@ export async function loadStoreFeed(db, slug, auth) {
             setupCartButtons(slug, db, feedContainer);
         }
 
-        // Actualizar el feed si hay cambios (puedes añadir un listener de tiempo real si usas onSnapshot)
         console.log('Feed de productos cargado con éxito');
     } catch (error) {
         console.error('Error al cargar los productos:', error);
@@ -71,7 +85,6 @@ export async function loadStoreFeed(db, slug, auth) {
     }
 }
 
-// Mantener las funciones auxiliares existentes
 function setupOwnerOptions(db, slug, feedContainer) {
     const optionsButtons = feedContainer.querySelectorAll('.options-btn');
     optionsButtons.forEach((btn) => {
