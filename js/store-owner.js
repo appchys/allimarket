@@ -4,20 +4,14 @@ import { setDoc, doc, addDoc, collection, getDocs, updateDoc, deleteDoc } from '
 import { initializeAddProduct } from './add-product.js';
 
 export async function loadOwnerFeatures(db, storage, auth, slug, store, elements) {
-    // Verificar si el feed está cargado
+    // No necesitamos cargar store-feed.html aquí si ya está manejado en store-profile.js o el HTML principal
+    // Verificamos si feedContainer existe, pero no lo creamos dinámicamente
     if (!elements.feedContainer) {
-        console.log('Cargando feed dinámicamente...');
-        await fetch('store-feed.html')
-            .then(response => response.text())
-            .then(html => {
-                const feedContainer = document.createElement('div');
-                feedContainer.innerHTML = html;
-                document.querySelector('main').appendChild(feedContainer);
-                elements.feedContainer = document.getElementById('feed-container');
-            })
-            .catch(error => console.error('Error al cargar store-feed.html:', error));
+        console.error('El contenedor de feed (#feed-container) no está disponible');
+        return;
     }
 
+    // Botones de acción del propietario
     const editBtn = document.createElement('button');
     editBtn.textContent = 'Editar Perfil';
     editBtn.id = 'edit-btn';
@@ -28,68 +22,85 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
     editProductsBtn.id = 'edit-products-btn';
     elements.storeActions.appendChild(editProductsBtn);
 
+    // Elementos del DOM
     const editProfileSidebar = document.getElementById('edit-profile-sidebar');
     const editStoreForm = document.getElementById('edit-store-form');
     const addActionModal = document.getElementById('add-action-modal');
     const postStoryModal = document.getElementById('post-story-modal');
 
-    // Cargar el formulario de añadir producto dinámicamente
+    // Cargar dinámicamente el formulario de añadir producto
     fetch('add-product.html')
         .then(response => response.text())
         .then(html => {
             document.body.insertAdjacentHTML('beforeend', html);
             const addProductModal = document.getElementById('add-product-modal');
-            initializeAddProduct(db, storage, slug, elements.feedContainer);
+            if (addProductModal) {
+                initializeAddProduct(db, storage, slug, elements.feedContainer);
 
-            // Evento para abrir el modal de añadir producto
-            document.getElementById('add-product-option').addEventListener('click', () => {
-                addProductModal.style.display = 'flex';
-                addActionModal.style.display = 'none';
-            });
+                // Evento para abrir el modal de añadir producto
+                document.getElementById('add-product-option').addEventListener('click', () => {
+                    addProductModal.style.display = 'flex';
+                    if (addActionModal) addActionModal.style.display = 'none';
+                });
+            } else {
+                console.error('#add-product-modal no encontrado en el DOM');
+            }
         })
         .catch(error => console.error('Error al cargar add-product.html:', error));
 
-    // Editar perfil de la tienda
+    // Lógica para editar el perfil de la tienda
     editBtn.addEventListener('click', () => {
-        editProfileSidebar.style.display = 'block';
-        document.getElementById('edit-store-name').value = store.name || '';
-        document.getElementById('edit-store-description').value = store.description || '';
-        document.getElementById('edit-store-phone').value = store.phone || '';
-        document.getElementById('edit-store-image-preview').src = store.imageUrl || 'https://placehold.co/100x100';
+        if (editProfileSidebar) {
+            editProfileSidebar.style.display = 'block';
+            document.getElementById('edit-store-name').value = store.name || '';
+            document.getElementById('edit-store-description').value = store.description || '';
+            document.getElementById('edit-store-phone').value = store.phone || '';
+            document.getElementById('edit-store-image-preview').src = store.imageUrl || 'https://placehold.co/100x100';
+        } else {
+            console.error('#edit-profile-sidebar no encontrado en el DOM');
+        }
     });
 
     document.getElementById('close-sidebar').addEventListener('click', () => {
-        editProfileSidebar.style.display = 'none';
-    });
-
-    editStoreForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        try {
-            const updatedData = {
-                name: document.getElementById('edit-store-name').value,
-                description: document.getElementById('edit-store-description').value,
-                phone: document.getElementById('edit-store-phone').value || null,
-            };
-            const editStoreImage = document.getElementById('edit-store-image').files[0];
-            if (editStoreImage) {
-                const imagePath = `stores/${slug}/profile_${Date.now()}.jpg`;
-                const storageRef = ref(storage, imagePath);
-                const metadata = {
-                    customMetadata: {
-                        owner: auth.currentUser.uid
-                    }
-                };
-                await uploadBytes(storageRef, editStoreImage, metadata);
-                updatedData.imageUrl = await getDownloadURL(storageRef);
-            }
-            await setDoc(doc(db, 'stores', slug), updatedData, { merge: true });
+        if (editProfileSidebar) {
             editProfileSidebar.style.display = 'none';
-            window.location.reload(); // Podrías reemplazar esto con una actualización dinámica si prefieres
-        } catch (error) {
-            console.error('Error al guardar los cambios:', error.message);
-            alert('Error al guardar los cambios: ' + error.message);
         }
     });
+
+    if (editStoreForm) {
+        editStoreForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            try {
+                const updatedData = {
+                    name: document.getElementById('edit-store-name').value,
+                    description: document.getElementById('edit-store-description').value,
+                    phone: document.getElementById('edit-store-phone').value || null,
+                };
+                const editStoreImage = document.getElementById('edit-store-image').files[0];
+                if (editStoreImage) {
+                    const imagePath = `stores/${slug}/profile_${Date.now()}.jpg`;
+                    const storageRef = ref(storage, imagePath);
+                    const metadata = {
+                        customMetadata: {
+                            owner: auth.currentUser.uid
+                        }
+                    };
+                    await uploadBytes(storageRef, editStoreImage, metadata);
+                    updatedData.imageUrl = await getDownloadURL(storageRef);
+                }
+                await setDoc(doc(db, 'stores', slug), updatedData, { merge: true });
+                editProfileSidebar.style.display = 'none';
+                // Actualización dinámica en lugar de recargar (opcional)
+                // window.location.reload();
+                elements.storeName.textContent = updatedData.name;
+                elements.storeDescription.textContent = updatedData.description;
+                if (updatedData.imageUrl) elements.storeImage.src = updatedData.imageUrl;
+            } catch (error) {
+                console.error('Error al guardar los cambios:', error.message);
+                alert('Error al guardar los cambios: ' + error.message);
+            }
+        });
+    }
 
     // Gestionar edición de productos
     let isEditingProducts = false;
@@ -101,7 +112,8 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
             let editBtn = card.querySelector('.edit-product-btn') || createButton('bi-pencil', 'edit-product-btn');
             let hideBtn = card.querySelector('.hide-product-btn') || createButton('bi-eye-slash', 'hide-product-btn');
             let deleteBtn = card.querySelector('.delete-product-btn') || createButton('bi-trash', 'delete-product-btn');
-            const actionsContainer = card.querySelector('.product-actions');
+            const actionsContainer = card.querySelector('.product-actions') || card.appendChild(document.createElement('div'));
+            actionsContainer.className = 'product-actions';
             actionsContainer.append(editBtn, hideBtn, deleteBtn);
             editBtn.style.display = isEditingProducts ? 'inline-block' : 'none';
             hideBtn.style.display = isEditingProducts ? 'inline-block' : 'none';
@@ -175,14 +187,20 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
 
     // Evento para abrir el modal de añadir historia
     document.getElementById('add-story-option').addEventListener('click', () => {
-        postStoryModal.style.display = 'flex';
-        addActionModal.style.display = 'none';
-        document.getElementById('story-source-options').style.display = 'flex';
-        document.getElementById('story-preview-container').style.display = 'none';
+        if (postStoryModal) {
+            postStoryModal.style.display = 'flex';
+            if (addActionModal) addActionModal.style.display = 'none';
+            document.getElementById('story-source-options').style.display = 'flex';
+            document.getElementById('story-preview-container').style.display = 'none';
+        } else {
+            console.error('#post-story-modal no encontrado en el DOM');
+        }
     });
 
     document.getElementById('close-add-action').addEventListener('click', () => {
-        addActionModal.style.display = 'none';
+        if (addActionModal) {
+            addActionModal.style.display = 'none';
+        }
     });
 
     // Lógica para historias
@@ -207,15 +225,18 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
     });
 
     document.getElementById('tag-products-btn').addEventListener('click', () => {
-        document.getElementById('story-product').style.display = 'block';
-        document.getElementById('preview-image').style.cursor = 'crosshair';
-        populateStoryProductSelect(slug);
+        const storyProductSelect = document.getElementById('story-product');
+        if (storyProductSelect) {
+            storyProductSelect.style.display = 'block';
+            document.getElementById('preview-image').style.cursor = 'crosshair';
+            populateStoryProductSelect(slug);
+        }
     });
 
     document.getElementById('preview-image').addEventListener('click', (e) => {
         const storyProductSelect = document.getElementById('story-product');
-        if (storyProductSelect.style.display !== 'block') return;
-        const productId = storyProductSelect.value;
+        if (storyProductSelect && storyProductSelect.style.display !== 'block') return;
+        const productId = storyProductSelect ? storyProductSelect.value : '';
         if (!productId) {
             alert('Selecciona un producto para etiquetar');
             return;
@@ -252,11 +273,12 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
             };
 
             await addDoc(collection(db, 'stores', slug, 'stories'), storyData);
-            postStoryModal.style.display = 'none';
+            if (postStoryModal) postStoryModal.style.display = 'none';
             taggedProducts = [];
             storyImageFile = null;
             document.getElementById('preview-tags').innerHTML = '';
-            window.location.reload(); // Podrías reemplazar con una actualización dinámica
+            // Actualización dinámica en lugar de recargar (opcional)
+            // window.location.reload();
         } catch (error) {
             console.error('Error al publicar la historia:', error);
             alert('Error al publicar la historia: ' + error.message);
@@ -264,12 +286,14 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
     });
 
     document.getElementById('close-story-modal').addEventListener('click', () => {
-        postStoryModal.style.display = 'none';
-        taggedProducts = [];
-        storyImageFile = null;
-        document.getElementById('preview-tags').innerHTML = '';
-        document.getElementById('story-source-options').style.display = 'flex';
-        document.getElementById('story-preview-container').style.display = 'none';
+        if (postStoryModal) {
+            postStoryModal.style.display = 'none';
+            taggedProducts = [];
+            storyImageFile = null;
+            document.getElementById('preview-tags').innerHTML = '';
+            document.getElementById('story-source-options').style.display = 'flex';
+            document.getElementById('story-preview-container').style.display = 'none';
+        }
     });
 
     // Funciones auxiliares
@@ -291,14 +315,16 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
     async function populateStoryProductSelect(slug) {
         const productsSnapshot = await getDocs(collection(db, 'stores', slug, 'products'));
         const storyProductSelect = document.getElementById('story-product');
-        storyProductSelect.innerHTML = '<option value="">Selecciona un producto</option>';
-        productsSnapshot.forEach((doc) => {
-            const product = doc.data();
-            const option = document.createElement('option');
-            option.value = doc.id;
-            option.textContent = product.name;
-            storyProductSelect.appendChild(option);
-        });
+        if (storyProductSelect) {
+            storyProductSelect.innerHTML = '<option value="">Selecciona un producto</option>';
+            productsSnapshot.forEach((doc) => {
+                const product = doc.data();
+                const option = document.createElement('option');
+                option.value = doc.id;
+                option.textContent = product.name;
+                storyProductSelect.appendChild(option);
+            });
+        }
     }
 
     function createButton(iconClass, className) {
