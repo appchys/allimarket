@@ -95,9 +95,9 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
         editProductsBtn.textContent = isEditingProducts ? 'Terminar Edición' : 'Editar productos';
         const productCards = elements.feedContainer.querySelectorAll('.store-product');
         productCards.forEach(card => {
-            let editBtn = card.querySelector('.edit-product-btn') || createButton('Editar', 'edit-product-btn');
-            let hideBtn = card.querySelector('.hide-product-btn') || createButton('Ocultar', 'hide-product-btn');
-            let deleteBtn = card.querySelector('.delete-product-btn') || createButton('Eliminar', 'delete-product-btn');
+            let editBtn = card.querySelector('.edit-product-btn') || createButton('bi-pencil', 'edit-product-btn');
+            let hideBtn = card.querySelector('.hide-product-btn') || createButton('bi-eye-slash', 'hide-product-btn');
+            let deleteBtn = card.querySelector('.delete-product-btn') || createButton('bi-trash', 'delete-product-btn');
             const actionsContainer = card.querySelector('.product-actions') || card.appendChild(document.createElement('div'));
             actionsContainer.className = 'product-actions';
             actionsContainer.append(editBtn, hideBtn, deleteBtn);
@@ -108,8 +108,6 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
 
         if (isEditingProducts) {
             setupProductOptions(db, slug, elements.feedContainer);
-        } else {
-            closeAllPopovers(); // Cierra todos los popovers al salir del modo edición
         }
     });
 
@@ -117,15 +115,9 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
         const optionsButtons = feedContainer.querySelectorAll('.options-btn');
         optionsButtons.forEach((btn) => {
             btn.addEventListener('click', (e) => {
-                e.preventDefault(); // Evita comportamiento predeterminado
-                e.stopPropagation(); // Evita que el clic se propague al documento
                 const popover = btn.nextElementSibling;
                 if (popover) {
-                    // Cierra otros popovers abiertos
-                    closeAllPopovers();
-                    popover.style.display = 'block';
-                    // Almacena el popover abierto para el cierre afuera
-                    btn.dataset.popoverOpen = 'true';
+                    popover.style.display = popover.style.display === 'none' ? 'block' : 'none';
                 }
             });
 
@@ -148,7 +140,6 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
                         productCard.querySelector('.description').textContent = newDescription;
                         productCard.querySelector('.price').textContent = `$${parseFloat(newPrice).toFixed(2)}`;
                         alert('Producto actualizado');
-                        closeAllPopovers(); // Cierra el popover después de la acción
                     } catch (error) {
                         console.error('Error al actualizar producto:', error);
                         alert('Error: ' + error.message);
@@ -161,7 +152,6 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
                     await updateDoc(productRef, { hidden: true });
                     productCard.style.display = 'none';
                     alert('Producto ocultado');
-                    closeAllPopovers(); // Cierra el popover después de la acción
                 } catch (error) {
                     console.error('Error al ocultar producto:', error);
                     alert('Error: ' + error.message);
@@ -174,36 +164,12 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
                         await deleteDoc(productRef);
                         productCard.remove();
                         alert('Producto eliminado');
-                        closeAllPopovers(); // Cierra el popover después de la acción
                     } catch (error) {
                         console.error('Error al eliminar producto:', error);
                         alert('Error: ' + error.message);
                     }
                 }
             });
-        });
-
-        // Evento para cerrar el popover al hacer clic afuera
-        document.addEventListener('click', (e) => {
-            const openPopovers = feedContainer.querySelectorAll('[data-popover-open="true"]');
-            openPopovers.forEach(btn => {
-                const popover = btn.nextElementSibling;
-                if (popover && !btn.contains(e.target) && !popover.contains(e.target)) {
-                    popover.style.display = 'none';
-                    delete btn.dataset.popoverOpen;
-                }
-            });
-        });
-    }
-
-    function closeAllPopovers() {
-        const openPopovers = elements.feedContainer.querySelectorAll('[data-popover-open="true"]');
-        openPopovers.forEach(btn => {
-            const popover = btn.nextElementSibling;
-            if (popover) {
-                popover.style.display = 'none';
-                delete btn.dataset.popoverOpen;
-            }
         });
     }
 
@@ -344,9 +310,9 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
         }
     }
 
-    function createButton(text, className) {
+    function createButton(iconClass, className) {
         const btn = document.createElement('button');
-        btn.textContent = text;
+        btn.innerHTML = `<i class="bi ${iconClass}"></i>`;
         btn.className = className;
         btn.style.display = 'none';
         return btn;

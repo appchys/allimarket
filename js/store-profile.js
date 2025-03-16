@@ -1,6 +1,7 @@
 import { getDoc, setDoc, doc, collection, query, orderBy, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
-import { loadStoreFeed } from './store-feed.js';
+import { loadOwnerFeatures } from './store-owner.js';
 import { normalizePhoneNumber } from './store-utils.js';
+import { loadStoreFeed } from './store-feed.js';
 
 // Carrito global almacenado en localStorage
 let cart = JSON.parse(localStorage.getItem('cart')) || {};
@@ -30,17 +31,20 @@ export async function loadStoreProfile(db, storage, auth) {
         closeCartModal: document.getElementById('close-cart-modal'),
     };
 
+    // Depuración inicial del DOM
     console.log('Verificando elementos del DOM:');
     Object.entries(elements).forEach(([key, el]) => {
         console.log(`${key}: ${el ? 'encontrado' : 'no encontrado'}`);
     });
 
+    // Verifica si los elementos esenciales están presentes
     if (!elements.storeName || !elements.storeImage || !elements.storeActions || !elements.storiesContainer || !elements.feedContainer) {
         console.error('Faltan elementos esenciales del DOM para cargar el perfil de la tienda');
         window.isProfileLoading = false;
         return;
     }
 
+    // Esperar a que el estado de autenticación esté listo
     const user = await new Promise((resolve) => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
             unsubscribe();
@@ -82,6 +86,8 @@ export async function loadStoreProfile(db, storage, auth) {
         console.log('Datos de la tienda:', storeDoc.data());
 
         const store = storeDoc.data();
+        console.log('Datos de la tienda cargados:', store);
+
         elements.storeImage.src = store.imageUrl || 'https://placehold.co/100x100';
         elements.storeName.textContent = store.name || 'Sin nombre';
         elements.storeFollowers.textContent = `${store.followers || 0} seguidores`;
@@ -92,10 +98,7 @@ export async function loadStoreProfile(db, storage, auth) {
         elements.storeActions.innerHTML = '';
 
         if (isOwner) {
-            // Lógica de propietario (delegada a store-owner.js)
-            await import('./store-owner.js').then(module => {
-                module.loadOwnerFeatures(db, storage, auth, slug, store, elements);
-            });
+            await loadOwnerFeatures(db, storage, auth, slug, store, elements);
         } else {
             const followBtn = document.createElement('button');
             followBtn.textContent = 'Seguir';
@@ -165,7 +168,7 @@ export async function loadStoreProfile(db, storage, auth) {
             document.getElementById('product-tags').innerHTML = '';
         });
 
-        // Cargar el feed de productos (delegado a store-feed.js)
+        // Cargar el feed de productos
         await loadStoreFeed(db, slug, auth);
 
         updateCartBubble(elements);
@@ -196,7 +199,7 @@ export async function loadStoreProfile(db, storage, auth) {
     }
 }
 
-// Mantener las funciones relacionadas con el carrito
+// Configurar eventos para los botones "Añadir al carrito"
 export function setupCartButtons(slug, db, elements) {
     const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
     console.log(`Ejecutando setupCartButtons - Botones encontrados: ${addToCartButtons.length}`);
@@ -227,6 +230,7 @@ export function setupCartButtons(slug, db, elements) {
     });
 }
 
+// Actualizar la burbuja del carrito
 export function updateCartBubble(elements) {
     const totalItems = Object.values(cart).reduce((sum, items) => sum + items.length, 0);
     if (elements.cartCount) {
@@ -237,6 +241,7 @@ export function updateCartBubble(elements) {
     }
 }
 
+// Mostrar el contenido del carrito en el modal
 export function showCartModal(db, elements, currentSlug, currentStoreName) {
     elements.cartItems.innerHTML = '';
     if (Object.keys(cart).length === 0) {
@@ -290,6 +295,7 @@ export function showCartModal(db, elements, currentSlug, currentStoreName) {
     elements.cartModal.style.display = 'flex';
 }
 
+// Ejecutar loadStoreProfile cuando el DOM esté listo y Firebase esté inicializado
 window.addEventListener('load', () => {
     console.log('store-profile.js cargado, esperando Firebase...');
     if (!window.db || !window.storage || !window.auth) {
