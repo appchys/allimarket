@@ -1,5 +1,5 @@
 // store-feed.js
-import { collection, query, orderBy, getDocs, getDoc, updateDoc, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+import { collection, query, orderBy, getDocs, getDoc, doc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 
 export async function loadStoreFeed(db, slug, auth) {
     const feedContainer = document.getElementById('feed-container');
@@ -73,7 +73,8 @@ export async function loadStoreFeed(db, slug, auth) {
         });
 
         if (isOwner) {
-            setupOwnerOptions(db, slug, feedContainer);
+            // No implementamos la lógica aquí; se delega a store-owner.js
+            console.log('El propietario está autenticado, la edición se manejará en store-owner.js');
         } else {
             setupCartButtons(slug, db, feedContainer);
         }
@@ -83,48 +84,6 @@ export async function loadStoreFeed(db, slug, auth) {
         console.error('Error al cargar los productos:', error);
         feedContainer.innerHTML = '<p>Error al cargar los productos</p>';
     }
-}
-
-function setupOwnerOptions(db, slug, feedContainer) {
-    const optionsButtons = feedContainer.querySelectorAll('.options-btn');
-    optionsButtons.forEach((btn) => {
-        btn.addEventListener('click', (e) => {
-            const popover = btn.nextElementSibling;
-            popover.style.display = popover.style.display === 'none' ? 'block' : 'none';
-        });
-
-        const productCard = btn.closest('.store-product');
-        const productId = productCard.dataset.productId;
-        const productRef = doc(db, 'stores', slug, 'products', productId);
-
-        productCard.querySelector('.edit-product-btn').addEventListener('click', async () => {
-            const newName = prompt('Nuevo nombre:', productCard.querySelector('h3').textContent);
-            const newDescription = prompt('Nueva descripción:', productCard.querySelector('.description').textContent);
-            const newPrice = prompt('Nuevo precio:', productCard.querySelector('.price').textContent.replace('$', ''));
-            if (newName && newDescription && newPrice) {
-                await updateDoc(productRef, {
-                    name: newName,
-                    description: newDescription,
-                    price: parseFloat(newPrice)
-                });
-                productCard.querySelector('h3').textContent = newName;
-                productCard.querySelector('.description').textContent = newDescription;
-                productCard.querySelector('.price').textContent = `$${parseFloat(newPrice).toFixed(2)}`;
-            }
-        });
-
-        productCard.querySelector('.hide-product-btn').addEventListener('click', async () => {
-            await updateDoc(productRef, { hidden: true });
-            productCard.style.display = 'none';
-        });
-
-        productCard.querySelector('.delete-product-btn').addEventListener('click', async () => {
-            if (confirm('¿Seguro que quieres eliminar este producto?')) {
-                await deleteDoc(productRef);
-                productCard.remove();
-            }
-        });
-    });
 }
 
 function setupCartButtons(slug, db, feedContainer) {
