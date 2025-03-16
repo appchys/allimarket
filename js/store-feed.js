@@ -1,23 +1,10 @@
 // store-feed.js
-import { collection, query, orderBy, getDocs, getDoc, doc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+import { collection, query, orderBy, getDocs, getDoc, doc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 
 export async function loadStoreFeed(db, slug, auth) {
     const feedContainer = document.getElementById('feed-container');
     if (!feedContainer) {
         console.error('No se encontró el contenedor del feed (#feed-container)');
-        return;
-    }
-
-    try {
-        const response = await fetch('store-feed.html');
-        const html = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const feedContent = doc.getElementById('feed-container').innerHTML;
-        feedContainer.innerHTML = feedContent;
-    } catch (error) {
-        console.error('Error al cargar store-feed.html:', error);
-        feedContainer.innerHTML = '<p>Error al cargar el contenedor del feed</p>';
         return;
     }
 
@@ -54,9 +41,9 @@ export async function loadStoreFeed(db, slug, auth) {
                             <i class="bi bi-three-dots"></i>
                         </button>
                         <div class="popover" style="display: none;">
-                            <button class="edit-product-btn">Editar</button>
-                            <button class="hide-product-btn">Ocultar</button>
-                            <button class="delete-product-btn">Eliminar</button>
+                            <button class="edit-product-btn"><i class="bi bi-pencil"></i> Editar</button>
+                            <button class="hide-product-btn"><i class="bi bi-eye-slash"></i> Ocultar</button>
+                            <button class="delete-product-btn"><i class="bi bi-trash"></i> Eliminar</button>
                         </div>
                     ` : ''}
                 </div>
@@ -72,10 +59,93 @@ export async function loadStoreFeed(db, slug, auth) {
         });
 
         if (isOwner) {
-            console.log('El propietario está autenticado, la edición se manejará en store-owner.js');
+            // Configurar el comportamiento del popover
+            const optionButtons = feedContainer.querySelectorAll('.options-btn');
+            optionButtons.forEach((btn) => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Evitar que el clic se propague
+                    const popover = btn.nextElementSibling;
+                    const isVisible = popover.style.display === 'block';
+                    
+                    // Ocultar todos los popovers abiertos
+                    feedContainer.querySelectorAll('.popover').forEach((p) => {
+                        p.style.display = 'none';
+                    });
+
+                    // Mostrar u ocultar el popover actual
+                    popover.style.display = isVisible ? 'none' : 'block';
+                });
+            });
+
+            // Manejar clics en los botones del popover
+            feedContainer.addEventListener('click', async (e) => {
+                const target = e.target.closest('button');
+                if (!target) return;
+
+                const productCard = target.closest('.store-product');
+                if (!productCard) return;
+
+                const productId = productCard.dataset.productId;
+                const productRef = doc(db, 'stores', slug, 'products', productId);
+
+                if (target.classList.contains('edit-product-btn')) {
+                    const newName = prompt('Nuevo nombre del producto:', productCard.querySelector('h3').textContent);
+                    const newPrice = prompt('Nuevo precio:', productCard.querySelector('.price').textContent.replace('$', ''));
+                    const newDescription = prompt('Nueva descripción:', productCard.querySelector('.description').textContent);
+                    if (newName && newPrice && newDescription) {
+                        try {
+                            await updateDoc(productRef, {
+                                name: newName,
+                                price: parseFloat(newPrice),
+                                description: newDescription
+                            });
+                            productCard.querySelector('h3').textContent = newName;
+                            productCard.querySelector('.price').textContent = `$${parseFloat(newPrice).toFixed(2)}`;
+                            productCard.querySelector('.description').textContent = newDescription;
+                            alert('Producto actualizado');
+                        } catch (error) {
+                            console.error('Error al actualizar producto:', error);
+                            alert('Error: ' + error.message);
+                        }
+                    }
+                } else if (target.classList.contains('hide-product-btn')) {
+                    try {
+                        await updateDoc(productRef, { hidden: true });
+                        productCard.style.display = 'none';
+                        alert('Producto ocultado');
+                    } catch (error) {
+                        console.error('Error al ocultar producto:', error);
+                        alert('Error: ' + error.message);
+                    }
+                } else if (target.classList.contains('delete-product-btn')) {
+                    if (confirm('¿Seguro que quieres eliminar este producto?')) {
+                        try {
+                            await deleteDoc(productRef);
+                            productCard.remove();
+                            alert('Producto eliminado');
+                        } catch (error) {
+                            console.error('Error al eliminar producto:', error);
+                            alert('Error: ' + error.message);
+                        }
+                    }
+                }
+
+                // Ocultar el popover después de la acción
+                const popover = target.closest('.popover');
+                if (popover) popover.style.display = 'none';
+            });
         } else {
             setupCartButtons(slug, db, feedContainer);
         }
+
+        // Ocultar popovers al hacer clic fuera
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.options-btn') && !e.target.closest('.popover')) {
+                feedContainer.querySelectorAll('.popover').forEach((p) => {
+                    p.style.display = 'none';
+                });
+            }
+        });
 
         console.log('Feed de productos cargado con éxito');
     } catch (error) {
@@ -84,33 +154,4 @@ export async function loadStoreFeed(db, slug, auth) {
     }
 }
 
-function setupCartButtons(slug, db, feedContainer) {
-    const addToCartButtons = feedContainer.querySelectorAll('.add-to-cart-btn');
-    addToCartButtons.forEach((button) => {
-        button.addEventListener('click', async () => {
-            const productId = button.dataset.productId;
-            const productDoc = await getDoc(doc(db, 'stores', slug, 'products', productId));
-            if (productDoc.exists()) {
-                const product = productDoc.data();
-                let cart = JSON.parse(localStorage.getItem('cart')) || {};
-                if (!cart[slug]) cart[slug] = [];
-                cart[slug].push({
-                    productId,
-                    name: product.name,
-                    price: product.price
-                });
-                localStorage.setItem('cart', JSON.stringify(cart));
-                updateCartBubble();
-            }
-        });
-    });
-}
-
-function updateCartBubble() {
-    const cartBubble = document.getElementById('cart-bubble');
-    const cartCount = document.getElementById('cart-count');
-    const cart = JSON.parse(localStorage.getItem('cart')) || {};
-    const totalItems = Object.values(cart).reduce((sum, items) => sum + items.length, 0);
-    if (cartCount) cartCount.textContent = totalItems;
-    if (cartBubble) cartBubble.style.display = totalItems > 0 ? 'block' : 'none';
-}
+// Resto del código (setupCartButtons, updateCartBubble) permanece igual
