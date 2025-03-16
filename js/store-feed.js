@@ -21,7 +21,6 @@ export async function loadStoreFeed(db, slug, auth) {
             return;
         }
 
-        // Verificar si el usuario es el propietario
         const user = auth.currentUser;
         const storeDoc = await getDoc(doc(db, 'stores', slug));
         const isOwner = user && storeDoc.exists() && storeDoc.data().owner === user.uid;
@@ -33,53 +32,46 @@ export async function loadStoreFeed(db, slug, auth) {
             productElement.classList.add('product', 'store-product');
             productElement.dataset.productId = doc.id;
 
-            // Estructura de la tarjeta
             productElement.innerHTML = `
                 <div class="product-image-container">
                     <img src="${product.imageUrl || 'https://placehold.co/200x200'}" alt="${product.name}" loading="lazy">
-                    ${
-                        isOwner
-                            ? `
-                                <button class="options-btn" data-product-id="${doc.id}">
-                                    <i class="bi bi-three-dots"></i>
-                                </button>
-                                <div class="popover" style="display: none;">
-                                    <button class="edit-product-btn">Editar</button>
-                                    <button class="hide-product-btn">Ocultar</button>
-                                    <button class="delete-product-btn">Eliminar</button>
-                                </div>
-                            `
-                            : ''
-                    }
+                    ${isOwner ? `
+                        <button class="options-btn" data-product-id="${doc.id}">
+                            <i class="bi bi-three-dots"></i>
+                        </button>
+                        <div class="popover" style="display: none;">
+                            <button class="edit-product-btn">Editar</button>
+                            <button class="hide-product-btn">Ocultar</button>
+                            <button class="delete-product-btn">Eliminar</button>
+                        </div>
+                    ` : ''}
                 </div>
                 <div class="product-details">
                     <h3>${product.name || 'Sin nombre'}</h3>
                     <p class="description">${product.description || 'Sin descripción'}</p>
                     <p class="price">$${product.price || '0.00'}</p>
                 </div>
-                ${
-                    !isOwner
-                        ? `<button class="add-to-cart-btn" data-product-id="${doc.id}"><i class="bi bi-cart-plus"></i> Añadir al carrito</button>`
-                        : ''
-                }
+                ${!isOwner ? `<button class="add-to-cart-btn" data-product-id="${doc.id}"><i class="bi bi-cart-plus"></i> Añadir al carrito</button>` : ''}
             `;
 
             feedContainer.appendChild(productElement);
         });
 
-        // Configurar eventos para el botón de opciones (solo propietario)
         if (isOwner) {
             setupOwnerOptions(db, slug, feedContainer);
         } else {
             setupCartButtons(slug, db, feedContainer);
         }
+
+        // Actualizar el feed si hay cambios (puedes añadir un listener de tiempo real si usas onSnapshot)
+        console.log('Feed de productos cargado con éxito');
     } catch (error) {
         console.error('Error al cargar los productos:', error);
         feedContainer.innerHTML = '<p>Error al cargar los productos</p>';
     }
 }
 
-// Función para manejar las opciones del propietario
+// Mantener las funciones auxiliares existentes
 function setupOwnerOptions(db, slug, feedContainer) {
     const optionsButtons = feedContainer.querySelectorAll('.options-btn');
     optionsButtons.forEach((btn) => {
@@ -122,7 +114,6 @@ function setupOwnerOptions(db, slug, feedContainer) {
     });
 }
 
-// Función para manejar el botón "Añadir al carrito"
 function setupCartButtons(slug, db, feedContainer) {
     const addToCartButtons = feedContainer.querySelectorAll('.add-to-cart-btn');
     addToCartButtons.forEach((button) => {
@@ -145,7 +136,6 @@ function setupCartButtons(slug, db, feedContainer) {
     });
 }
 
-// Actualizar la burbuja del carrito
 function updateCartBubble() {
     const cartBubble = document.getElementById('cart-bubble');
     const cartCount = document.getElementById('cart-count');
