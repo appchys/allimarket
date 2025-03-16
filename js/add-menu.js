@@ -100,6 +100,19 @@ function addStoryOption(option) {
     console.log("Opción seleccionada:", option);
 }
 
+function initializeStoryModal() {
+    const storyModal = document.getElementById('upload-story-modal');
+    const closeStoryModal = document.getElementById('close-story-modal');
+
+    if (storyModal && closeStoryModal) {
+        closeStoryModal.addEventListener('click', () => {
+            storyModal.style.display = 'none'; // Oculta el modal
+        });
+    } else {
+        console.error('No se encontró el modal o el botón de cerrar.');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const closeStoryModal = document.getElementById('close-story-modal');
     const storyModal = document.getElementById('upload-story-modal');
