@@ -9,7 +9,7 @@
     background-color: rgba(0, 0, 0, 0.5);
     justify-content: center; /* Esto ya está bien */
     align-items: center; /* Esto ya está bien */
-    z-index: 1000;
+    z-index: 2000;
 }
 
 .modal-content {
