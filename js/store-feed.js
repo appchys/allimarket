@@ -8,14 +8,13 @@ export async function loadStoreFeed(db, slug, auth) {
         return;
     }
 
-    // Cargar dinámicamente store-feed.html si es necesario
     try {
         const response = await fetch('store-feed.html');
         const html = await response.text();
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
-        const feedContent = doc.getElementById('feed-container').innerHTML; // Solo el contenido interno
-        feedContainer.innerHTML = feedContent; // Carga el contenedor limpio
+        const feedContent = doc.getElementById('feed-container').innerHTML;
+        feedContainer.innerHTML = feedContent;
     } catch (error) {
         console.error('Error al cargar store-feed.html:', error);
         feedContainer.innerHTML = '<p>Error al cargar el contenedor del feed</p>';
@@ -48,7 +47,7 @@ export async function loadStoreFeed(db, slug, auth) {
             productElement.dataset.productId = doc.id;
 
             productElement.innerHTML = `
-                <div class="product-image-container">
+                <div class="product-image-container" style="position: relative;">
                     <img src="${product.imageUrl || 'https://placehold.co/200x200'}" alt="${product.name}" loading="lazy">
                     ${isOwner ? `
                         <button class="options-btn" data-product-id="${doc.id}">
@@ -73,7 +72,6 @@ export async function loadStoreFeed(db, slug, auth) {
         });
 
         if (isOwner) {
-            // No implementamos la lógica aquí; se delega a store-owner.js
             console.log('El propietario está autenticado, la edición se manejará en store-owner.js');
         } else {
             setupCartButtons(slug, db, feedContainer);
