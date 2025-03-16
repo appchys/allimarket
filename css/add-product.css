@@ -9,7 +9,7 @@
     background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semitransparente */
     justify-content: center;
     align-items: center;
-    z-index: 2000; /* Ya está bien, asegura que esté por encima del options-btn (z-index: 1002) */
+    z-index: 2001; /* Ya está bien, asegura que esté por encima del options-btn (z-index: 1002) */
 }
 
 /* Contenido del modal */
@@ -20,7 +20,7 @@
     width: 90%;
     max-width: 500px;
     position: relative;
-    z-index: 2001; /* Asegura que el contenido esté por encima del fondo del modal */
+    z-index: 2002; /* Asegura que el contenido esté por encima del fondo del modal */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Sombra para un efecto elevado */
 }
 
