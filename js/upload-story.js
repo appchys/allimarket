@@ -108,7 +108,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     closeStoryModal.addEventListener('click', () => {
-        window.location.href = '/'; // O redirige a donde prefieras
+        const storyModal = document.getElementById('story-modal'); // Asegúrate de que el modal tenga este ID
+        if (storyModal) {
+            storyModal.style.display = 'none'; // Oculta el modal
+        }
+        // Opcional: Limpia los campos del modal si es necesario
+        storyImageFile = null;
+        previewImage.src = '';
+        previewTags.innerHTML = '';
+        storyProductSelect.style.display = 'none';
     });
 
     function handleImageSelect(e) {
