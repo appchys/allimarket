@@ -99,3 +99,24 @@ function addStoryOption(option) {
     // Lógica para manejar la opción de historia
     console.log("Opción seleccionada:", option);
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const closeStoryModal = document.getElementById('close-story-modal');
+    const storyModal = document.getElementById('upload-story-modal');
+
+    if (closeStoryModal && storyModal) {
+        closeStoryModal.addEventListener('click', () => {
+            storyModal.style.display = 'none'; // Oculta el modal
+            // Opcional: Limpia los campos del modal si es necesario
+            const previewImage = document.getElementById('preview-image');
+            const previewTags = document.getElementById('preview-tags');
+            const storyProductSelect = document.getElementById('story-product');
+
+            if (previewImage) previewImage.src = '';
+            if (previewTags) previewTags.innerHTML = '';
+            if (storyProductSelect) storyProductSelect.style.display = 'none';
+        });
+    } else {
+        console.error('No se encontró el botón o el modal para cerrar la historia.');
+    }
+});

@@ -57,23 +57,22 @@
 }
 
 .upload-story-modal {
+    display: none; /* Oculto por defecto */
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro */
     justify-content: center;
     align-items: center;
-    z-index: 1002;
+    z-index: 2000;
 }
 
 .upload-story-content {
-    background-color: #ffffff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    border-radius: 8px;
+    background-color: white;
     padding: 20px;
+    border-radius: 8px;
     width: 90%;
     max-width: 500px;
     position: relative;
@@ -124,10 +123,7 @@
     right: 10px;
     background: none;
     border: none;
-    color: rgb(39, 39, 39);
-    font-size: 16px;
-    padding: 0; /* Sin relleno adicional */
-    margin: 0; /* Sin margen adicional */
+    font-size: 18px;
     cursor: pointer;
 }
 
