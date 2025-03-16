@@ -109,41 +109,25 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
         if (isEditingProducts) {
             setupProductOptions(db, slug, elements.feedContainer);
         } else {
-            closeAllPopovers();
-            removeEventListeners(elements.feedContainer); // Limpiar eventos al salir del modo edición
+            closeAllPopovers(); // Cierra todos los popovers al salir del modo edición
         }
     });
 
-    let clickOutsideListener = null;
-
     function setupProductOptions(db, slug, feedContainer) {
         const optionsButtons = feedContainer.querySelectorAll('.options-btn');
-        console.log(`Botones .options-btn encontrados: ${optionsButtons.length}`); // Depuración
-
-        if (optionsButtons.length === 0) {
-            console.warn('No se encontraron botones .options-btn. Asegúrate de que loadStoreFeed se ejecutó primero.');
-            return;
-        }
-
         optionsButtons.forEach((btn) => {
-            // Añadir evento de clic al botón de opciones
-            const togglePopover = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Clic en .options-btn'); // Depuración
+            btn.addEventListener('click', (e) => {
+                e.preventDefault(); // Evita comportamiento predeterminado
+                e.stopPropagation(); // Evita que el clic se propague al documento
                 const popover = btn.nextElementSibling;
                 if (popover) {
-                    // Cierra otros popovers
+                    // Cierra otros popovers abiertos
                     closeAllPopovers();
-                    // Alterna la visibilidad del popover
-                    const isVisible = popover.style.display === 'block';
-                    popover.style.display = isVisible ? 'none' : 'block';
-                    btn.dataset.popoverOpen = isVisible ? 'false' : 'true';
+                    popover.style.display = 'block';
+                    // Almacena el popover abierto para el cierre afuera
+                    btn.dataset.popoverOpen = 'true';
                 }
-            };
-
-            btn.addEventListener('click', togglePopover);
-            btn.dataset.eventAdded = 'true'; // Marca que el evento se añadió
+            });
 
             const productCard = btn.closest('.store-product');
             const productId = productCard.dataset.productId;
@@ -164,7 +148,7 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
                         productCard.querySelector('.description').textContent = newDescription;
                         productCard.querySelector('.price').textContent = `$${parseFloat(newPrice).toFixed(2)}`;
                         alert('Producto actualizado');
-                        closeAllPopovers();
+                        closeAllPopovers(); // Cierra el popover después de la acción
                     } catch (error) {
                         console.error('Error al actualizar producto:', error);
                         alert('Error: ' + error.message);
@@ -177,7 +161,7 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
                     await updateDoc(productRef, { hidden: true });
                     productCard.style.display = 'none';
                     alert('Producto ocultado');
-                    closeAllPopovers();
+                    closeAllPopovers(); // Cierra el popover después de la acción
                 } catch (error) {
                     console.error('Error al ocultar producto:', error);
                     alert('Error: ' + error.message);
@@ -190,7 +174,7 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
                         await deleteDoc(productRef);
                         productCard.remove();
                         alert('Producto eliminado');
-                        closeAllPopovers();
+                        closeAllPopovers(); // Cierra el popover después de la acción
                     } catch (error) {
                         console.error('Error al eliminar producto:', error);
                         alert('Error: ' + error.message);
@@ -199,23 +183,17 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
             });
         });
 
-        // Limpiar el listener anterior si existe
-        if (clickOutsideListener) {
-            document.removeEventListener('click', clickOutsideListener);
-        }
-
-        // Añadir evento para cerrar al hacer clic afuera
-        clickOutsideListener = (e) => {
+        // Evento para cerrar el popover al hacer clic afuera
+        document.addEventListener('click', (e) => {
             const openPopovers = feedContainer.querySelectorAll('[data-popover-open="true"]');
             openPopovers.forEach(btn => {
                 const popover = btn.nextElementSibling;
                 if (popover && !btn.contains(e.target) && !popover.contains(e.target)) {
                     popover.style.display = 'none';
-                    btn.dataset.popoverOpen = 'false';
+                    delete btn.dataset.popoverOpen;
                 }
             });
-        };
-        document.addEventListener('click', clickOutsideListener);
+        });
     }
 
     function closeAllPopovers() {
@@ -224,23 +202,9 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
             const popover = btn.nextElementSibling;
             if (popover) {
                 popover.style.display = 'none';
-                btn.dataset.popoverOpen = 'false';
+                delete btn.dataset.popoverOpen;
             }
         });
-    }
-
-    function removeEventListeners(feedContainer) {
-        const optionsButtons = feedContainer.querySelectorAll('.options-btn');
-        optionsButtons.forEach(btn => {
-            if (btn.dataset.eventAdded === 'true') {
-                btn.replaceWith(btn.cloneNode(true)); // Clona el botón para eliminar eventos
-                btn.dataset.eventAdded = 'false';
-            }
-        });
-        if (clickOutsideListener) {
-            document.removeEventListener('click', clickOutsideListener);
-            clickOutsideListener = null;
-        }
     }
 
     document.getElementById('add-story-option').addEventListener('click', () => {
