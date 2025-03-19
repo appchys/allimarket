@@ -54,16 +54,17 @@
         </div>
     </div>
 
+    <!-- Modal del carrito -->
+    <div id="cart-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h2>Carrito de Compras</h2>
+            <div id="cart-items"></div>
+            <button id="close-cart-modal" class="close-btn">✖</button>
+        </div>
+    </div>
+
     <script type="module" src="js/app.js"></script>
     <script>
-        // Cargar la barra de navegación
-        fetch('nav.html')
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('nav-container').innerHTML = html;
-            })
-            .catch(error => console.error('Error al cargar nav.html:', error));
-
         // Cerrar modal de historia
         document.getElementById('close-story-view').addEventListener('click', () => {
             document.getElementById('story-view-modal').style.display = 'none';
@@ -77,15 +78,6 @@
         });
     </script>
 
-<!-- Modal del carrito -->
-<div id="cart-modal" class="modal" style="display:none;">
-    <div class="modal-content">
-        <h2>Carrito de Compras</h2>
-        <div id="cart-items"></div>
-        <button id="close-cart-modal" class="close-btn">✖</button>
-    </div>
-</div>
-
-
+    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'922982830b7b53ee',t:'MTc0MjM1MTAyNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>

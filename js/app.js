@@ -27,8 +27,21 @@ export function initializeFirebase() {
 document.addEventListener('DOMContentLoaded', () => {
     const { db, storage, auth, provider } = initializeFirebase();
     
-    // Inicializar eventos de navegación
-    initializeNavEvents(auth, db, storage, provider);
+    // Cargar la barra de navegación y luego inicializar eventos
+    const navContainer = document.getElementById('nav-container');
+    if (navContainer) {
+        fetch('nav.html')
+            .then(response => response.text())
+            .then(html => {
+                navContainer.innerHTML = html;
+                initializeNavEvents(auth, db, storage, provider); // Inicializar eventos después de cargar nav.html
+            })
+            .catch(error => console.error('Error al cargar nav.html:', error));
+    } else {
+        console.error('No se encontró #nav-container en la página');
+        // Opcional: inicializar eventos de todos modos por si la barra ya está en el DOM de otra forma
+        initializeNavEvents(auth, db, storage, provider);
+    }
 
     // Cargar contenido de la página según la ruta
     const isIndexPage = window.location.pathname === '/' || window.location.pathname.includes('index.html');
