@@ -61,27 +61,25 @@
     color: #3897f0; /* Cambiar solo el color del ícono */
 }
 
-/* Burbuja del carrito */
-#cart-bubble {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: #007bff;
+/* Contador del carrito integrado en el botón */
+.cart-count {
+    position: absolute;
+    top: -5px; /* Ajusta según el diseño */
+    right: -5px; /* Ajusta según el diseño */
+    background-color: red;
     color: white;
     border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    text-align: center;
-    line-height: 50px;
-    font-size: 18px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    display: none;
-    cursor: pointer;
-    z-index: 1000;
+    width: 18px;
+    height: 18px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: hidden; /* Oculto por defecto */
 }
 
-#cart-bubble i {
-    margin-right: 5px;
+.cart-count.active {
+    visibility: visible; /* Visible cuando hay elementos */
 }
 
 /* Modal del carrito */

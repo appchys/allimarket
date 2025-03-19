@@ -109,23 +109,24 @@ function updateNavBasedOnRole(userData) {
         }
     }
 
-    function assignCartButtonEvent() {
-        cartBtn = document.getElementById('cart-btn');
-        if (cartBtn && !cartBtn.dataset.listenerAdded) {
-            cartBtn.addEventListener('click', () => {
-                const elements = {
-                    cartModal: document.getElementById('cart-modal'),
-                    cartItems: document.getElementById('cart-items'),
-                    cartCount: document.getElementById('cart-count'),
-                    closeCartModal: document.getElementById('close-cart-modal')
-                };
-                if (!elements.cartModal || !elements.cartItems) return;
-                const slug = new URLSearchParams(window.location.search).get('slug') || 'unknown';
-                showCartModal(db, elements, slug, 'Tienda actual');
-            });
-            cartBtn.dataset.listenerAdded = 'true';
-        }
+    // nav.js (fragmento relevante)
+function assignCartButtonEvent() {
+    cartBtn = document.getElementById('cart-btn');
+    if (cartBtn && !cartBtn.dataset.listenerAdded) {
+        cartBtn.addEventListener('click', () => {
+            const elements = {
+                cartModal: document.getElementById('cart-modal'),
+                cartItems: document.getElementById('cart-items'),
+                cartCount: document.getElementById('cart-count'), // Mantener cartCount
+                closeCartModal: document.getElementById('close-cart-modal')
+            };
+            if (!elements.cartModal || !elements.cartItems) return;
+            const slug = new URLSearchParams(window.location.search).get('slug') || 'unknown';
+            showCartModal(db, elements, slug, 'Tienda actual');
+        });
+        cartBtn.dataset.listenerAdded = 'true';
     }
+}
 
     // Cargar el menú dinámicamente dentro de bottom-nav
     fetch('add-menu.html')

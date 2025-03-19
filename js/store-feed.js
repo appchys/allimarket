@@ -63,15 +63,12 @@ export async function loadStoreFeed(db, slug, auth) {
             feedContainer.appendChild(productElement);
         });
 
-        // Definir elements para pasar a setupCartButtons
         const elements = {
             feedContainer: feedContainer,
-            cartBubble: document.getElementById('cart-bubble'),
-            cartCount: document.getElementById('cart-count')
+            cartCount: document.getElementById('cart-count') // Eliminado cartBubble
         };
 
         if (isOwner) {
-            // Configurar el comportamiento del popover
             const optionButtons = feedContainer.querySelectorAll('.options-btn');
             optionButtons.forEach((btn) => {
                 btn.addEventListener('click', (e) => {
@@ -92,7 +89,6 @@ export async function loadStoreFeed(db, slug, auth) {
                 });
             });
         
-            // Manejar clics en los botones del popover
             feedContainer.addEventListener('click', async (e) => {
                 const target = e.target.closest('button');
                 if (!target) return;
@@ -149,7 +145,6 @@ export async function loadStoreFeed(db, slug, auth) {
                 if (popover) popover.style.display = 'none';
             });
 
-            // Ocultar popovers al hacer clic fuera
             document.addEventListener('click', (e) => {
                 if (!e.target.closest('.options-btn') && !e.target.closest('.popover')) {
                     feedContainer.querySelectorAll('.popover').forEach((p) => {
@@ -158,7 +153,7 @@ export async function loadStoreFeed(db, slug, auth) {
                 }
             });
         } else {
-            setupCartButtons(slug, db, elements); // Pasar el objeto elements
+            setupCartButtons(slug, db, elements);
         }
 
         console.log('Feed de productos cargado con éxito');

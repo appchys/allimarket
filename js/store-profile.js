@@ -23,8 +23,7 @@ export async function loadStoreProfile(db, storage, auth) {
         storiesContainer: document.getElementById('stories-container'),
         feedContainer: document.getElementById('feed-container'),
         storyViewContainer: document.getElementById('story-view-container'),
-        cartBubble: document.getElementById('cart-bubble'),
-        cartCount: document.getElementById('cart-count'),
+        cartCount: document.getElementById('cart-count'), // Eliminado cartBubble
         cartModal: document.getElementById('cart-modal'),
         cartItems: document.getElementById('cart-items'),
         closeCartModal: document.getElementById('close-cart-modal'),
@@ -169,9 +168,7 @@ export async function loadStoreProfile(db, storage, auth) {
         await loadStoreFeed(db, slug, auth);
 
         updateCartBubble(elements);
-        elements.cartBubble && elements.cartBubble.addEventListener('click', () => {
-            showCartModal(db, elements, slug, store.name);
-        });
+        // Eliminado el evento de cartBubble porque ahora el contador está en #cart-btn
         elements.closeCartModal && elements.closeCartModal.addEventListener('click', () => {
             elements.cartModal.style.display = 'none';
         });
@@ -231,9 +228,7 @@ export function updateCartBubble(elements) {
     const totalItems = Object.values(cart).reduce((sum, items) => sum + items.length, 0);
     if (elements.cartCount) {
         elements.cartCount.textContent = totalItems;
-    }
-    if (elements.cartBubble) {
-        elements.cartBubble.style.display = totalItems > 0 ? 'block' : 'none';
+        elements.cartCount.classList.toggle('active', totalItems > 0); // Mostrar u ocultar según el total
     }
 }
 
