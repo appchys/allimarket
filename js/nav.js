@@ -1,5 +1,5 @@
 // nav.js
-import { getDoc, doc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+import { getDoc, doc, updateDoc, deleteField } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 import { signInWithPopup } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
 import { initializeAddMenu } from './add-menu.js';
 import { initializeCart } from './cart.js';
@@ -127,39 +127,51 @@ export function initializeNavEvents(auth, db, storage, provider) {
         .then(html => {
             const body = document.body;
             body.insertAdjacentHTML('beforeend', html);
-            initializeCart(db); // Inicializa la lógica del carrito
-            initializeSidebarEvents(); // Manejar eventos de la sidebar
+            initializeCart(db);
+            initializeSidebarEvents();
         })
         .catch(error => console.error('Error al cargar cart.html:', error));
 
     // Nueva función para manejar eventos de la sidebar
     function initializeSidebarEvents() {
-        const cartBtn = document.getElementById('cart-btn');
-        const cartSidebar = document.getElementById('cart-sidebar');
-        const closeCartSidebar = document.getElementById('close-cart-sidebar');
+        // Esperar a que los elementos estén disponibles en el DOM
+        const waitForElements = setInterval(() => {
+            const cartBtn = document.getElementById('cart-btn');
+            const cartSidebar = document.getElementById('cart-sidebar');
+            const closeCartSidebar = document.getElementById('close-cart-sidebar');
 
-        if (!cartBtn || !cartSidebar || !closeCartSidebar) {
-            console.error('Elementos de la sidebar no encontrados en el DOM');
-            return;
-        }
+            if (cartBtn && cartSidebar && closeCartSidebar) {
+                clearInterval(waitForElements); // Detener el intervalo una vez que los elementos estén disponibles
 
-        // Abrir la sidebar al hacer clic en el botón del carrito
-        cartBtn.addEventListener('click', () => {
-            cartSidebar.classList.add('open');
-            updateCartSidebar(); // Actualizar el contenido de la sidebar
-        });
+                // Remover eventos previos para evitar duplicados
+                cartBtn.removeEventListener('click', openSidebarHandler);
+                closeCartSidebar.removeEventListener('click', closeSidebarHandler);
+                document.removeEventListener('click', outsideClickHandler);
 
-        // Cerrar la sidebar al hacer clic en el botón de cerrar
-        closeCartSidebar.addEventListener('click', () => {
-            cartSidebar.classList.remove('open');
-        });
+                // Abrir la sidebar al hacer clic en el botón del carrito
+                cartBtn.addEventListener('click', openSidebarHandler);
+                function openSidebarHandler(e) {
+                    e.stopPropagation(); // Evitar que el evento se propague y active el cierre
+                    cartSidebar.classList.add('open');
+                    updateCartSidebar();
+                }
 
-        // Opcional: Cerrar la sidebar al hacer clic fuera de ella
-        document.addEventListener('click', (e) => {
-            if (!cartSidebar.contains(e.target) && e.target !== cartBtn) {
-                cartSidebar.classList.remove('open');
+                // Cerrar la sidebar al hacer clic en el botón de cerrar
+                closeCartSidebar.addEventListener('click', closeSidebarHandler);
+                function closeSidebarHandler(e) {
+                    e.stopPropagation();
+                    cartSidebar.classList.remove('open');
+                }
+
+                // Cerrar la sidebar al hacer clic fuera de ella
+                document.addEventListener('click', outsideClickHandler);
+                function outsideClickHandler(e) {
+                    if (!cartSidebar.contains(e.target) && e.target !== cartBtn && !cartBtn.contains(e.target)) {
+                        cartSidebar.classList.remove('open');
+                    }
+                }
             }
-        });
+        }, 100); // Revisar cada 100ms hasta que los elementos estén disponibles
     }
 
     // Cargar el modal de productos dinámicamente
@@ -179,7 +191,7 @@ export function initializeNavEvents(auth, db, storage, provider) {
         mutations.forEach((mutation) => {
             if (mutation.addedNodes.length) {
                 const navContainer = document.getElementById('nav-container');
-                if (navContainer && (navContainer.querySelector('#home-btn') || navContainer.querySelector('#cart-btn'))) {
+                if (navContainer && navContainer.querySelector('#home-btn')) {
                     assignHomeButtonEvent();
                     observer.disconnect();
                 }
@@ -197,6 +209,11 @@ async function updateCartSidebar() {
     const cartCountElement = document.getElementById('cart-count');
     let totalItems = 0;
     let totalPrice = 0;
+
+    if (!cartSidebarContent || !cartTotalElement || !cartCountElement) {
+        console.error('Elementos de la sidebar no encontrados');
+        return;
+    }
 
     // Limpiar el contenido actual
     cartSidebarContent.innerHTML = '';
@@ -275,26 +292,30 @@ async function updateCartSidebar() {
     }
 }
 
-// Función para obtener los datos del carrito
+// Función para obtener los datos del carrito desde Firebase
 async function getCartData(db) {
-    // Implementa esta función según tu lógica de almacenamiento
-    // Por ejemplo, si usas Firebase:
-    /*
-    const userId = auth.currentUser.uid;
-    const cartRef = doc(db, 'carts', userId);
-    const cartDoc = await getDoc(cartRef);
-    return cartDoc.exists() ? cartDoc.data() : {};
-    */
-    // Por ahora, devolvemos un ejemplo estático
-    return {
-        "store1": [
-            { id: "prod1", name: "12 unidades de Wantan BBQ", price: 2.75, quantity: 2 },
-            { id: "prod2", name: "Producto 2", price: 5.00, quantity: 1 }
-        ],
-        "store2": [
-            { id: "prod3", name: "Producto 3", price: 3.50, quantity: 3 }
-        ]
-    };
+    try {
+        if (!auth.currentUser) {
+            console.error('Usuario no autenticado');
+            return {};
+        }
+
+        const userId = auth.currentUser.uid;
+        const cartRef = doc(db, 'carts', userId);
+        const cartDoc = await getDoc(cartRef);
+
+        if (cartDoc.exists()) {
+            const cartData = cartDoc.data();
+            console.log('Datos del carrito obtenidos:', cartData);
+            return cartData;
+        } else {
+            console.log('El carrito está vacío o no existe');
+            return {};
+        }
+    } catch (error) {
+        console.error('Error al obtener los datos del carrito:', error);
+        return {};
+    }
 }
 
 // Función para manejar el checkout por tienda
@@ -309,7 +330,23 @@ document.addEventListener('click', async (e) => {
     if (e.target.classList.contains('remove-item')) {
         const storeId = e.target.dataset.store;
         const itemId = e.target.dataset.item;
-        console.log(`Eliminando ítem ${itemId} de la tienda ${storeId}`);
-        updateCartSidebar(); // Actualizar la sidebar después de eliminar
+
+        try {
+            if (!auth.currentUser) {
+                console.error('Usuario no autenticado');
+                return;
+            }
+
+            const userId = auth.currentUser.uid;
+            const cartRef = doc(db, 'carts', userId);
+            await updateDoc(cartRef, {
+                [`${storeId}.${itemId}`]: deleteField()
+            });
+
+            console.log(`Ítem ${itemId} eliminado de la tienda ${storeId}`);
+            updateCartSidebar(); // Actualizar la sidebar después de eliminar
+        } catch (error) {
+            console.error('Error al eliminar el ítem:', error);
+        }
     }
 });
