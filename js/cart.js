@@ -10,7 +10,7 @@ export function initializeCart(db) {
 
             addToCartButtons.forEach(button => {
                 button.addEventListener('click', async () => {
-                    // Obtener los datos del producto (esto depende de cómo tengas estructurado tu HTML)
+                    // Obtener los datos del producto
                     const productElement = button.closest('.store-product');
                     if (!productElement) {
                         console.error('No se encontró el elemento del producto');
@@ -20,7 +20,13 @@ export function initializeCart(db) {
                     const productId = productElement.dataset.productId || 'unknown';
                     const productName = productElement.querySelector('.product-details h3')?.textContent || 'Producto desconocido';
                     const productPrice = parseFloat(productElement.querySelector('.price')?.textContent.replace('$', '')) || 0;
-                    const storeId = new URLSearchParams(window.location.search).get('slug') || 'unknown';
+
+                    // Obtener el slug de la tienda desde la URL
+                    const storeId = new URLSearchParams(window.location.search).get('slug');
+                    if (!storeId) {
+                        console.error('No se encontró el parámetro "slug" en la URL.');
+                        return;
+                    }
 
                     const product = {
                         id: productId,
