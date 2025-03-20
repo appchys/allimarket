@@ -40,8 +40,9 @@
 /* Contador del carrito en la barra de navegación */
 .cart-count {
     position: absolute;
-    top: -8px; /* Ajustado para estar encima del botón */
-    right: -8px; /* Ligeramente a la derecha del ícono */
+    top: -10px; /* Mover más arriba para que esté claramente sobre el ícono */
+    left: 50%; /* Centrar horizontalmente respecto al botón */
+    transform: translateX(-50%); /* Ajustar el centrado */
     background-color: red;
     color: white;
     border-radius: 50%;
@@ -294,8 +295,9 @@ main {
         font-size: 20px;
     }
     .cart-count {
-        top: -6px;
-        right: -6px;
+        top: -8px; /* Ajustado para pantallas pequeñas */
+        left: 50%; /* Mantener centrado */
+        transform: translateX(-50%); /* Mantener centrado */
         width: 16px;
         height: 16px;
         font-size: 10px;
