@@ -38,23 +38,16 @@ export function initializeCart(db) {
                     await addToCart(storeId, product);
                 });
             });
-
-            // Manejar el botón de Checkout
-            const checkoutButton = document.getElementById('checkout-btn');
-            if (checkoutButton) {
-                checkoutButton.addEventListener('click', () => {
-                    // Redirigir a la página de Checkout
-                    window.location.href = '/checkout.html';
-                });
-            }
         }
     }, 100); // Revisar cada 100ms hasta que los botones estén disponibles
 }
 
+// Manejar los botones de Checkout por tienda
 document.addEventListener('click', (event) => {
     if (event.target.classList.contains('checkout-store-btn')) {
         const storeId = event.target.dataset.storeId;
         if (storeId) {
+            console.log(`Redirigiendo al checkout de la tienda: ${storeId}`);
             // Redirigir al checkout de la tienda específica
             window.location.href = `/checkout.html?store=${storeId}`;
         }
