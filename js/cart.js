@@ -21,10 +21,10 @@ export function initializeCart(db) {
                     const productName = productElement.querySelector('.product-details h3')?.textContent || 'Producto desconocido';
                     const productPrice = parseFloat(productElement.querySelector('.price')?.textContent.replace('$', '')) || 0;
 
-                    // Obtener el slug de la tienda desde la URL
-                    const storeId = new URLSearchParams(window.location.search).get('slug');
+                    // Obtener el slug de la tienda desde la ruta de la URL
+                    let storeId = window.location.pathname.replace('/', ''); // Elimina la barra inicial
                     if (!storeId) {
-                        console.error('No se encontró el parámetro "slug" en la URL.');
+                        console.error('No se encontró el slug en la ruta de la URL.');
                         return;
                     }
 
