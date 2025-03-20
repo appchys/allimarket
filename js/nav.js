@@ -1,5 +1,5 @@
 // nav.js
-import { getDoc, doc, updateDoc, deleteField } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+import { getDoc, doc, updateDoc, deleteField, setDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 import { signInWithPopup } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
 import { initializeAddMenu } from './add-menu.js';
 import { initializeCart } from './cart.js';
@@ -245,7 +245,9 @@ async function updateCartSidebar() {
 
         // Lista de productos
         const itemList = document.createElement('ul');
-        storeItems.forEach(item => {
+        // Iterar sobre los ítems de la tienda
+        for (const itemId in storeItems) {
+            const item = storeItems[itemId];
             const itemTotal = item.price * item.quantity;
             storeSubtotal += itemTotal;
             totalPrice += itemTotal;
@@ -258,10 +260,10 @@ async function updateCartSidebar() {
                 </div>
                 <span class="item-quantity">x${item.quantity}</span>
                 <span class="item-total">$${(itemTotal).toFixed(2)}</span>
-                <button class="remove-item" data-store="${storeId}" data-item="${item.id}">Eliminar</button>
+                <button class="remove-item" data-store="${storeId}" data-item="${itemId}">Eliminar</button>
             `;
             itemList.appendChild(listItem);
-        });
+        }
         storeSection.appendChild(itemList);
 
         // Subtotal de la tienda
@@ -301,6 +303,8 @@ async function getCartData(db) {
         }
 
         const userId = auth.currentUser.uid;
+        console.log('Obteniendo carrito para el usuario:', userId);
+
         const cartRef = doc(db, 'carts', userId);
         const cartDoc = await getDoc(cartRef);
 
@@ -315,6 +319,47 @@ async function getCartData(db) {
     } catch (error) {
         console.error('Error al obtener los datos del carrito:', error);
         return {};
+    }
+}
+
+// Función para agregar un producto al carrito
+export async function addToCart(db, storeId, product) {
+    try {
+        if (!auth.currentUser) {
+            console.error('Usuario no autenticado');
+            return;
+        }
+
+        const userId = auth.currentUser.uid;
+        const cartRef = doc(db, 'carts', userId);
+
+        // Verificar si el producto ya está en el carrito
+        const cartDoc = await getDoc(cartRef);
+        let cartData = cartDoc.exists() ? cartDoc.data() : {};
+
+        if (cartData[storeId] && cartData[storeId][product.id]) {
+            // Si el producto ya existe, incrementar la cantidad
+            cartData[storeId][product.id].quantity += 1;
+        } else {
+            // Si el producto no existe, añadirlo con cantidad 1
+            if (!cartData[storeId]) {
+                cartData[storeId] = {};
+            }
+            cartData[storeId][product.id] = {
+                name: product.name,
+                price: product.price,
+                quantity: 1
+            };
+        }
+
+        // Guardar los datos actualizados en Firebase
+        await setDoc(cartRef, cartData, { merge: true });
+        console.log(`Producto ${product.id} añadido al carrito para la tienda ${storeId}`);
+
+        // Actualizar la sidebar
+        updateCartSidebar();
+    } catch (error) {
+        console.error('Error al añadir el producto al carrito:', error);
     }
 }
 
