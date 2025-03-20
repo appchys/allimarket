@@ -29,7 +29,7 @@ export function initializeCart(db) {
                     };
 
                     console.log('Añadiendo al carrito:', product, 'para la tienda:', storeId);
-                    await addToCart(db, storeId, product);
+                    await addToCart(storeId, product);
                 });
             });
         }

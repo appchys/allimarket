@@ -4,7 +4,15 @@ import { signInWithPopup } from 'https://www.gstatic.com/firebasejs/9.22.0/fireb
 import { initializeAddMenu } from './add-menu.js';
 import { initializeCart } from './cart.js';
 
-export function initializeNavEvents(auth, db, storage, provider) {
+// Variables globales para almacenar db y auth
+let db = null;
+let auth = null;
+
+export function initializeNavEvents(authInstance, dbInstance, storage, provider) {
+    // Asignar las instancias a las variables globales
+    db = dbInstance;
+    auth = authInstance;
+
     const loginBtn = document.getElementById('login-btn');
     const logoutBtn = document.getElementById('logout-btn');
     const profileBtn = document.getElementById('profile-btn');
@@ -219,7 +227,7 @@ async function updateCartSidebar() {
     cartSidebarContent.innerHTML = '';
 
     // Obtener los datos del carrito
-    const cart = await getCartData(db);
+    const cart = await getCartData();
 
     if (!cart || Object.keys(cart).length === 0) {
         cartSidebarContent.innerHTML = '<p>El carrito está vacío.</p>';
@@ -295,7 +303,7 @@ async function updateCartSidebar() {
 }
 
 // Función para obtener los datos del carrito desde Firebase
-async function getCartData(db) {
+async function getCartData() {
     try {
         if (!auth.currentUser) {
             console.error('Usuario no autenticado');
@@ -323,7 +331,7 @@ async function getCartData(db) {
 }
 
 // Función para agregar un producto al carrito
-export async function addToCart(db, storeId, product) {
+export async function addToCart(storeId, product) {
     try {
         if (!auth.currentUser) {
             console.error('Usuario no autenticado');
