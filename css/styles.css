@@ -1,3 +1,4 @@
+/* Importaciones */
 @import url('base.css');
 @import url('header.css');
 @import url('stories.css');
@@ -6,7 +7,59 @@
 @import url('nav.css');
 @import url('forms.css');
 
-/* Estilos para el botón "Añadir al carrito" */
+/* Barra de navegación inferior */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    border-top: 1px solid #ddd;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+/* Estilos generales para los botones de la barra */
+.nav-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px 15px;
+    color: #333;
+    position: relative; /* Para posicionar el contador encima */
+}
+
+.nav-btn.active {
+    color: #3897f0;
+}
+
+/* Contador del carrito en la barra de navegación */
+.cart-count {
+    position: absolute;
+    top: -8px; /* Ajustado para estar encima del botón */
+    right: -8px; /* Ligeramente a la derecha del ícono */
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: hidden; /* Oculto por defecto */
+    z-index: 10; /* Por encima del botón */
+}
+
+.cart-count.active {
+    visibility: visible; /* Visible cuando hay elementos */
+}
+
+/* Botón "Añadir al carrito" (general) */
 .add-to-cart-btn {
     background-color: #007bff;
     color: white;
@@ -25,25 +78,7 @@
     background-color: #0056b3;
 }
 
-/* Ajuste para el feed de index.html: hacer que .add-to-cart-btn coincida con .action-btn */
-.product-actions .add-to-cart-btn {
-    background: none;
-    border: none;
-    font-size: 18px;
-    padding: 0;
-    color: #333;
-    margin-top: 0; /* Eliminar el margen superior en el feed */
-    transition: color 0.2s ease;
-}
-
-/* Cambiar solo el color del ícono en hover, sin fondo */
-.product-actions .add-to-cart-btn:hover,
-.product-actions .add-to-cart-btn:hover i {
-    background: none; /* Asegurar que no haya fondo */
-    color: #3897f0; /* Cambiar solo el color del ícono */
-}
-
-/* Estilos para los botones de acción en el feed (like, comment, add-to-cart) */
+/* Botones de acción en el feed (like, comment, add-to-cart) */
 .product-actions .action-btn {
     background: none;
     border: none;
@@ -57,51 +92,25 @@
 
 .product-actions .action-btn:hover,
 .product-actions .action-btn:hover i {
-    background: none; /* Asegurar que no haya fondo */
-    color: #3897f0; /* Cambiar solo el color del ícono */
+    background: none;
+    color: #3897f0;
 }
 
-/* Contador del carrito integrado en el botón */
-.cart-count {
-    position: absolute;
-    top: -5px; /* Ajusta según el diseño */
-    right: -5px; /* Ajusta según el diseño */
-    background-color: red;
-    color: white;
-    border-radius: 50%;
-    width: 18px;
-    height: 18px;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    visibility: hidden; /* Oculto por defecto */
+/* Ajuste específico para "Añadir al carrito" en el feed */
+.product-actions .add-to-cart-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    padding: 0;
+    color: #333;
+    margin-top: 0;
+    transition: color 0.2s ease;
 }
 
-.cart-count.active {
-    visibility: visible; /* Visible cuando hay elementos */
-}
-
-/* Estilo para el contador del carrito */
-.cart-count {
-    position: absolute;
-    top: -5px; /* Ajusta la posición vertical */
-    right: 5px; /* Ajusta la posición horizontal */
-    background-color: red;
-    color: white;
-    border-radius: 50%;
-    width: 18px;
-    height: 18px;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    visibility: hidden; /* Oculto por defecto */
-    z-index: 10; /* Asegura que esté por encima del botón */
-}
-
-.cart-count.active {
-    visibility: visible; /* Visible cuando hay elementos en el carrito */
+.product-actions .add-to-cart-btn:hover,
+.product-actions .add-to-cart-btn:hover i {
+    background: none;
+    color: #3897f0;
 }
 
 /* Modal del carrito */
@@ -159,18 +168,19 @@
     background-color: #218838;
 }
 
+/* Estilos de productos */
 .store-product {
     border: 1px solid #ddd;
     border-radius: 8px;
     padding: 10px;
-    width: 200px; /* Ajusta según tu diseño */
+    width: 200px;
     position: relative;
 }
 
 .product-image-container {
     position: relative;
     width: 100%;
-    padding-top: 100%; /* Hace la imagen cuadrada */
+    padding-top: 100%; /* Imagen cuadrada */
 }
 
 .product-image-container img {
@@ -181,32 +191,6 @@
     height: 100%;
     object-fit: cover;
     border-radius: 8px 8px 0 0;
-}
-
-.popover {
-    position: absolute;
-    top: 40px;
-    right: 10px;
-    background: white;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    z-index: 10;
-    padding: 5px;
-}
-
-.popover button {
-    display: block;
-    width: 100%;
-    padding: 5px;
-    border: none;
-    background: none;
-    text-align: left;
-    cursor: pointer;
-}
-
-.popover button:hover {
-    background: #f0f0f0;
 }
 
 .product-details {
@@ -230,40 +214,7 @@
     margin: 5px 0;
 }
 
-.add-to-cart-btn {
-    width: 100%;
-    padding: 8px;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.add-to-cart-btn:hover {
-    background: #0056b3;
-}
-
-/* Estilo para el contenedor del popover */
-.product-image-container {
-    position: relative; /* Asegura que el popover se posicione relativo a este contenedor */
-}
-
-.popover {
-    position: absolute;
-    top: 100%; /* Justo debajo del botón (100% de la altura del botón) */
-    left: 0; /* Alineado a la izquierda del botón */
-    background-color: #ffffff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    border-radius: 8px;
-    padding: 8px 0;
-    width: 160px;
-    z-index: 1001;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    display: none;
-}
-
-/* Estilo para el botón de tres puntos */
+/* Botón de opciones (tres puntos) */
 .options-btn {
     position: absolute;
     top: 5px;
@@ -277,7 +228,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000; /* Asegura que esté por encima de otros elementos */
+    z-index: 1000;
 }
 
 .options-btn i {
@@ -285,7 +236,21 @@
     color: #333;
 }
 
-/* Estilo para los botones dentro del popover */
+/* Popover */
+.popover {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    padding: 8px 0;
+    width: 160px;
+    z-index: 1001;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    display: none;
+}
+
 .popover button {
     display: flex;
     align-items: center;
@@ -313,4 +278,29 @@
 .popover button[disabled] {
     color: #999;
     cursor: not-allowed;
+}
+
+/* Ajuste del contenido principal */
+main {
+    padding-bottom: 70px; /* Espacio para la barra de navegación */
+}
+
+/* Media queries para pantallas pequeñas */
+@media (max-width: 768px) {
+    .bottom-nav {
+        padding: 5px 0;
+    }
+    .nav-btn {
+        font-size: 20px;
+    }
+    .cart-count {
+        top: -6px;
+        right: -6px;
+        width: 16px;
+        height: 16px;
+        font-size: 10px;
+    }
+    main {
+        padding-bottom: 60px;
+    }
 }
