@@ -1,11 +1,13 @@
-<div id="cart-modal" class="cart-modal" style="display: none;">
-    <div class="cart-modal-content">
-        <button id="close-cart-modal" class="close-cart-btn">✖</button>
+<!-- cart.html -->
+<div id="cart-sidebar" class="cart-sidebar">
+    <div class="cart-sidebar-header">
         <h2>Carrito de Compras</h2>
-        <div id="cart-items" class="cart-items"></div>
-        <div class="cart-footer">
-            <span id="cart-count" class="cart-count">0 productos</span>
-            <button id="checkout-btn" class="checkout-btn">Finalizar Compra</button>
-        </div>
+        <button id="close-cart-sidebar" class="close-cart-sidebar">&times;</button>
+    </div>
+    <div class="cart-sidebar-content">
+        <!-- Aquí se insertarán las secciones por tienda dinámicamente -->
+    </div>
+    <div class="cart-sidebar-footer">
+        <p class="cart-total">Total General: <span id="cart-total">$0.00</span></p>
     </div>
 </div>
