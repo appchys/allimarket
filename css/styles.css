@@ -1,5 +1,14 @@
 /* styles.css */
 
+/* Importaciones (preservadas para mantener el formato de tu app) */
+@import url('base.css');
+@import url('header.css');
+@import url('stories.css');
+@import url('feed.css');
+@import url('modal.css');
+@import url('nav.css');
+@import url('forms.css');
+
 /* Barra de navegación inferior */
 .bottom-nav {
     position: fixed;
@@ -186,6 +195,172 @@
 /* Ajustar el contenido principal para no superponerse a la barra */
 main {
     padding-bottom: 70px;
+}
+
+/* Botón "Añadir al carrito" (general) - Reincorporado */
+.add-to-cart-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.add-to-cart-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Botones de acción en el feed (like, comment, add-to-cart) - Reincorporado */
+.product-actions .action-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    padding: 0;
+    color: #333;
+    margin-top: 0;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.product-actions .action-btn:hover,
+.product-actions .action-btn:hover i {
+    background: none;
+    color: #3897f0;
+}
+
+/* Ajuste específico para "Añadir al carrito" en el feed - Reincorporado */
+.product-actions .add-to-cart-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    padding: 0;
+    color: #333;
+    margin-top: 0;
+    transition: color 0.2s ease;
+}
+
+.product-actions .add-to-cart-btn:hover,
+.product-actions .add-to-cart-btn:hover i {
+    background: none;
+    color: #3897f0;
+}
+
+/* Estilos de productos - Reincorporado */
+.store-product {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    width: 200px;
+    position: relative;
+}
+
+.product-image-container {
+    position: relative;
+    width: 100%;
+    padding-top: 100%; /* Imagen cuadrada */
+}
+
+.product-image-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px 8px 0 0;
+}
+
+.product-details {
+    padding: 10px 0;
+}
+
+.product-details h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.description {
+    font-size: 14px;
+    color: #666;
+    margin: 5px 0;
+}
+
+.price {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 5px 0;
+}
+
+/* Botón de opciones (tres puntos) - Reincorporado */
+.options-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(255, 255, 255, 0.8);
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.options-btn i {
+    font-size: 16px;
+    color: #333;
+}
+
+/* Popover - Reincorporado */
+.popover {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    padding: 8px 0;
+    width: 160px;
+    z-index: 1001;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    display: none;
+}
+
+.popover button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 12px;
+    background: none;
+    border: none;
+    color: #333;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.popover button:hover {
+    background-color: #f5f5f5;
+}
+
+.popover button i {
+    font-size: 16px;
+    color: #007bff;
+}
+
+.popover button[disabled] {
+    color: #999;
+    cursor: not-allowed;
 }
 
 /* Media queries para pantallas pequeñas */
