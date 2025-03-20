@@ -1,7 +1,6 @@
 // nav.js
 import { getDoc, doc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 import { signInWithPopup } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
-import { showCartModal } from './store-profile.js';
 import { initializeAddMenu } from './add-menu.js';
 import { initializeCart } from './cart.js';
 
@@ -22,34 +21,33 @@ export function initializeNavEvents(auth, db, storage, provider) {
         }
     }
 
-    // nav.js
-function updateNavBasedOnRole(userData) {
-    if (!homeBtn || !cartBtn || !profileBtn) return;
+    function updateNavBasedOnRole(userData) {
+        if (!homeBtn || !cartBtn || !profileBtn) return;
 
-    const newBtn = document.getElementById('new-btn'); // Agregar referencia al botón "Añadir"
+        const newBtn = document.getElementById('new-btn');
 
-    if (userData && userData.role === 'store') {
-        homeBtn.style.display = 'block';
-        cartBtn.style.display = 'none';
-        profileBtn.style.display = 'block';
-        newBtn.style.display = 'block'; // Visible para tiendas
-    } else if (userData && userData.role === 'creator') {
-        homeBtn.style.display = 'block';
-        cartBtn.style.display = 'none'; // Creadores no tienen carrito
-        profileBtn.style.display = 'block';
-        newBtn.style.display = 'block'; // Visible para creadores
-    } else if (userData && userData.role === 'client') {
-        homeBtn.style.display = 'block';
-        cartBtn.style.display = 'block';
-        profileBtn.style.display = 'block';
-        newBtn.style.display = 'none'; // Oculto para clientes
-    } else {
-        homeBtn.style.display = 'block';
-        cartBtn.style.display = 'none';
-        profileBtn.style.display = 'block';
-        newBtn.style.display = 'none'; // Oculto si no hay rol definido
+        if (userData && userData.role === 'store') {
+            homeBtn.style.display = 'block';
+            cartBtn.style.display = 'none';
+            profileBtn.style.display = 'block';
+            newBtn.style.display = 'block';
+        } else if (userData && userData.role === 'creator') {
+            homeBtn.style.display = 'block';
+            cartBtn.style.display = 'none';
+            profileBtn.style.display = 'block';
+            newBtn.style.display = 'block';
+        } else if (userData && userData.role === 'client') {
+            homeBtn.style.display = 'block';
+            cartBtn.style.display = 'block';
+            profileBtn.style.display = 'block';
+            newBtn.style.display = 'none';
+        } else {
+            homeBtn.style.display = 'block';
+            cartBtn.style.display = 'none';
+            profileBtn.style.display = 'block';
+            newBtn.style.display = 'none';
+        }
     }
-}
 
     auth.onAuthStateChanged(async (user) => {
         updateAuthUI(user);
@@ -109,25 +107,6 @@ function updateNavBasedOnRole(userData) {
         }
     }
 
-    // nav.js (fragmento relevante)
-function assignCartButtonEvent() {
-    cartBtn = document.getElementById('cart-btn');
-    if (cartBtn && !cartBtn.dataset.listenerAdded) {
-        cartBtn.addEventListener('click', () => {
-            const elements = {
-                cartModal: document.getElementById('cart-modal'),
-                cartItems: document.getElementById('cart-items'),
-                cartCount: document.getElementById('cart-count'), // Mantener cartCount
-                closeCartModal: document.getElementById('close-cart-modal')
-            };
-            if (!elements.cartModal || !elements.cartItems) return;
-            const slug = new URLSearchParams(window.location.search).get('slug') || 'unknown';
-            showCartModal(db, elements, slug, 'Tienda actual');
-        });
-        cartBtn.dataset.listenerAdded = 'true';
-    }
-}
-
     // Cargar el menú dinámicamente dentro de bottom-nav
     fetch('add-menu.html')
         .then(response => response.text())
@@ -143,54 +122,58 @@ function assignCartButtonEvent() {
         .catch(error => console.error('Error al cargar add-menu.html:', error));
 
     // Cargar el carrito dinámicamente
-    // nav.js (fragmento ajustado)
-fetch('cart.html')
-.then(response => response.text())
-.then(html => {
-    const body = document.body;
-    body.insertAdjacentHTML('beforeend', html);
-    initializeCart(db); // Inicializa la lógica del carrito
-    initializeSidebarEvents(); // Nueva función para manejar eventos de la sidebar
-})
-.catch(error => console.error('Error al cargar cart.html:', error));
+    fetch('cart.html')
+        .then(response => response.text())
+        .then(html => {
+            const body = document.body;
+            body.insertAdjacentHTML('beforeend', html);
+            initializeCart(db); // Inicializa la lógica del carrito
+            initializeSidebarEvents(); // Manejar eventos de la sidebar
+        })
+        .catch(error => console.error('Error al cargar cart.html:', error));
 
-// Nueva función para manejar eventos de la sidebar
-function initializeSidebarEvents() {
-const cartBtn = document.getElementById('cart-btn');
-const cartSidebar = document.getElementById('cart-sidebar');
-const closeCartSidebar = document.getElementById('close-cart-sidebar');
+    // Nueva función para manejar eventos de la sidebar
+    function initializeSidebarEvents() {
+        const cartBtn = document.getElementById('cart-btn');
+        const cartSidebar = document.getElementById('cart-sidebar');
+        const closeCartSidebar = document.getElementById('close-cart-sidebar');
 
-// Abrir la sidebar al hacer clic en el botón del carrito
-cartBtn.addEventListener('click', () => {
-    cartSidebar.classList.add('open');
-    updateCartSidebar(); // Nueva función para actualizar el contenido de la sidebar
-});
+        if (!cartBtn || !cartSidebar || !closeCartSidebar) {
+            console.error('Elementos de la sidebar no encontrados en el DOM');
+            return;
+        }
 
-// Cerrar la sidebar al hacer clic en el botón de cerrar
-closeCartSidebar.addEventListener('click', () => {
-    cartSidebar.classList.remove('open');
-});
+        // Abrir la sidebar al hacer clic en el botón del carrito
+        cartBtn.addEventListener('click', () => {
+            cartSidebar.classList.add('open');
+            updateCartSidebar(); // Actualizar el contenido de la sidebar
+        });
 
-// Opcional: Cerrar la sidebar al hacer clic fuera de ella
-document.addEventListener('click', (e) => {
-    if (!cartSidebar.contains(e.target) && e.target !== cartBtn) {
-        cartSidebar.classList.remove('open');
+        // Cerrar la sidebar al hacer clic en el botón de cerrar
+        closeCartSidebar.addEventListener('click', () => {
+            cartSidebar.classList.remove('open');
+        });
+
+        // Opcional: Cerrar la sidebar al hacer clic fuera de ella
+        document.addEventListener('click', (e) => {
+            if (!cartSidebar.contains(e.target) && e.target !== cartBtn) {
+                cartSidebar.classList.remove('open');
+            }
+        });
     }
-});
-}
+
     // Cargar el modal de productos dinámicamente
     fetch('add-product.html')
         .then(response => response.text())
         .then(html => {
             const body = document.body;
-            body.insertAdjacentHTML('beforeend', html); // Inserta el modal en el DOM
-            const feedContainer = document.querySelector('.feed-container') || document.createElement('div'); // Asegúrate de tener un contenedor para el feed
-            initializeAddProduct(db, storage, auth.currentUser ? auth.currentUser.storeId : 'unknown', feedContainer); // Inicializa la lógica del modal
+            body.insertAdjacentHTML('beforeend', html);
+            const feedContainer = document.querySelector('.feed-container') || document.createElement('div');
+            initializeAddProduct(db, storage, auth.currentUser ? auth.currentUser.storeId : 'unknown', feedContainer);
         })
         .catch(error => console.error('Error al cargar add-product.html:', error));
 
     assignHomeButtonEvent();
-    assignCartButtonEvent();
 
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
@@ -198,7 +181,6 @@ document.addEventListener('click', (e) => {
                 const navContainer = document.getElementById('nav-container');
                 if (navContainer && (navContainer.querySelector('#home-btn') || navContainer.querySelector('#cart-btn'))) {
                     assignHomeButtonEvent();
-                    assignCartButtonEvent();
                     observer.disconnect();
                 }
             }
@@ -207,8 +189,6 @@ document.addEventListener('click', (e) => {
 
     observer.observe(document.body, { childList: true, subtree: true });
 }
-
-// nav.js (agregar al final del archivo)
 
 // Función para actualizar el contenido de la sidebar
 async function updateCartSidebar() {
@@ -221,9 +201,8 @@ async function updateCartSidebar() {
     // Limpiar el contenido actual
     cartSidebarContent.innerHTML = '';
 
-    // Obtener los datos del carrito (esto depende de cómo lo almacenes)
-    // Aquí asumimos que tienes una función `getCartData` que devuelve los datos del carrito
-    const cart = await getCartData(db); // Debes implementar esta función según tu lógica
+    // Obtener los datos del carrito
+    const cart = await getCartData(db);
 
     if (!cart || Object.keys(cart).length === 0) {
         cartSidebarContent.innerHTML = '<p>El carrito está vacío.</p>';
@@ -244,7 +223,7 @@ async function updateCartSidebar() {
 
         // Título de la tienda
         const storeTitle = document.createElement('h3');
-        storeTitle.textContent = `Tienda: ${storeId}`; // Puedes obtener el nombre real de la tienda desde Firebase
+        storeTitle.textContent = `Tienda: ${storeId}`;
         storeSection.appendChild(storeTitle);
 
         // Lista de productos
@@ -279,7 +258,7 @@ async function updateCartSidebar() {
         checkoutBtn.classList.add('checkout-btn');
         checkoutBtn.textContent = 'Checkout';
         checkoutBtn.addEventListener('click', () => {
-            handleCheckout(storeId); // Implementar esta función según tu lógica
+            handleCheckout(storeId);
         });
         storeSection.appendChild(checkoutBtn);
 
@@ -296,7 +275,7 @@ async function updateCartSidebar() {
     }
 }
 
-// Función para obtener los datos del carrito (ejemplo)
+// Función para obtener los datos del carrito
 async function getCartData(db) {
     // Implementa esta función según tu lógica de almacenamiento
     // Por ejemplo, si usas Firebase:
@@ -321,7 +300,7 @@ async function getCartData(db) {
 // Función para manejar el checkout por tienda
 function handleCheckout(storeId) {
     console.log(`Iniciando checkout para la tienda: ${storeId}`);
-    // Implementa la lógica de checkout aquí (por ejemplo, redirigir a una página de pago)
+    // Implementa la lógica de checkout aquí
     // window.location.href = `/checkout?store=${storeId}`;
 }
 
@@ -330,15 +309,6 @@ document.addEventListener('click', async (e) => {
     if (e.target.classList.contains('remove-item')) {
         const storeId = e.target.dataset.store;
         const itemId = e.target.dataset.item;
-        // Implementa la lógica para eliminar el ítem del carrito
-        // Por ejemplo, si usas Firebase:
-        /*
-        const userId = auth.currentUser.uid;
-        const cartRef = doc(db, 'carts', userId);
-        await updateDoc(cartRef, {
-            [`${storeId}.${itemId}`]: deleteField()
-        });
-        */
         console.log(`Eliminando ítem ${itemId} de la tienda ${storeId}`);
         updateCartSidebar(); // Actualizar la sidebar después de eliminar
     }
