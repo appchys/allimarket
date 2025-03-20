@@ -38,6 +38,15 @@ export function initializeCart(db) {
                     await addToCart(storeId, product);
                 });
             });
+
+            // Manejar el botón de Checkout
+            const checkoutButton = document.getElementById('checkout-btn');
+            if (checkoutButton) {
+                checkoutButton.addEventListener('click', () => {
+                    // Redirigir a la página de Checkout
+                    window.location.href = '/checkout.html';
+                });
+            }
         }
     }, 100); // Revisar cada 100ms hasta que los botones estén disponibles
 }
