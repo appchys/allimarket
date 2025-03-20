@@ -82,6 +82,28 @@
     visibility: visible; /* Visible cuando hay elementos */
 }
 
+/* Estilo para el contador del carrito */
+.cart-count {
+    position: absolute;
+    top: -5px; /* Ajusta la posición vertical */
+    right: 5px; /* Ajusta la posición horizontal */
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: hidden; /* Oculto por defecto */
+    z-index: 10; /* Asegura que esté por encima del botón */
+}
+
+.cart-count.active {
+    visibility: visible; /* Visible cuando hay elementos en el carrito */
+}
+
 /* Modal del carrito */
 #cart-modal .modal-content {
     width: 90%;
