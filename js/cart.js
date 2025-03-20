@@ -50,3 +50,13 @@ export function initializeCart(db) {
         }
     }, 100); // Revisar cada 100ms hasta que los botones estén disponibles
 }
+
+document.addEventListener('click', (event) => {
+    if (event.target.classList.contains('checkout-store-btn')) {
+        const storeId = event.target.dataset.storeId;
+        if (storeId) {
+            // Redirigir al checkout de la tienda específica
+            window.location.href = `/checkout.html?store=${storeId}`;
+        }
+    }
+});

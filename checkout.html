@@ -51,5 +51,19 @@
         <button id="proceed-to-payment" class="btn-primary">Proceder al Pago</button>
     </main>
     <script src="js/checkout.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const storeId = urlParams.get('store');
+
+            if (storeId) {
+                document.querySelector('h1').textContent = `Checkout - ${storeId}`;
+                // Cargar los productos del carrito para esta tienda
+            } else {
+                alert('No se especificó una tienda para el checkout.');
+                window.location.href = '/';
+            }
+        });
+    </script>
 </body>
 </html>
