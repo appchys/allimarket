@@ -1,6 +1,7 @@
 // checkout.js
 import { auth, db } from './firebase.js'; // Ajusta la ruta según tu estructura
-import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+import { doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -8,16 +9,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (storeId) {
         document.querySelector('h1').textContent = `Checkout - ${storeId}`;
-        // Verificar el estado de autenticación
         auth.onAuthStateChanged((user) => {
             if (user) {
-                // Si hay usuario autenticado, cargar los datos del carrito
                 loadCartDetails(storeId, user.uid);
             } else {
-                // Si no hay usuario, mostrar mensaje y redirigir
                 console.error('Usuario no autenticado');
                 alert('Debes iniciar sesión para proceder al checkout.');
-                window.location.href = '/'; // Redirigir a la página principal o de inicio de sesión
+                window.location.href = '/';
             }
         });
     } else {
@@ -60,7 +58,7 @@ async function loadCartDetails(storeId, userId) {
                 cartDetails.appendChild(itemElement);
             }
 
-            const shippingCost = 5.00; // Ejemplo de costo de envío fijo
+            const shippingCost = 5.00;
             const totalCost = subtotal + shippingCost;
 
             shippingCostElement.textContent = `$${shippingCost.toFixed(2)}`;
@@ -76,7 +74,7 @@ async function loadCartDetails(storeId, userId) {
     }
 }
 
-// Datos bancarios (puedes ajustarlos según la información real)
+// Datos bancarios
 const bankDetails = {
     pichincha: "Banco Pichincha<br>Cuenta Corriente: 1234567890<br>Titular: Multitienda S.A.<br>RUC: 0991234567001",
     guayaquil: "Banco Guayaquil<br>Cuenta Corriente: 0987654321<br>Titular: Multitienda S.A.<br>RUC: 0991234567001",
@@ -102,6 +100,9 @@ document.getElementById('bank-select').addEventListener('change', (event) => {
 document.getElementById('submit-transfer').addEventListener('click', async () => {
     const bankSelect = document.getElementById('bank-select').value;
     const transferProof = document.getElementById('transfer-proof').files[0];
+    const user = auth.currentUser;
+    const urlParams = new URLSearchParams(window.location.search);
+    const storeId = urlParams.get('store');
 
     if (!bankSelect) {
         alert('Por favor, selecciona un banco.');
@@ -113,16 +114,62 @@ document.getElementById('submit-transfer').addEventListener('click', async () =>
         return;
     }
 
+    if (!user) {
+        alert('Usuario no autenticado. Por favor, inicia sesión.');
+        return;
+    }
+
     try {
-        // Aquí podrías integrar Firebase Storage para subir la captura
-        // Por ahora, simulamos el proceso
-        alert(`Compra finalizada con éxito.\nBanco seleccionado: ${bankSelect}\nCaptura recibida: ${transferProof.name}`);
+        // Obtener datos del formulario
+        const formData = {
+            fullName: document.getElementById('full-name').value,
+            phone: document.getElementById('phone').value,
+            email: document.getElementById('email').value,
+            address: document.getElementById('address').value,
+            references: document.getElementById('references').value
+        };
+
+        // Obtener datos del carrito
+        const cartRef = doc(db, 'carts', user.uid);
+        const cartDoc = await getDoc(cartRef);
+        const cartData = cartDoc.exists() ? cartDoc.data()[storeId] : {};
+        const shippingCost = 5.00;
+        const totalCost = Object.values(cartData).reduce((sum, item) => sum + item.price * item.quantity, 0) + shippingCost;
+
+        // Subir el comprobante a Firebase Storage
+        const storage = getStorage();
+        const transferRef = ref(storage, `transfers/${user.uid}/${Date.now()}_${transferProof.name}`);
+        await uploadBytes(transferRef, transferProof);
+        const transferUrl = await getDownloadURL(transferRef);
+
+        // Crear la orden
+        const orderData = {
+            userId: user.uid,
+            storeId: storeId,
+            customerInfo: formData,
+            cartItems: cartData,
+            bank: bankSelect,
+            transferProofUrl: transferUrl,
+            shippingCost: shippingCost,
+            totalCost: totalCost,
+            status: 'pending', // Estado inicial
+            createdAt: new Date().toISOString()
+        };
+
+        // Guardar la orden en Firestore
+        const orderId = `${user.uid}_${Date.now()}`;
+        await setDoc(doc(db, 'orders', orderId), orderData);
+
+        alert(`Compra finalizada con éxito.\nOrden ID: ${orderId}\nBanco: ${bankSelect}\nComprobante subido correctamente.`);
         
-        // Opcional: Limpiar el formulario después de enviar
+        // Limpiar el formulario y el carrito
         document.getElementById('checkout-form').reset();
         document.getElementById('bank-select').value = '';
         document.getElementById('transfer-proof').value = '';
         document.getElementById('bank-details').style.display = 'none';
+        document.getElementById('cart-details').innerHTML = '<p>Carrito vacío.</p>';
+        document.getElementById('shipping-cost').textContent = '$0.00';
+        document.getElementById('total-cost').textContent = '$0.00';
     } catch (error) {
         console.error('Error al finalizar la compra:', error);
         alert('Ocurrió un error al procesar tu compra. Intenta de nuevo.');
