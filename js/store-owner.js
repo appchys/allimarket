@@ -9,11 +9,16 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
         return;
     }
 
-    // Botón de acción del propietario (solo "Editar Perfil")
+    // Botones de acción del propietario
     const editBtn = document.createElement('button');
     editBtn.textContent = 'Editar Perfil';
     editBtn.id = 'edit-btn';
     elements.storeActions.appendChild(editBtn);
+
+    const viewOrdersBtn = document.createElement('button');
+    viewOrdersBtn.textContent = 'Ver Órdenes';
+    viewOrdersBtn.id = 'view-orders-btn';
+    elements.storeActions.appendChild(viewOrdersBtn);
 
     // Elementos del DOM
     const editProfileSidebar = document.getElementById('edit-profile-sidebar');
@@ -52,6 +57,11 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
         } else {
             console.error('#edit-profile-sidebar no encontrado en el DOM');
         }
+    });
+
+    // Lógica para ver órdenes
+    viewOrdersBtn.addEventListener('click', () => {
+        window.location.href = `/orders.html?store=${slug}`;
     });
 
     document.getElementById('close-sidebar').addEventListener('click', () => {

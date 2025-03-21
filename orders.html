@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All I Market - Órdenes</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+</head>
+<body>
+    <header>
+        <h1>Órdenes Recibidas</h1>
+        <div id="auth-section">
+            <button id="logout-btn" style="display:none;"><i class="bi bi-box-arrow-right"></i></button>
+        </div>
+    </header>
+    <main>
+        <section id="orders-list">
+            <div id="orders-container" class="orders-grid"></div>
+        </section>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAAAFDJ_utlimCezUR-_i8Y2yUare9yZ1k",
+            authDomain: "multitienda-69778.firebaseapp.com",
+            projectId: "multitienda-69778",
+            storageBucket: "multitienda-69778.firebasestorage.app",
+            messagingSenderId: "939925630795",
+            appId: "1:939925630795:web:713aca499392bfa36482ce"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+    </script>
+    <script type="module" src="js/orders.js"></script>
+</body>
+</html>

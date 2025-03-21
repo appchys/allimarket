@@ -386,3 +386,25 @@ main {
         padding-bottom: 60px;
     }
 }
+
+.orders-grid {
+    display: grid;
+    gap: 20px;
+    padding: 20px;
+}
+
+.order-item {
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.order-item h3 {
+    margin-top: 0;
+}
+
+.order-item ul {
+    list-style-type: none;
+    padding-left: 0;
+}
