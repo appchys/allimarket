@@ -24,6 +24,16 @@
     padding-top: 100%; /* Imagen cuadrada */
 }
 
+.product-image-container .store-link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+    display: block;
+}
+
 .product-image-container img {
     position: absolute;
     top: 0;
@@ -31,7 +41,6 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    loading: lazy;
 }
 
 .store-name-overlay {
@@ -104,10 +113,6 @@
 #store-feed .grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
-}
-
-.store-product {
-    /* Hereda estilos base de .product */
 }
 
 .product img[loading="lazy"] {

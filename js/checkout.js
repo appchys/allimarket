@@ -126,10 +126,10 @@ function updateCoordinates(lat, lng) {
 
 // Datos bancarios
 const bankDetails = {
-    pichincha: "Banco Pichincha<br>Cuenta Corriente: 1234567890<br>Titular: Multitienda S.A.<br>RUC: 0991234567001",
-    guayaquil: "Banco Guayaquil<br>Cuenta Corriente: 0987654321<br>Titular: Multitienda S.A.<br>RUC: 0991234567001",
-    pacifico: "Banco Pacífico<br>Cuenta Corriente: 1122334455<br>Titular: Multitienda S.A.<br>RUC: 0991234567001",
-    produbanco: "Banco Produbanco<br>Cuenta Corriente: 5566778899<br>Titular: Multitienda S.A.<br>RUC: 0991234567001"
+    pichincha: "Banco Pichincha<br>Cuenta Corriente: 1234567890<br>Titular: All I Market.<br>RUC: 0991234567001",
+    guayaquil: "Banco Guayaquil<br>Cuenta Corriente: 0987654321<br>Titular: All I Market.<br>RUC: 0991234567001",
+    pacifico: "Banco Pacífico<br>Cuenta Corriente: 1122334455<br>Titular: All I Market.<br>RUC: 0991234567001",
+    produbanco: "Banco Produbanco<br>Cuenta Corriente: 5566778899<br>Titular: All I Market.<br>RUC: 0991234567001"
 };
 
 document.getElementById('bank-select').addEventListener('change', (event) => {

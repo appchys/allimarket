@@ -112,8 +112,10 @@ async function loadProducts(container, lastDoc, limitCount, db, setLastDoc, cart
             productElement.classList.add('product');
             productElement.innerHTML = `
                 <div class="product-image-container">
-                    <img src="${product.imageUrl}" alt="${product.name}" loading="lazy">
-                    <a href="/${storeId}" class="store-name-overlay">${store.name}</a>
+                    <a href="/${storeId}" class="store-link">
+                        <img src="${product.imageUrl}" alt="${product.name}" loading="lazy">
+                        <span class="store-name-overlay">${store.name}</span>
+                    </a>
                 </div>
                 <div class="product-details">
                     <h3>${product.name}</h3>
