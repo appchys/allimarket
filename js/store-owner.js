@@ -1,26 +1,19 @@
 // store-owner.js
 import { ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js';
-import { setDoc, doc, addDoc, collection, getDocs, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+import { setDoc, doc, addDoc, collection, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 import { initializeAddProduct } from './add-product.js';
 
 export async function loadOwnerFeatures(db, storage, auth, slug, store, elements) {
-    // No necesitamos cargar store-feed.html aquí si ya está manejado en store-profile.js o el HTML principal
-    // Verificamos si feedContainer existe, pero no lo creamos dinámicamente
     if (!elements.feedContainer) {
         console.error('El contenedor de feed (#feed-container) no está disponible');
         return;
     }
 
-    // Botones de acción del propietario
+    // Botón de acción del propietario (solo "Editar Perfil")
     const editBtn = document.createElement('button');
     editBtn.textContent = 'Editar Perfil';
     editBtn.id = 'edit-btn';
     elements.storeActions.appendChild(editBtn);
-
-    const editProductsBtn = document.createElement('button');
-    editProductsBtn.textContent = 'Editar productos';
-    editProductsBtn.id = 'edit-products-btn';
-    elements.storeActions.appendChild(editProductsBtn);
 
     // Elementos del DOM
     const editProfileSidebar = document.getElementById('edit-profile-sidebar');
@@ -90,8 +83,6 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
                 }
                 await setDoc(doc(db, 'stores', slug), updatedData, { merge: true });
                 editProfileSidebar.style.display = 'none';
-                // Actualización dinámica en lugar de recargar (opcional)
-                // window.location.reload();
                 elements.storeName.textContent = updatedData.name;
                 elements.storeDescription.textContent = updatedData.description;
                 if (updatedData.imageUrl) elements.storeImage.src = updatedData.imageUrl;
@@ -101,89 +92,6 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
             }
         });
     }
-
-    // Gestionar edición de productos
-    let isEditingProducts = false;
-    editProductsBtn.addEventListener('click', () => {
-        isEditingProducts = !isEditingProducts;
-        editProductsBtn.textContent = isEditingProducts ? 'Terminar Edición' : 'Editar productos';
-        const productCards = elements.feedContainer.querySelectorAll('.store-product');
-        productCards.forEach(card => {
-            let editBtn = card.querySelector('.edit-product-btn') || createButton('bi-pencil', 'edit-product-btn');
-            let hideBtn = card.querySelector('.hide-product-btn') || createButton('bi-eye-slash', 'hide-product-btn');
-            let deleteBtn = card.querySelector('.delete-product-btn') || createButton('bi-trash', 'delete-product-btn');
-            const actionsContainer = card.querySelector('.product-actions') || card.appendChild(document.createElement('div'));
-            actionsContainer.className = 'product-actions';
-            actionsContainer.append(editBtn, hideBtn, deleteBtn);
-            editBtn.style.display = isEditingProducts ? 'inline-block' : 'none';
-            hideBtn.style.display = isEditingProducts ? 'inline-block' : 'none';
-            deleteBtn.style.display = isEditingProducts ? 'inline-block' : 'none';
-        });
-    });
-
-    elements.feedContainer.addEventListener('click', async (e) => {
-        if (!isEditingProducts) return;
-
-        const productCard = e.target.closest('.store-product');
-        if (!productCard) return;
-
-        const productId = productCard.dataset.productId;
-        if (!productId) {
-            console.error('No se encontró productId en la tarjeta del producto');
-            return;
-        }
-
-        const productRef = doc(db, 'stores', slug, 'products', productId);
-        const clickedButton = e.target.closest('button');
-        if (!clickedButton) return;
-
-        console.log('Botón clicado:', clickedButton.className);
-
-        if (clickedButton.classList.contains('edit-product-btn')) {
-            console.log('Editando producto:', productId);
-            const newName = prompt('Nuevo nombre del producto:', productCard.querySelector('h3').textContent);
-            const newPrice = prompt('Nuevo precio:', productCard.querySelector('.price').textContent.replace('$', ''));
-            const newDescription = prompt('Nueva descripción:', productCard.querySelector('.description').textContent);
-            if (newName && newPrice && newDescription) {
-                try {
-                    await updateDoc(productRef, {
-                        name: newName,
-                        price: parseFloat(newPrice),
-                        description: newDescription
-                    });
-                    productCard.querySelector('h3').textContent = newName;
-                    productCard.querySelector('.price').textContent = `$${parseFloat(newPrice).toFixed(2)}`;
-                    productCard.querySelector('.description').textContent = newDescription;
-                    alert('Producto actualizado');
-                } catch (error) {
-                    console.error('Error al actualizar producto:', error);
-                    alert('Error: ' + error.message);
-                }
-            }
-        } else if (clickedButton.classList.contains('hide-product-btn')) {
-            console.log('Ocultando producto:', productId);
-            try {
-                await updateDoc(productRef, { hidden: true });
-                productCard.style.display = 'none';
-                alert('Producto ocultado');
-            } catch (error) {
-                console.error('Error al ocultar producto:', error);
-                alert('Error: ' + error.message);
-            }
-        } else if (clickedButton.classList.contains('delete-product-btn')) {
-            console.log('Eliminando producto:', productId);
-            if (confirm('¿Seguro que quieres eliminar este producto?')) {
-                try {
-                    await deleteDoc(productRef);
-                    productCard.remove();
-                    alert('Producto eliminado');
-                } catch (error) {
-                    console.error('Error al eliminar producto:', error);
-                    alert('Error: ' + error.message);
-                }
-            }
-        }
-    });
 
     // Evento para abrir el modal de añadir historia
     document.getElementById('add-story-option').addEventListener('click', () => {
@@ -277,8 +185,6 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
             taggedProducts = [];
             storyImageFile = null;
             document.getElementById('preview-tags').innerHTML = '';
-            // Actualización dinámica en lugar de recargar (opcional)
-            // window.location.reload();
         } catch (error) {
             console.error('Error al publicar la historia:', error);
             alert('Error al publicar la historia: ' + error.message);
@@ -325,13 +231,5 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
                 storyProductSelect.appendChild(option);
             });
         }
-    }
-
-    function createButton(iconClass, className) {
-        const btn = document.createElement('button');
-        btn.innerHTML = `<i class="bi ${iconClass}"></i>`;
-        btn.className = className;
-        btn.style.display = 'none';
-        return btn;
     }
 }
