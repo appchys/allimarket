@@ -48,8 +48,26 @@
             </div>
         </section>
 
-        <button id="proceed-to-payment" class="btn-primary">Proceder al Pago</button>
-    </main>
+        <section class="payment-section">
+            <h2>Método de Pago</h2>
+            <label for="bank-select">Transferencia Bancaria</label>
+            <select id="bank-select" name="bank-select">
+                <option value="">Selecciona un banco</option>
+                <option value="pichincha">Banco Pichincha</option>
+                <option value="guayaquil">Banco Guayaquil</option>
+                <option value="pacifico">Banco Pacífico</option>
+                <option value="produbanco">Banco Produbanco</option>
+            </select>
+        
+            <div id="bank-details" style="display: none; margin-top: 20px;">
+                <h3>Datos Bancarios</h3>
+                <p id="bank-info"></p>
+                <label for="transfer-proof">Subir captura de la transferencia:</label>
+                <input type="file" id="transfer-proof" name="transfer-proof" accept="image/*" required>
+                <button id="submit-transfer" class="btn-primary">Finalizar Compra</button>
+            </div>
+        </section>
+        </main>
 
     <!-- Importar Firebase y el script de checkout como módulos -->
     <script type="module">

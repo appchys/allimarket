@@ -75,3 +75,35 @@ textarea {
 .btn-primary:hover {
     background-color: #218838;
 }
+
+.payment-section {
+    margin-top: 20px;
+}
+
+.payment-section select, 
+.payment-section input[type="file"],
+.payment-section button {
+    display: block;
+    width: 100%;
+    max-width: 300px;
+    margin: 10px 0;
+    padding: 8px;
+}
+
+#bank-details {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}

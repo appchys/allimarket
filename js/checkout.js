@@ -76,7 +76,55 @@ async function loadCartDetails(storeId, userId) {
     }
 }
 
-// Manejar el botón de proceder al pago
-document.getElementById('proceed-to-payment').addEventListener('click', () => {
-    alert('Procesando el pago...');
+// Datos bancarios (puedes ajustarlos según la información real)
+const bankDetails = {
+    pichincha: "Banco Pichincha<br>Cuenta Corriente: 1234567890<br>Titular: Multitienda S.A.<br>RUC: 0991234567001",
+    guayaquil: "Banco Guayaquil<br>Cuenta Corriente: 0987654321<br>Titular: Multitienda S.A.<br>RUC: 0991234567001",
+    pacifico: "Banco Pacífico<br>Cuenta Corriente: 1122334455<br>Titular: Multitienda S.A.<br>RUC: 0991234567001",
+    produbanco: "Banco Produbanco<br>Cuenta Corriente: 5566778899<br>Titular: Multitienda S.A.<br>RUC: 0991234567001"
+};
+
+// Manejar la selección del banco
+document.getElementById('bank-select').addEventListener('change', (event) => {
+    const selectedBank = event.target.value;
+    const bankDetailsDiv = document.getElementById('bank-details');
+    const bankInfo = document.getElementById('bank-info');
+
+    if (selectedBank && bankDetails[selectedBank]) {
+        bankInfo.innerHTML = bankDetails[selectedBank];
+        bankDetailsDiv.style.display = 'block';
+    } else {
+        bankDetailsDiv.style.display = 'none';
+    }
+});
+
+// Manejar el envío de la transferencia
+document.getElementById('submit-transfer').addEventListener('click', async () => {
+    const bankSelect = document.getElementById('bank-select').value;
+    const transferProof = document.getElementById('transfer-proof').files[0];
+
+    if (!bankSelect) {
+        alert('Por favor, selecciona un banco.');
+        return;
+    }
+
+    if (!transferProof) {
+        alert('Por favor, sube la captura de la transferencia.');
+        return;
+    }
+
+    try {
+        // Aquí podrías integrar Firebase Storage para subir la captura
+        // Por ahora, simulamos el proceso
+        alert(`Compra finalizada con éxito.\nBanco seleccionado: ${bankSelect}\nCaptura recibida: ${transferProof.name}`);
+        
+        // Opcional: Limpiar el formulario después de enviar
+        document.getElementById('checkout-form').reset();
+        document.getElementById('bank-select').value = '';
+        document.getElementById('transfer-proof').value = '';
+        document.getElementById('bank-details').style.display = 'none';
+    } catch (error) {
+        console.error('Error al finalizar la compra:', error);
+        alert('Ocurrió un error al procesar tu compra. Intenta de nuevo.');
+    }
 });
