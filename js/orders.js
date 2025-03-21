@@ -1,5 +1,5 @@
 // orders.js
-import { getDocs, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+import { getDocs, query, where, orderBy, collection } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const auth = window.firebaseAuth;
