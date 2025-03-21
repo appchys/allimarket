@@ -1,9 +1,12 @@
 // checkout.js
-import { auth, db } from './firebase.js'; // Ajusta la ruta según tu estructura
 import { doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const auth = window.firebaseAuth;
+    const db = window.firebaseDb;
+    const storage = window.firebaseStorage;
+
     const urlParams = new URLSearchParams(window.location.search);
     const storeId = urlParams.get('store');
 
@@ -12,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
         auth.onAuthStateChanged((user) => {
             if (user) {
                 loadCartDetails(storeId, user.uid);
+                initializeMap(); // Inicializar el mapa
             } else {
                 console.error('Usuario no autenticado');
                 alert('Debes iniciar sesión para proceder al checkout.');
@@ -74,6 +78,54 @@ async function loadCartDetails(storeId, userId) {
     }
 }
 
+// Función para inicializar el mapa
+function initializeMap() {
+    const map = L.map('map').setView([0, 0], 13); // Vista inicial genérica
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    let marker = L.marker([0, 0], { draggable: true }).addTo(map);
+
+    // Obtener la ubicación actual del cliente
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                map.setView([lat, lng], 13);
+                marker.setLatLng([lat, lng]);
+                updateCoordinates(lat, lng);
+            },
+            (error) => {
+                console.error('Error al obtener la ubicación:', error);
+                alert('No se pudo obtener tu ubicación. Por favor, ajusta el marcador manualmente.');
+                map.setView([-0.180653, -78.467834], 13); // Coordenadas por defecto (ejemplo: Quito, Ecuador)
+                marker.setLatLng([-0.180653, -78.467834]);
+                updateCoordinates(-0.180653, -78.467834);
+            }
+        );
+    } else {
+        console.error('Geolocalización no soportada por el navegador');
+        alert('Tu navegador no soporta geolocalización. Ajusta el marcador manualmente.');
+        map.setView([-0.180653, -78.467834], 13); // Coordenadas por defecto
+        marker.setLatLng([-0.180653, -78.467834]);
+        updateCoordinates(-0.180653, -78.467834);
+    }
+
+    // Actualizar coordenadas cuando el marcador se mueve
+    marker.on('dragend', (event) => {
+        const position = marker.getLatLng();
+        updateCoordinates(position.lat, position.lng);
+    });
+}
+
+// Actualizar los campos ocultos con las coordenadas
+function updateCoordinates(lat, lng) {
+    document.getElementById('latitude').value = lat;
+    document.getElementById('longitude').value = lng;
+}
+
 // Datos bancarios
 const bankDetails = {
     pichincha: "Banco Pichincha<br>Cuenta Corriente: 1234567890<br>Titular: Multitienda S.A.<br>RUC: 0991234567001",
@@ -100,7 +152,7 @@ document.getElementById('bank-select').addEventListener('change', (event) => {
 document.getElementById('submit-transfer').addEventListener('click', async () => {
     const bankSelect = document.getElementById('bank-select').value;
     const transferProof = document.getElementById('transfer-proof').files[0];
-    const user = auth.currentUser;
+    const user = window.firebaseAuth.currentUser;
     const urlParams = new URLSearchParams(window.location.search);
     const storeId = urlParams.get('store');
 
@@ -126,7 +178,11 @@ document.getElementById('submit-transfer').addEventListener('click', async () =>
             phone: document.getElementById('phone').value,
             email: document.getElementById('email').value,
             address: document.getElementById('address').value,
-            references: document.getElementById('references').value
+            references: document.getElementById('references').value,
+            location: {
+                latitude: parseFloat(document.getElementById('latitude').value),
+                longitude: parseFloat(document.getElementById('longitude').value)
+            }
         };
 
         // Obtener datos del carrito
@@ -137,7 +193,6 @@ document.getElementById('submit-transfer').addEventListener('click', async () =>
         const totalCost = Object.values(cartData).reduce((sum, item) => sum + item.price * item.quantity, 0) + shippingCost;
 
         // Subir el comprobante a Firebase Storage
-        const storage = getStorage();
         const transferRef = ref(storage, `transfers/${user.uid}/${Date.now()}_${transferProof.name}`);
         await uploadBytes(transferRef, transferProof);
         const transferUrl = await getDownloadURL(transferRef);
@@ -152,7 +207,7 @@ document.getElementById('submit-transfer').addEventListener('click', async () =>
             transferProofUrl: transferUrl,
             shippingCost: shippingCost,
             totalCost: totalCost,
-            status: 'pending', // Estado inicial
+            status: 'pending',
             createdAt: new Date().toISOString()
         };
 
@@ -161,7 +216,7 @@ document.getElementById('submit-transfer').addEventListener('click', async () =>
         await setDoc(doc(db, 'orders', orderId), orderData);
 
         alert(`Compra finalizada con éxito.\nOrden ID: ${orderId}\nBanco: ${bankSelect}\nComprobante subido correctamente.`);
-        
+
         // Limpiar el formulario y el carrito
         document.getElementById('checkout-form').reset();
         document.getElementById('bank-select').value = '';

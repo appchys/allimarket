@@ -6,6 +6,8 @@
     <title>Checkout</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/checkout.css">
+    <!-- Agregar Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 </head>
 <body>
     <header>
@@ -30,9 +32,13 @@
                 <label for="references">Referencias</label>
                 <textarea id="references" name="references" placeholder="Ingresa referencias adicionales" rows="3"></textarea>
 
+                <!-- Campos ocultos para las coordenadas -->
+                <input type="hidden" id="latitude" name="latitude">
+                <input type="hidden" id="longitude" name="longitude">
+
                 <div id="map-container">
                     <h3>Ubicación en el Mapa</h3>
-                    <div id="map" style="width: 100%; height: 300px; background-color: #f0f0f0;">Mapa aquí</div>
+                    <div id="map" style="width: 100%; height: 300px;"></div>
                 </div>
             </form>
         </section>
@@ -69,14 +75,13 @@
         </section>
     </main>
 
-    <!-- Importar Firebase y el script de checkout como módulos -->
+    <!-- Importar Firebase y Leaflet como módulos -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
         import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
         import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
         import { getStorage } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js';
 
-        // Configuración de Firebase con credenciales reales
         const firebaseConfig = {
             apiKey: "AIzaSyAAAFDJ_utlimCezUR-_i8Y2yUare9yZ1k",
             authDomain: "multitienda-69778.firebaseapp.com",
@@ -91,13 +96,12 @@
         const db = getFirestore(app);
         const storage = getStorage(app);
 
-        // Exportar auth, db y storage para usarlos en checkout.js
         window.firebaseAuth = auth;
         window.firebaseDb = db;
         window.firebaseStorage = storage;
     </script>
+    <!-- Importar Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script type="module" src="js/checkout.js"></script>
-    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'923a169e8b5cbaec',t:'MTc0MjUyNDg2Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
-    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'923a4a67fd5eb0c7',t:'MTc0MjUyNjk4Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
