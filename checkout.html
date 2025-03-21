@@ -50,20 +50,31 @@
 
         <button id="proceed-to-payment" class="btn-primary">Proceder al Pago</button>
     </main>
-    <script src="js/checkout.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const storeId = urlParams.get('store');
 
-            if (storeId) {
-                document.querySelector('h1').textContent = `Checkout - ${storeId}`;
-                // Cargar los productos del carrito para esta tienda
-            } else {
-                alert('No se especificó una tienda para el checkout.');
-                window.location.href = '/';
-            }
-        });
+    <!-- Importar Firebase y el script de checkout como módulos -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+
+        // Configuración de Firebase (reemplaza con tus credenciales)
+        const firebaseConfig = {
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_AUTH_DOMAIN",
+            projectId: "TU_PROJECT_ID",
+            storageBucket: "TU_STORAGE_BUCKET",
+            messagingSenderId: "TU_MESSAGING_SENDER_ID",
+            appId: "TU_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Exportar auth y db para usarlos en checkout.js
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
     </script>
+    <script type="module" src="js/checkout.js"></script>
 </body>
 </html>
