@@ -1,36 +1,37 @@
+// checkout.js
+import { auth, db } from './firebase.js'; // Ajusta la ruta según tu estructura
 import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 
-// Obtener auth y db desde el objeto window (definido en checkout.html)
-const auth = window.firebaseAuth;
-const db = window.firebaseDb;
-
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const storeId = urlParams.get('store');
 
     if (storeId) {
         document.querySelector('h1').textContent = `Checkout - ${storeId}`;
-        await loadCartDetails(storeId);
+        // Verificar el estado de autenticación
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // Si hay usuario autenticado, cargar los datos del carrito
+                loadCartDetails(storeId, user.uid);
+            } else {
+                // Si no hay usuario, mostrar mensaje y redirigir
+                console.error('Usuario no autenticado');
+                alert('Debes iniciar sesión para proceder al checkout.');
+                window.location.href = '/'; // Redirigir a la página principal o de inicio de sesión
+            }
+        });
     } else {
         alert('No se especificó una tienda para el checkout.');
         window.location.href = '/';
     }
 });
 
-async function loadCartDetails(storeId) {
+async function loadCartDetails(storeId, userId) {
     const cartDetails = document.getElementById('cart-details');
     const shippingCostElement = document.getElementById('shipping-cost');
     const totalCostElement = document.getElementById('total-cost');
 
     try {
-        // Verificar si el usuario está autenticado
-        if (!auth.currentUser) {
-            console.error('Usuario no autenticado');
-            cartDetails.innerHTML = '<p>Por favor, inicia sesión para ver tu carrito.</p>';
-            return;
-        }
-
-        const userId = auth.currentUser.uid;
         const cartRef = doc(db, 'carts', userId);
         const cartDoc = await getDoc(cartRef);
 
@@ -38,7 +39,6 @@ async function loadCartDetails(storeId) {
             const cartData = cartDoc.data();
             const storeItems = cartData[storeId] || {};
 
-            // Verificar si hay productos para esta tienda
             if (Object.keys(storeItems).length === 0) {
                 cartDetails.innerHTML = '<p>No hay productos en el carrito para esta tienda.</p>';
                 shippingCostElement.textContent = '$0.00';
@@ -47,9 +47,8 @@ async function loadCartDetails(storeId) {
             }
 
             let subtotal = 0;
-            cartDetails.innerHTML = ''; // Limpiar contenido previo
+            cartDetails.innerHTML = '';
 
-            // Renderizar los productos
             for (const itemId in storeItems) {
                 const item = storeItems[itemId];
                 const itemTotal = item.price * item.quantity;
@@ -57,13 +56,11 @@ async function loadCartDetails(storeId) {
 
                 const itemElement = document.createElement('div');
                 itemElement.classList.add('cart-item');
-                itemElement.innerHTML = `
-                    <p>${item.name} (x${item.quantity}) - $${itemTotal.toFixed(2)}</p>
-                `;
+                itemElement.innerHTML = `<p>${item.name} (x${item.quantity}) - $${itemTotal.toFixed(2)}</p>`;
                 cartDetails.appendChild(itemElement);
             }
 
-            const shippingCost = 5.00; // Costo de envío fijo (ajustable)
+            const shippingCost = 5.00; // Ejemplo de costo de envío fijo
             const totalCost = subtotal + shippingCost;
 
             shippingCostElement.textContent = `$${shippingCost.toFixed(2)}`;
@@ -82,5 +79,4 @@ async function loadCartDetails(storeId) {
 // Manejar el botón de proceder al pago
 document.getElementById('proceed-to-payment').addEventListener('click', () => {
     alert('Procesando el pago...');
-    // Aquí puedes agregar la lógica real de pago (ej. integración con pasarela de pago)
 });
