@@ -24,18 +24,6 @@
     padding-top: 100%; /* Imagen cuadrada */
 }
 
-.product-image-container .store-link {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    text-decoration: none;
-    display: block;
-    cursor: pointer;
-    z-index: 2;
-}
-
 .product-image-container img {
     position: absolute;
     top: 0;
@@ -43,10 +31,10 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    z-index: 1;
+    loading: lazy;
 }
 
-.store-link .store-name-overlay {
+.store-name-overlay {
     position: absolute;
     top: 10px;
     left: 10px;
@@ -54,10 +42,12 @@
     font-size: 14px;
     font-weight: bold;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    text-decoration: none;
     padding: 2px 5px;
+    cursor: pointer;
 }
 
-.store-link:hover .store-name-overlay {
+.store-name-overlay:hover {
     color: #ddd;
 }
 
@@ -114,6 +104,10 @@
 #store-feed .grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
+}
+
+.store-product {
+    /* Hereda estilos base de .product */
 }
 
 .product img[loading="lazy"] {
