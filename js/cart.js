@@ -48,7 +48,6 @@ document.addEventListener('click', (event) => {
         const storeId = event.target.dataset.storeId;
         if (storeId) {
             console.log(`Redirigiendo al checkout de la tienda: ${storeId}`);
-            // Redirigir al checkout de la tienda específica
             window.location.href = `/checkout.html?store=${storeId}`;
         }
     }

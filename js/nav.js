@@ -226,7 +226,7 @@ async function updateCartSidebar() {
     // Limpiar el contenido actual
     cartSidebarContent.innerHTML = '';
 
-    // Obtener los datos del carrito
+    // Obtener los datos del carrito (esto es un ejemplo, ajusta según tu lógica)
     const cart = await getCartData();
 
     if (!cart || Object.keys(cart).length === 0) {
@@ -253,7 +253,6 @@ async function updateCartSidebar() {
 
         // Lista de productos
         const itemList = document.createElement('ul');
-        // Iterar sobre los ítems de la tienda
         for (const itemId in storeItems) {
             const item = storeItems[itemId];
             const itemTotal = item.price * item.quantity;
@@ -282,11 +281,9 @@ async function updateCartSidebar() {
 
         // Botón de checkout para la tienda
         const checkoutBtn = document.createElement('button');
-        checkoutBtn.classList.add('checkout-btn');
+        checkoutBtn.classList.add('checkout-store-btn'); // Clase clave para el event listener
+        checkoutBtn.setAttribute('data-store-id', storeId); // Atributo para identificar la tienda
         checkoutBtn.textContent = 'Checkout';
-        checkoutBtn.addEventListener('click', () => {
-            handleCheckout(storeId);
-        });
         storeSection.appendChild(checkoutBtn);
 
         cartSidebarContent.appendChild(storeSection);
