@@ -1,6 +1,6 @@
 // checkout.js
 import { doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js';
+import { ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const auth = window.firebaseAuth;
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
         auth.onAuthStateChanged((user) => {
             if (user) {
                 loadCartDetails(storeId, user.uid);
-                initializeMap(); // Inicializar el mapa
+                initializeMap();
             } else {
                 console.error('Usuario no autenticado');
                 alert('Debes iniciar sesión para proceder al checkout.');
@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function loadCartDetails(storeId, userId) {
+    const db = window.firebaseDb; // Asegurar que db esté definido aquí
     const cartDetails = document.getElementById('cart-details');
     const shippingCostElement = document.getElementById('shipping-cost');
     const totalCostElement = document.getElementById('total-cost');
@@ -80,14 +81,13 @@ async function loadCartDetails(storeId, userId) {
 
 // Función para inicializar el mapa
 function initializeMap() {
-    const map = L.map('map').setView([0, 0], 13); // Vista inicial genérica
+    const map = L.map('map').setView([0, 0], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
     let marker = L.marker([0, 0], { draggable: true }).addTo(map);
 
-    // Obtener la ubicación actual del cliente
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             (position) => {
@@ -100,7 +100,7 @@ function initializeMap() {
             (error) => {
                 console.error('Error al obtener la ubicación:', error);
                 alert('No se pudo obtener tu ubicación. Por favor, ajusta el marcador manualmente.');
-                map.setView([-0.180653, -78.467834], 13); // Coordenadas por defecto (ejemplo: Quito, Ecuador)
+                map.setView([-0.180653, -78.467834], 13);
                 marker.setLatLng([-0.180653, -78.467834]);
                 updateCoordinates(-0.180653, -78.467834);
             }
@@ -108,19 +108,17 @@ function initializeMap() {
     } else {
         console.error('Geolocalización no soportada por el navegador');
         alert('Tu navegador no soporta geolocalización. Ajusta el marcador manualmente.');
-        map.setView([-0.180653, -78.467834], 13); // Coordenadas por defecto
+        map.setView([-0.180653, -78.467834], 13);
         marker.setLatLng([-0.180653, -78.467834]);
         updateCoordinates(-0.180653, -78.467834);
     }
 
-    // Actualizar coordenadas cuando el marcador se mueve
     marker.on('dragend', (event) => {
         const position = marker.getLatLng();
         updateCoordinates(position.lat, position.lng);
     });
 }
 
-// Actualizar los campos ocultos con las coordenadas
 function updateCoordinates(lat, lng) {
     document.getElementById('latitude').value = lat;
     document.getElementById('longitude').value = lng;
@@ -134,7 +132,6 @@ const bankDetails = {
     produbanco: "Banco Produbanco<br>Cuenta Corriente: 5566778899<br>Titular: Multitienda S.A.<br>RUC: 0991234567001"
 };
 
-// Manejar la selección del banco
 document.getElementById('bank-select').addEventListener('change', (event) => {
     const selectedBank = event.target.value;
     const bankDetailsDiv = document.getElementById('bank-details');
@@ -148,8 +145,9 @@ document.getElementById('bank-select').addEventListener('change', (event) => {
     }
 });
 
-// Manejar el envío de la transferencia
 document.getElementById('submit-transfer').addEventListener('click', async () => {
+    const db = window.firebaseDb; // Asegurar que db esté definido aquí
+    const storage = window.firebaseStorage; // Asegurar que storage esté definido aquí
     const bankSelect = document.getElementById('bank-select').value;
     const transferProof = document.getElementById('transfer-proof').files[0];
     const user = window.firebaseAuth.currentUser;
@@ -172,7 +170,6 @@ document.getElementById('submit-transfer').addEventListener('click', async () =>
     }
 
     try {
-        // Obtener datos del formulario
         const formData = {
             fullName: document.getElementById('full-name').value,
             phone: document.getElementById('phone').value,
@@ -185,19 +182,16 @@ document.getElementById('submit-transfer').addEventListener('click', async () =>
             }
         };
 
-        // Obtener datos del carrito
         const cartRef = doc(db, 'carts', user.uid);
         const cartDoc = await getDoc(cartRef);
         const cartData = cartDoc.exists() ? cartDoc.data()[storeId] : {};
         const shippingCost = 5.00;
         const totalCost = Object.values(cartData).reduce((sum, item) => sum + item.price * item.quantity, 0) + shippingCost;
 
-        // Subir el comprobante a Firebase Storage
         const transferRef = ref(storage, `transfers/${user.uid}/${Date.now()}_${transferProof.name}`);
         await uploadBytes(transferRef, transferProof);
         const transferUrl = await getDownloadURL(transferRef);
 
-        // Crear la orden
         const orderData = {
             userId: user.uid,
             storeId: storeId,
@@ -211,13 +205,11 @@ document.getElementById('submit-transfer').addEventListener('click', async () =>
             createdAt: new Date().toISOString()
         };
 
-        // Guardar la orden en Firestore
         const orderId = `${user.uid}_${Date.now()}`;
         await setDoc(doc(db, 'orders', orderId), orderData);
 
         alert(`Compra finalizada con éxito.\nOrden ID: ${orderId}\nBanco: ${bankSelect}\nComprobante subido correctamente.`);
 
-        // Limpiar el formulario y el carrito
         document.getElementById('checkout-form').reset();
         document.getElementById('bank-select').value = '';
         document.getElementById('transfer-proof').value = '';
