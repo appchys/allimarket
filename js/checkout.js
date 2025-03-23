@@ -146,8 +146,8 @@ document.getElementById('bank-select').addEventListener('change', (event) => {
 });
 
 document.getElementById('submit-transfer').addEventListener('click', async () => {
-    const db = window.firebaseDb; // Asegurar que db esté definido aquí
-    const storage = window.firebaseStorage; // Asegurar que storage esté definido aquí
+    const db = window.firebaseDb;
+    const storage = window.firebaseStorage;
     const bankSelect = document.getElementById('bank-select').value;
     const transferProof = document.getElementById('transfer-proof').files[0];
     const user = window.firebaseAuth.currentUser;
@@ -208,8 +208,16 @@ document.getElementById('submit-transfer').addEventListener('click', async () =>
         const orderId = `${user.uid}_${Date.now()}`;
         await setDoc(doc(db, 'orders', orderId), orderData);
 
+        // Limpiar el carrito para esa tienda después de completar la compra
+        if (cartDoc.exists()) {
+            const updatedCart = cartDoc.data();
+            delete updatedCart[storeId]; // Eliminar los ítems de esa tienda
+            await setDoc(cartRef, updatedCart, { merge: false }); // Sobrescribir el carrito
+        }
+
         alert(`Compra finalizada con éxito.\nOrden ID: ${orderId}\nBanco: ${bankSelect}\nComprobante subido correctamente.`);
 
+        // Limpiar el formulario y la interfaz
         document.getElementById('checkout-form').reset();
         document.getElementById('bank-select').value = '';
         document.getElementById('transfer-proof').value = '';
