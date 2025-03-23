@@ -45,6 +45,7 @@
             <form id="create-store-form">
                 <input type="text" id="profile-name" placeholder="Nombres" required>
                 <input type="text" id="profile-slug" placeholder="Usuario (único, ej: miusuario)" required>
+                <input type="email" id="profile-email" placeholder="Correo (ej: correo@tienda.com)" required> <!-- Nuevo campo -->
                 <input type="tel" id="profile-phone" placeholder="Celular (ej: 0985985684)" required>
                 <textarea id="profile-description" placeholder="Descripción" required></textarea>
                 <input type="file" id="profile-image" accept="image/*">
@@ -93,6 +94,7 @@
         const createStoreForm = document.getElementById('create-store-form');
         const nameInput = document.getElementById('profile-name');
         const slugInput = document.getElementById('profile-slug');
+        const emailInput = document.getElementById('profile-email'); // Nuevo elemento
         const phoneInput = document.getElementById('profile-phone');
         const descriptionInput = document.getElementById('profile-description');
 
@@ -106,18 +108,21 @@
                 case 'client':
                     nameInput.placeholder = 'Nombres';
                     slugInput.placeholder = 'Usuario (único, ej: miusuario)';
+                    emailInput.placeholder = 'Correo (ej: usuario@correo.com)';
                     phoneInput.placeholder = 'Celular (ej: 0985985684)';
                     descriptionInput.placeholder = 'Descripción';
                     break;
                 case 'store':
                     nameInput.placeholder = 'Nombre de la tienda';
                     slugInput.placeholder = 'Usuario (único, ej: mi-tienda)';
+                    emailInput.placeholder = 'Correo (ej: correo@tienda.com)';
                     phoneInput.placeholder = 'Celular (ej: 0985985684)';
                     descriptionInput.placeholder = 'Descripción';
                     break;
                 case 'creator':
                     nameInput.placeholder = 'Nombres';
                     slugInput.placeholder = 'Usuario (único, ej: micreador)';
+                    emailInput.placeholder = 'Correo (ej: creador@correo.com)';
                     phoneInput.placeholder = 'Celular (ej: 0985985684)';
                     descriptionInput.placeholder = 'Descripción';
                     break;
@@ -141,6 +146,7 @@
 
             const slug = slugInput.value;
             const name = nameInput.value;
+            const email = emailInput.value; // Obtener el correo
             const description = descriptionInput.value;
             const phone = phoneInput.value;
             const imageFile = document.getElementById('profile-image').files[0];
@@ -164,6 +170,7 @@
                 if (selectedRole === 'store') {
                     await setDoc(doc(db, 'stores', slug), {
                         name,
+                        email, // Guardar el correo
                         description,
                         phone,
                         imageUrl,
@@ -178,6 +185,7 @@
                     role: selectedRole,
                     name,
                     slug,
+                    email, // Guardar el correo también en el perfil del usuario
                     description,
                     phone,
                     imageUrl,
@@ -185,11 +193,13 @@
                 }, { merge: true });
 
                 alert('Perfil creado con éxito');
-                window.location.href = selectedRole === 'store' ? `/${slug}` : 'index.html';            } catch (error) {
+                window.location.href = selectedRole === 'store' ? `/${slug}` : 'index.html';
+            } catch (error) {
                 console.error('Error al crear perfil:', error);
                 alert('Error al crear el perfil: ' + error.message);
             }
         });
     </script>
+    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9251165caf14bfb1',t:'MTc0Mjc2NjAyOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
