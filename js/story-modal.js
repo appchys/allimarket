@@ -47,7 +47,7 @@ export function initializeStoryModalEvents(firestoreDb) {
         const deleteBtn = storyModal.getDeleteButton();
 
         if (closeBtn && deleteBtn) {
-            console.log('Vinculando eventos a los botones...');
+            console.log('Botones encontrados, vinculando eventos...');
             closeBtn.addEventListener('click', () => {
                 console.log('Botón cerrar presionado');
                 closeStoryModal();
