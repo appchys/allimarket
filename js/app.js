@@ -3,7 +3,7 @@ import { initializeNavEvents } from './nav.js';
 import { loadStoreProfile } from './store-profile.js';
 import { loadHomeContent } from './home-content.js';
 import { db, storage, auth, provider } from './firebase.js';
-import { initializeStoryModal, showStoryModal } from './story-modal.js'; // Añadimos showStoryModal
+import { initializeStoryModal } from './story-modal.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const navContainer = document.getElementById('nav-container');
@@ -36,10 +36,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Inicializar el modal de historias
     initializeStoryModal(db);
-
-    // Abrir el modal automáticamente con datos de prueba
-    setTimeout(() => {
-        console.log('Abriendo modal de prueba...');
-        showStoryModal('https://via.placeholder.com/300', '<p>Etiqueta de prueba</p>', 'test-id-123');
-    }, 1000); // Retraso de 1 segundo para dar tiempo a la carga
 });

@@ -29,7 +29,6 @@ function closeStoryModal() {
     storyImage.src = '';
     productTags.innerHTML = '';
     currentStoryId = null;
-    console.log('Modal cerrado exitosamente');
 }
 
 // Eliminar una historia
