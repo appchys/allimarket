@@ -1,9 +1,11 @@
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const { initializeApp } = require("firebase-admin/app");
+const { getFirestore } = require("firebase-admin/firestore");
 const nodemailer = require("nodemailer");
 
 // Inicializar Firebase Admin
 initializeApp();
+const db = getFirestore();
 
 // Obtener las variables de entorno (manejar ambas formas: .env y config)
 const emailGmail = process.env.EMAIL_GMAIL || process.env.email_gmail;
@@ -43,8 +45,32 @@ exports.sendOrderNotification = onDocumentCreated("orders/{orderId}", async (eve
     return;
   }
 
+  // Validar que storeId exista en la orden
+  if (!order.storeId) {
+    console.error("Error: La orden no tiene un storeId definido:", order);
+    return;
+  }
+
   try {
-    const storeEmail = "appchys.ec@gmail.com"; // Correo real para probar
+    // Buscar el correo de la tienda en la colección 'stores'
+    console.log(`Buscando tienda con ID: ${order.storeId}`);
+    const storeRef = db.collection("stores").doc(order.storeId);
+    const storeDoc = await storeRef.get();
+
+    if (!storeDoc.exists) {
+      console.error(`No se encontró la tienda con ID ${order.storeId}`);
+      return;
+    }
+
+    const storeData = storeDoc.data();
+    const storeEmail = storeData.email;
+
+    if (!storeEmail) {
+      console.error(`La tienda con ID ${order.storeId} no tiene un correo definido:`, storeData);
+      return;
+    }
+
+    console.log(`Enviando correo a la tienda: ${storeEmail}`);
 
     const itemsList = Object.entries(order.cartItems)
       .map(([itemId, item]) => {
@@ -55,7 +81,7 @@ exports.sendOrderNotification = onDocumentCreated("orders/{orderId}", async (eve
 
     const mailOptions = {
       from: emailGmail,
-      to: storeEmail,
+      to: storeEmail, // Enviar al correo de la tienda
       subject: `Nueva Orden Recibida #${orderId}`,
       html: `
         <h3>Nueva Orden #${orderId}</h3>
