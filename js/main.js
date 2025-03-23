@@ -3,7 +3,7 @@ import { initializeNavEvents } from './nav.js';
 import { loadStoreProfile } from './store-profile.js';
 import { loadHomeContent } from './home-content.js';
 import { db, storage, auth, provider } from './firebase.js';
-import { initializeStoryModalEvents } from './story-modal.js';
+import { initializeStoryModal } from './story-modal.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const navContainer = document.getElementById('nav-container');
@@ -34,20 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.isProfileLoaded = true;
     }
 
-    // Cargar el modal de historias
-    const storyModalContainer = document.getElementById('story-modal-container');
-    if (storyModalContainer) {
-        fetch('story-view-modal.html')
-            .then(response => response.text())
-            .then(html => {
-                console.log('Insertando HTML del modal');
-                storyModalContainer.innerHTML = html;
-                // Esperar un pequeño momento para asegurar que el script del modal se ejecute
-                setTimeout(() => {
-                    console.log('Inicializando eventos del modal');
-                    initializeStoryModalEvents(db);
-                }, 100); // 100ms de retraso para garantizar que window.storyModal esté disponible
-            })
-            .catch(error => console.error('Error al cargar story-view-modal.html:', error));
-    }
+    // Inicializar el modal de historias
+    initializeStoryModal(db);
 });
