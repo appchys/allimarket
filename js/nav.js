@@ -142,36 +142,31 @@ export function initializeNavEvents(authInstance, dbInstance, storage, provider)
 
     // Nueva función para manejar eventos de la sidebar
     function initializeSidebarEvents() {
-        // Esperar a que los elementos estén disponibles en el DOM
         const waitForElements = setInterval(() => {
             const cartBtn = document.getElementById('cart-btn');
             const cartSidebar = document.getElementById('cart-sidebar');
             const closeCartSidebar = document.getElementById('close-cart-sidebar');
 
             if (cartBtn && cartSidebar && closeCartSidebar) {
-                clearInterval(waitForElements); // Detener el intervalo una vez que los elementos estén disponibles
+                clearInterval(waitForElements);
 
-                // Remover eventos previos para evitar duplicados
                 cartBtn.removeEventListener('click', openSidebarHandler);
                 closeCartSidebar.removeEventListener('click', closeSidebarHandler);
                 document.removeEventListener('click', outsideClickHandler);
 
-                // Abrir la sidebar al hacer clic en el botón del carrito
                 cartBtn.addEventListener('click', openSidebarHandler);
                 function openSidebarHandler(e) {
-                    e.stopPropagation(); // Evitar que el evento se propague y active el cierre
+                    e.stopPropagation();
                     cartSidebar.classList.add('open');
                     updateCartSidebar();
                 }
 
-                // Cerrar la sidebar al hacer clic en el botón de cerrar
                 closeCartSidebar.addEventListener('click', closeSidebarHandler);
                 function closeSidebarHandler(e) {
                     e.stopPropagation();
                     cartSidebar.classList.remove('open');
                 }
 
-                // Cerrar la sidebar al hacer clic fuera de ella
                 document.addEventListener('click', outsideClickHandler);
                 function outsideClickHandler(e) {
                     if (!cartSidebar.contains(e.target) && e.target !== cartBtn && !cartBtn.contains(e.target)) {
@@ -179,7 +174,7 @@ export function initializeNavEvents(authInstance, dbInstance, storage, provider)
                     }
                 }
             }
-        }, 100); // Revisar cada 100ms hasta que los elementos estén disponibles
+        }, 100);
     }
 
     // Cargar el modal de productos dinámicamente
@@ -210,7 +205,7 @@ export function initializeNavEvents(authInstance, dbInstance, storage, provider)
     observer.observe(document.body, { childList: true, subtree: true });
 }
 
-// Función para actualizar el contenido de la sidebar
+// Función actualizada para actualizar el contenido de la sidebar
 async function updateCartSidebar() {
     const cartSidebarContent = document.querySelector('.cart-sidebar-content');
     const cartTotalElement = document.getElementById('cart-total');
@@ -226,7 +221,7 @@ async function updateCartSidebar() {
     // Limpiar el contenido actual
     cartSidebarContent.innerHTML = '';
 
-    // Obtener los datos del carrito (esto es un ejemplo, ajusta según tu lógica)
+    // Obtener los datos del carrito
     const cart = await getCartData();
 
     if (!cart || Object.keys(cart).length === 0) {
@@ -241,52 +236,56 @@ async function updateCartSidebar() {
     for (const storeId in cart) {
         const storeItems = cart[storeId];
         let storeSubtotal = 0;
+        const itemCount = Object.keys(storeItems).length;
 
-        // Crear una sección para la tienda
-        const storeSection = document.createElement('div');
-        storeSection.classList.add('cart-store-section');
+        // Solo crear la sección si hay ítems en la tienda
+        if (itemCount > 0) {
+            const storeSection = document.createElement('div');
+            storeSection.classList.add('cart-store-section');
+            storeSection.dataset.storeId = storeId;
 
-        // Título de la tienda
-        const storeTitle = document.createElement('h3');
-        storeTitle.textContent = `Tienda: ${storeId}`;
-        storeSection.appendChild(storeTitle);
+            // Título de la tienda
+            const storeTitle = document.createElement('h3');
+            storeTitle.textContent = `Tienda: ${storeId}`;
+            storeSection.appendChild(storeTitle);
 
-        // Lista de productos
-        const itemList = document.createElement('ul');
-        for (const itemId in storeItems) {
-            const item = storeItems[itemId];
-            const itemTotal = item.price * item.quantity;
-            storeSubtotal += itemTotal;
-            totalPrice += itemTotal;
-            totalItems += item.quantity;
+            // Lista de productos
+            const itemList = document.createElement('ul');
+            for (const itemId in storeItems) {
+                const item = storeItems[itemId];
+                const itemTotal = item.price * item.quantity;
+                storeSubtotal += itemTotal;
+                totalPrice += itemTotal;
+                totalItems += item.quantity;
 
-            const listItem = document.createElement('li');
-            listItem.innerHTML = `
-                <div class="item-details">
-                    <p>${item.name}</p>
-                </div>
-                <span class="item-quantity">x${item.quantity}</span>
-                <span class="item-total">$${(itemTotal).toFixed(2)}</span>
-                <button class="remove-item" data-store="${storeId}" data-item="${itemId}">Eliminar</button>
-            `;
-            itemList.appendChild(listItem);
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <div class="item-details">
+                        <p>${item.name}</p>
+                    </div>
+                    <span class="item-quantity">x${item.quantity}</span>
+                    <span class="item-total">$${(itemTotal).toFixed(2)}</span>
+                    <button class="remove-item" data-store="${storeId}" data-item="${itemId}">Eliminar</button>
+                `;
+                itemList.appendChild(listItem);
+            }
+            storeSection.appendChild(itemList);
+
+            // Subtotal de la tienda
+            const storeSubtotalElement = document.createElement('p');
+            storeSubtotalElement.classList.add('store-subtotal');
+            storeSubtotalElement.textContent = `Subtotal: $${storeSubtotal.toFixed(2)}`;
+            storeSection.appendChild(storeSubtotalElement);
+
+            // Botón de checkout para la tienda
+            const checkoutBtn = document.createElement('button');
+            checkoutBtn.classList.add('checkout-store-btn');
+            checkoutBtn.setAttribute('data-store-id', storeId);
+            checkoutBtn.textContent = 'Checkout';
+            storeSection.appendChild(checkoutBtn);
+
+            cartSidebarContent.appendChild(storeSection);
         }
-        storeSection.appendChild(itemList);
-
-        // Subtotal de la tienda
-        const storeSubtotalElement = document.createElement('p');
-        storeSubtotalElement.classList.add('store-subtotal');
-        storeSubtotalElement.textContent = `Subtotal: $${storeSubtotal.toFixed(2)}`;
-        storeSection.appendChild(storeSubtotalElement);
-
-        // Botón de checkout para la tienda
-        const checkoutBtn = document.createElement('button');
-        checkoutBtn.classList.add('checkout-store-btn'); // Clase clave para el event listener
-        checkoutBtn.setAttribute('data-store-id', storeId); // Atributo para identificar la tienda
-        checkoutBtn.textContent = 'Checkout';
-        storeSection.appendChild(checkoutBtn);
-
-        cartSidebarContent.appendChild(storeSection);
     }
 
     // Actualizar el total general y el contador
@@ -316,6 +315,13 @@ async function getCartData() {
         if (cartDoc.exists()) {
             const cartData = cartDoc.data();
             console.log('Datos del carrito obtenidos:', cartData);
+
+            // Limpiar tiendas vacías del objeto cartData
+            for (const storeId in cartData) {
+                if (Object.keys(cartData[storeId]).length === 0) {
+                    delete cartData[storeId];
+                }
+            }
             return cartData;
         } else {
             console.log('El carrito está vacío o no existe');
@@ -343,10 +349,8 @@ export async function addToCart(storeId, product) {
         let cartData = cartDoc.exists() ? cartDoc.data() : {};
 
         if (cartData[storeId] && cartData[storeId][product.id]) {
-            // Si el producto ya existe, incrementar la cantidad
             cartData[storeId][product.id].quantity += 1;
         } else {
-            // Si el producto no existe, añadirlo con cantidad 1
             if (!cartData[storeId]) {
                 cartData[storeId] = {};
             }
@@ -357,11 +361,8 @@ export async function addToCart(storeId, product) {
             };
         }
 
-        // Guardar los datos actualizados en Firebase
         await setDoc(cartRef, cartData, { merge: true });
         console.log(`Producto ${product.id} añadido al carrito para la tienda ${storeId}`);
-
-        // Actualizar la sidebar
         updateCartSidebar();
     } catch (error) {
         console.error('Error al añadir el producto al carrito:', error);
@@ -371,8 +372,7 @@ export async function addToCart(storeId, product) {
 // Función para manejar el checkout por tienda
 function handleCheckout(storeId) {
     console.log(`Iniciando checkout para la tienda: ${storeId}`);
-    // Implementa la lógica de checkout aquí
-    // window.location.href = `/checkout?store=${storeId}`;
+    window.location.href = `/checkout.html?store=${storeId}`;
 }
 
 // Agregar evento para eliminar ítems
@@ -389,12 +389,25 @@ document.addEventListener('click', async (e) => {
 
             const userId = auth.currentUser.uid;
             const cartRef = doc(db, 'carts', userId);
+
+            // Eliminar el ítem del carrito
             await updateDoc(cartRef, {
                 [`${storeId}.${itemId}`]: deleteField()
             });
 
+            // Obtener datos actualizados del carrito
+            const cartDoc = await getDoc(cartRef);
+            const cartData = cartDoc.exists() ? cartDoc.data() : {};
+
+            // Si la tienda no tiene más ítems, eliminarla completamente
+            if (cartData[storeId] && Object.keys(cartData[storeId]).length === 0) {
+                await updateDoc(cartRef, {
+                    [storeId]: deleteField()
+                });
+            }
+
             console.log(`Ítem ${itemId} eliminado de la tienda ${storeId}`);
-            updateCartSidebar(); // Actualizar la sidebar después de eliminar
+            updateCartSidebar();
         } catch (error) {
             console.error('Error al eliminar el ítem:', error);
         }
