@@ -1,20 +1,17 @@
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const { initializeApp } = require("firebase-admin/app");
+const { config } = require("firebase-functions"); // Importar config
 const nodemailer = require("nodemailer");
 
 // Inicializar Firebase Admin
 initializeApp();
 
-// Depurar las variables de entorno
-console.log("EMAIL_GMAIL:", process.env.email_gmail);
-console.log("PASSWORD_GMAIL:", process.env.password_gmail);
-
 // Configurar el transporte de Nodemailer con Gmail
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.email_gmail || "default@example.com", // Valor por defecto si no se carga
-    pass: process.env.password_gmail || "defaultpassword",
+    user: config().email.gmail, // Usar config() en lugar de process.env
+    pass: config().password.gmail,
   },
 });
 
@@ -34,7 +31,7 @@ exports.sendOrderNotification = onDocumentCreated("orders/{orderId}", async (eve
       .join("");
 
     const mailOptions = {
-      from: process.env.email_gmail,
+      from: config().email.gmail,
       to: storeEmail,
       subject: `Nueva Orden Recibida #${orderId}`,
       html: `
