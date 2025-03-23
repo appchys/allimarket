@@ -7,7 +7,7 @@ let currentStoryId = null;
 
 // Mostrar el modal
 export function showStoryModal(imageSrc, tags = '', storyId) {
-    console.log('Mostrando modal con ID:', storyId);
+    console.log('showStoryModal llamado con:', { imageSrc, tags, storyId });
     const modal = document.getElementById('story-view-modal');
     const storyImage = document.getElementById('story-image');
     const productTags = document.getElementById('product-tags');
@@ -21,6 +21,7 @@ export function showStoryModal(imageSrc, tags = '', storyId) {
     productTags.innerHTML = tags;
     modal.style.display = 'flex';
     currentStoryId = storyId;
+    console.log('currentStoryId asignado:', currentStoryId);
 }
 
 // Cerrar el modal
@@ -39,6 +40,7 @@ function closeStoryModal() {
     storyImage.src = '';
     productTags.innerHTML = '';
     currentStoryId = null;
+    console.log('currentStoryId restablecido a:', currentStoryId);
 }
 
 // Eliminar una historia
