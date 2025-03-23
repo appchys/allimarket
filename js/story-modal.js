@@ -12,6 +12,11 @@ export function showStoryModal(imageSrc, tags = '', storyId) {
     const storyImage = document.getElementById('story-image');
     const productTags = document.getElementById('product-tags');
 
+    if (!modal || !storyImage || !productTags) {
+        console.error('Elementos del modal no encontrados:', { modal, storyImage, productTags });
+        return;
+    }
+
     storyImage.src = imageSrc;
     productTags.innerHTML = tags;
     modal.style.display = 'flex';
@@ -24,6 +29,11 @@ function closeStoryModal() {
     const modal = document.getElementById('story-view-modal');
     const storyImage = document.getElementById('story-image');
     const productTags = document.getElementById('product-tags');
+
+    if (!modal || !storyImage || !productTags) {
+        console.error('Elementos del modal no encontrados al cerrar:', { modal, storyImage, productTags });
+        return;
+    }
 
     modal.style.display = 'none';
     storyImage.src = '';
@@ -41,7 +51,9 @@ async function deleteStory() {
 
     if (confirm('¿Estás seguro de que quieres eliminar esta historia?')) {
         try {
-            await deleteDoc(doc(db, 'stories', currentStoryId));
+            const storyRef = doc(db, 'stories', currentStoryId);
+            console.log('Eliminando documento:', storyRef.path);
+            await deleteDoc(storyRef);
             console.log('Historia eliminada de Firestore');
             closeStoryModal();
         } catch (error) {
