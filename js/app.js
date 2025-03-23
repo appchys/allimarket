@@ -41,10 +41,9 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => response.text())
             .then(html => {
                 storyModalContainer.innerHTML = html;
-                // Esperar a que el modal esté listo antes de inicializar eventos
-                document.addEventListener('storyModalReady', () => {
-                    initializeStoryModalEvents(db);
-                });
+                // Llamar directamente a initializeStoryModalEvents después de insertar el HTML
+                // El evento storyModalReady ya se habrá disparado al final del script en story-view-modal.html
+                initializeStoryModalEvents(db);
             })
             .catch(error => console.error('Error al cargar story-view-modal.html:', error));
     }

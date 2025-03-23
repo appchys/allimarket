@@ -46,9 +46,19 @@ export function initializeStoryModalEvents(firestoreDb) {
         const closeBtn = storyModal.getCloseButton();
         const deleteBtn = storyModal.getDeleteButton();
 
-        console.log('Vinculando eventos a los botones...');
-        closeBtn.addEventListener('click', closeStoryModal);
-        deleteBtn.addEventListener('click', deleteStory);
+        if (closeBtn && deleteBtn) {
+            console.log('Vinculando eventos a los botones...');
+            closeBtn.addEventListener('click', () => {
+                console.log('Botón cerrar presionado');
+                closeStoryModal();
+            });
+            deleteBtn.addEventListener('click', () => {
+                console.log('Botón eliminar presionado');
+                deleteStory();
+            });
+        } else {
+            console.error('No se encontraron los botones del modal:', { closeBtn, deleteBtn });
+        }
     } else {
         console.error('No se encontró window.storyModal');
     }
