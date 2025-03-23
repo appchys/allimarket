@@ -47,17 +47,54 @@ export async function loadOwnerFeatures(db, storage, auth, slug, store, elements
         .catch(error => console.error('Error al cargar add-product.html:', error));
 
     // Lógica para editar el perfil de la tienda
-    editBtn.addEventListener('click', () => {
-        if (editProfileSidebar) {
-            editProfileSidebar.style.display = 'block';
-            document.getElementById('edit-store-name').value = store.name || '';
-            document.getElementById('edit-store-description').value = store.description || '';
-            document.getElementById('edit-store-phone').value = store.phone || '';
-            document.getElementById('edit-store-image-preview').src = store.imageUrl || 'https://placehold.co/100x100';
-        } else {
-            console.error('#edit-profile-sidebar no encontrado en el DOM');
+    // Dentro de la función loadOwnerFeatures
+editBtn.addEventListener('click', () => {
+    if (editProfileSidebar) {
+        editProfileSidebar.style.display = 'block';
+        document.getElementById('edit-store-name').value = store.name || '';
+        document.getElementById('edit-store-description').value = store.description || '';
+        document.getElementById('edit-store-phone').value = store.phone || '';
+        document.getElementById('edit-store-email').value = store.email || ''; // Nuevo campo email
+        document.getElementById('edit-store-image-preview').src = store.imageUrl || 'https://placehold.co/100x100';
+    } else {
+        console.error('#edit-profile-sidebar no encontrado en el DOM');
+    }
+});
+
+if (editStoreForm) {
+    editStoreForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        try {
+            const updatedData = {
+                name: document.getElementById('edit-store-name').value,
+                description: document.getElementById('edit-store-description').value,
+                phone: document.getElementById('edit-store-phone').value || null,
+                email: document.getElementById('edit-store-email').value || null, // Nuevo campo email
+            };
+            const editStoreImage = document.getElementById('edit-store-image').files[0];
+            if (editStoreImage) {
+                const imagePath = `stores/${slug}/profile_${Date.now()}.jpg`;
+                const storageRef = ref(storage, imagePath);
+                const metadata = {
+                    customMetadata: {
+                        owner: auth.currentUser.uid
+                    }
+                };
+                await uploadBytes(storageRef, editStoreImage, metadata);
+                updatedData.imageUrl = await getDownloadURL(storageRef);
+            }
+            await setDoc(doc(db, 'stores', slug), updatedData, { merge: true });
+            editProfileSidebar.style.display = 'none';
+            elements.storeName.textContent = updatedData.name;
+            elements.storeDescription.textContent = updatedData.description;
+            if (updatedData.imageUrl) elements.storeImage.src = updatedData.imageUrl;
+            // Opcional: Actualizar visualmente el email si se muestra en la UI
+        } catch (error) {
+            console.error('Error al guardar los cambios:', error.message);
+            alert('Error al guardar los cambios: ' + error.message);
         }
     });
+}
 
     // Lógica para ver órdenes
     viewOrdersBtn.addEventListener('click', () => {

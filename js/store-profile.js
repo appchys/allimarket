@@ -1,458 +1,310 @@
-import { getDoc, setDoc, doc, addDoc, collection, query, orderBy, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
-import { ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js';
+import { getDoc, setDoc, doc, collection, query, orderBy, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+import { loadStoreFeed } from './store-feed.js';
+import { normalizePhoneNumber } from './store-utils.js';
+
+// Carrito global almacenado en localStorage
+let cart = JSON.parse(localStorage.getItem('cart')) || {};
 
 export async function loadStoreProfile(db, storage, auth) {
-  console.log('Iniciando loadStoreProfile - Fecha:', new Date().toISOString());
-  const urlParams = new URLSearchParams(window.location.search);
-  const slug = urlParams.get('slug');
-  console.log('URL completa:', window.location.href);
-  console.log('Slug detectado:', slug);
+    if (window.isProfileLoading) {
+        console.log('loadStoreProfile ya está en ejecución, omitiendo llamada adicional');
+        return;
+    }
+    window.isProfileLoading = true;
 
-  if (!slug) {
-    console.error('No se proporcionó slug en la URL');
-    const storeName = document.getElementById('store-name');
-    if (storeName) storeName.textContent = 'Error: Tienda no especificada';
-    else console.error('Elemento store-name no encontrado en el DOM');
-    return;
-  }
+    console.log('Iniciando loadStoreProfile - Fecha:', new Date().toISOString());
 
-  const storeImage = document.getElementById('store-image');
-  const storeName = document.getElementById('store-name');
-  const storeFollowers = document.getElementById('store-followers');
-  const storeDescription = document.getElementById('store-description');
-  const storeActions = document.getElementById('store-actions');
-  const storiesContainer = document.getElementById('stories-container');
-  const feedContainer = document.getElementById('feed-container');
-  const storyImage = document.getElementById('story-image');
-  const productTags = document.getElementById('product-tags');
-  const storyViewContainer = document.getElementById('story-view-container');
-  const closeStoryView = document.getElementById('close-story-view');
-  const addActionModal = document.getElementById('add-action-modal');
-  const addProductOption = document.getElementById('add-product-option');
-  const addStoryOption = document.getElementById('add-story-option');
-  const closeAddAction = document.getElementById('close-add-action');
-  const postStoryModal = document.getElementById('post-story-modal');
-  const storyCameraBtn = document.getElementById('story-camera');
-  const storyGalleryBtn = document.getElementById('story-gallery');
-  const storySourceOptions = document.getElementById('story-source-options');
-  const storyPreviewContainer = document.getElementById('story-preview-container');
-  const previewImage = document.getElementById('preview-image');
-  const previewTags = document.getElementById('preview-tags');
-  const tagProductsBtn = document.getElementById('tag-products-btn');
-  const publishStoryBtn = document.getElementById('publish-story-btn');
-  const storyProductSelect = document.getElementById('story-product');
-  const closeStoryModal = document.getElementById('close-story-modal');
-  const editProfileSidebar = document.getElementById('edit-profile-sidebar');
-  const closeSidebar = document.getElementById('close-sidebar');
-  const editStoreForm = document.getElementById('edit-store-form');
-  const editStoreName = document.getElementById('edit-store-name');
-  const editStoreDescription = document.getElementById('edit-store-description');
-  const editStorePhone = document.getElementById('edit-store-phone');
-  const editStoreEmail = document.getElementById('edit-store-email'); // Campo email
-  const editStoreImage = document.getElementById('edit-store-image');
-  const editStoreImagePreview = document.getElementById('edit-store-image-preview');
-  const navAddBtn = document.getElementById('new-btn');
+    const elements = {
+        storeImage: document.getElementById('store-image'),
+        storeName: document.getElementById('store-name'),
+        storeFollowers: document.getElementById('store-followers'),
+        storeDescription: document.getElementById('store-description'),
+        storeActions: document.getElementById('store-actions'),
+        storiesContainer: document.getElementById('stories-container'),
+        feedContainer: document.getElementById('feed-container'),
+        storyViewContainer: document.getElementById('story-view-container'),
+        cartCount: document.getElementById('cart-count'), // Eliminado cartBubble
+        cartModal: document.getElementById('cart-modal'),
+        cartItems: document.getElementById('cart-items'),
+        closeCartModal: document.getElementById('close-cart-modal'),
+    };
 
-  console.log('Verificando elementos del DOM:');
-  [storeName, storeImage, storeActions, storiesContainer, feedContainer, editProfileSidebar, navAddBtn, editStoreEmail].forEach(el => {
-    console.log(el ? el.id + ': encontrado' : el + ': no encontrado');
-  });
-
-  if (!storeName || !storeImage || !storeActions || !storiesContainer || !feedContainer || !editProfileSidebar || !editStoreEmail) {
-    console.error('Faltan elementos esenciales del DOM:', {
-      storeName, storeImage, storeActions, storiesContainer, feedContainer, editProfileSidebar, editStoreEmail
+    console.log('Verificando elementos del DOM:');
+    Object.entries(elements).forEach(([key, el]) => {
+        console.log(`${key}: ${el ? 'encontrado' : 'no encontrado'}`);
     });
-    return;
-  }
 
-  try {
-    console.log('Obteniendo documento de tienda:', slug);
-    const storeDoc = await getDoc(doc(db, 'stores', slug));
-    console.log('Documento existe:', storeDoc.exists());
-    if (!storeDoc.exists()) {
-      console.error('Tienda no encontrada:', slug);
-      storeName.textContent = 'Tienda no encontrada';
-      return;
+    if (!elements.storeName || !elements.storeImage || !elements.storeActions || !elements.storiesContainer || !elements.feedContainer) {
+        console.error('Faltan elementos esenciales del DOM para cargar el perfil de la tienda');
+        window.isProfileLoading = false;
+        return;
     }
 
-    const store = storeDoc.data();
-    console.log('Datos de la tienda:', store);
-    storeImage.src = store.imageUrl || 'https://placehold.co/100x100';
-    storeName.textContent = store.name || 'Sin nombre';
-    storeFollowers.textContent = `${store.followers || 0} seguidores`;
-    storeDescription.textContent = store.description || 'Sin descripción';
-
-    const user = auth.currentUser;
-    const isOwner = user && store.owner === user.uid;
-    console.log('Usuario actual:', user ? user.uid : 'No autenticado', 'Es propietario:', isOwner);
-
-    storeActions.innerHTML = '';
-    if (isOwner) {
-      console.log('Usuario es propietario, mostrando botones de propietario');
-      const editBtn = document.createElement('button');
-      editBtn.textContent = 'Editar Perfil';
-      editBtn.id = 'edit-btn';
-      storeActions.appendChild(editBtn);
-
-      const editProductsBtn = document.createElement('button');
-      editProductsBtn.textContent = 'Editar productos';
-      editProductsBtn.id = 'edit-products-btn';
-      storeActions.appendChild(editProductsBtn);
-
-      editBtn.addEventListener('click', () => {
-        console.log('Abriendo panel lateral de edición y cargando datos');
-        editProfileSidebar.style.display = 'block';
-        editStoreName.value = store.name || '';
-        editStoreDescription.value = store.description || '';
-        editStorePhone.value = store.phone || '';
-        editStoreEmail.value = store.email || ''; // Cargar el correo
-        editStoreImagePreview.src = store.imageUrl || 'https://placehold.co/100x100';
-      });
-
-      closeSidebar.addEventListener('click', () => {
-        console.log('Cerrando panel lateral');
-        editProfileSidebar.style.display = 'none';
-      });
-
-      editStoreForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        console.log('Guardando cambios del formulario');
-        try {
-          const updatedData = {
-            name: editStoreName.value,
-            description: editStoreDescription.value,
-            phone: editStorePhone.value || null,
-            email: editStoreEmail.value || null, // Guardar el correo
-          };
-          if (editStoreImage.files && editStoreImage.files[0]) {
-            const imageFile = editStoreImage.files[0];
-            const imagePath = `stores/${slug}/profile_${Date.now()}.jpg`;
-            const storageRef = ref(storage, imagePath);
-            await uploadBytes(storageRef, imageFile);
-            updatedData.imageUrl = await getDownloadURL(storageRef);
-          }
-          await setDoc(doc(db, 'stores', slug), updatedData, { merge: true });
-
-          // También actualizar el email en la colección 'users'
-          if (auth.currentUser) {
-            await setDoc(doc(db, 'users', auth.currentUser.uid), { email: editStoreEmail.value || null }, { merge: true });
-          }
-
-          console.log('Datos guardados exitosamente');
-          editProfileSidebar.style.display = 'none';
-          loadStoreProfile(db, storage, auth);
-        } catch (error) {
-          console.error('Error al guardar los cambios:', error.message);
-          alert('Error al guardar los cambios: ' + error.message);
-        }
-      });
-
-      if (navAddBtn) {
-        navAddBtn.addEventListener('click', () => {
-          console.log('Botón + clicado, mostrando #add-action-modal');
-          if (addActionModal) addActionModal.style.display = 'flex';
-          else console.error('#add-action-modal no encontrado en el DOM');
+    const user = await new Promise((resolve) => {
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            unsubscribe();
+            resolve(user);
         });
-      }
+    });
+    console.log('Usuario actual (después de esperar):', user ? user.uid : 'No autenticado');
 
-      let isEditingProducts = false;
-      editProductsBtn.addEventListener('click', () => {
-        isEditingProducts = !isEditingProducts;
-        console.log('Modo edición de productos:', isEditingProducts ? 'activado' : 'desactivado');
-        const productCards = feedContainer.querySelectorAll('.store-product');
-        productCards.forEach(card => {
-          let editBtn = card.querySelector('.edit-product-btn');
-          let hideBtn = card.querySelector('.hide-product-btn');
-          let deleteBtn = card.querySelector('.delete-product-btn');
-          
-          if (!editBtn) {
-            editBtn = document.createElement('button');
-            editBtn.innerHTML = '<i class="bi bi-pencil"></i>';
-            editBtn.className = 'edit-product-btn';
-            editBtn.style.display = 'none';
-            card.querySelector('.product-actions').appendChild(editBtn);
-          }
-          if (!hideBtn) {
-            hideBtn = document.createElement('button');
-            hideBtn.innerHTML = '<i class="bi bi-eye"></i>';
-            hideBtn.className = 'hide-product-btn';
-            hideBtn.style.display = 'none';
-            card.querySelector('.product-actions').appendChild(hideBtn);
-          }
-          if (!deleteBtn) {
-            deleteBtn = document.createElement('button');
-            deleteBtn.innerHTML = '<i class="bi bi-trash"></i>';
-            deleteBtn.className = 'delete-product-btn';
-            deleteBtn.style.display = 'none';
-            card.querySelector('.product-actions').appendChild(deleteBtn);
-          }
+    let slug = window.location.pathname.split('/').filter(Boolean)[0];
+    console.log('Slug detectado en URL:', slug);
 
-          editBtn.style.display = isEditingProducts ? 'inline-block' : 'none';
-          hideBtn.style.display = isEditingProducts ? 'inline-block' : 'none';
-          deleteBtn.style.display = isEditingProducts ? 'inline-block' : 'none';
-        });
-      });
-
-      addProductOption.addEventListener('click', () => {
-        console.log('Opción Añadir Producto clicada');
-        const addProductModal = document.getElementById('add-product-modal');
-        if (addProductModal) addProductModal.style.display = 'flex';
-        else console.error('#add-product-modal no encontrado en el DOM');
-        if (addActionModal) addActionModal.style.display = 'none';
-      });
-
-      addStoryOption.addEventListener('click', () => {
-        console.log('Opción Añadir Historia clicada');
-        if (postStoryModal) postStoryModal.style.display = 'flex';
-        else console.error('#post-story-modal no encontrado en el DOM');
-        if (addActionModal) addActionModal.style.display = 'none';
-        if (storySourceOptions) storySourceOptions.style.display = 'flex';
-        if (storyPreviewContainer) storyPreviewContainer.style.display = 'none';
-      });
-
-      closeAddAction.addEventListener('click', () => {
-        console.log('Cerrando #add-action-modal');
-        if (addActionModal) addActionModal.style.display = 'none';
-      });
-
-      let taggedProducts = [];
-      let storyImageFile = null;
-
-      storyCameraBtn.addEventListener('click', () => {
-        console.log('Abriendo cámara para historia');
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*';
-        input.capture = 'camera';
-        input.onchange = (e) => handleImageSelect(e, slug);
-        input.click();
-      });
-
-      storyGalleryBtn.addEventListener('click', () => {
-        console.log('Abriendo galería para historia');
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*';
-        input.onchange = (e) => handleImageSelect(e, slug);
-        input.click();
-      });
-
-      tagProductsBtn.addEventListener('click', () => {
-        console.log('Etiquetando productos en historia');
-        if (storyProductSelect) storyProductSelect.style.display = 'block';
-        if (previewImage) previewImage.style.cursor = 'crosshair';
-        populateStoryProductSelect(slug);
-      });
-
-      previewImage.addEventListener('click', (e) => {
-        if (storyProductSelect && storyProductSelect.style.display !== 'block') return;
-        const productId = storyProductSelect ? storyProductSelect.value : '';
-        if (!productId) {
-          alert('Selecciona un producto para etiquetar');
-          return;
-        }
-
-        const rect = previewImage.getBoundingClientRect();
-        const x = ((e.clientX - rect.left) / rect.width) * 100;
-        const y = ((e.clientY - rect.top) / rect.height) * 100;
-
-        taggedProducts.push({ productId, x, y });
-
-        const tag = document.createElement('div');
-        tag.classList.add('preview-tag');
-        tag.style.left = `${x}%`;
-        tag.style.top = `${y}%`;
-        tag.textContent = storyProductSelect.options[storyProductSelect.selectedIndex].text;
-        if (previewTags) previewTags.appendChild(tag);
-      });
-
-      publishStoryBtn.addEventListener('click', async () => {
-        if (!storyImageFile) {
-          alert('Por favor selecciona una imagen primero');
-          return;
-        }
-
-        try {
-          const storyPath = `stores/${slug}/stories/${Date.now()}_${storyImageFile.name}`;
-          const storageRef = ref(storage, storyPath);
-          await uploadBytes(storageRef, storyImageFile);
-          const imageUrl = await getDownloadURL(storageRef);
-
-          const storyData = {
-            imageUrl,
-            createdAt: new Date().toISOString(),
-            taggedProducts: taggedProducts.length > 0 ? taggedProducts : []
-          };
-
-          await addDoc(collection(db, 'stores', slug, 'stories'), storyData);
-          console.log('Historia publicada con éxito');
-          if (postStoryModal) postStoryModal.style.display = 'none';
-          taggedProducts = [];
-          storyImageFile = null;
-          if (previewTags) previewTags.innerHTML = '';
-          loadStoreProfile(db, storage, auth);
-        } catch (error) {
-          console.error('Error al publicar la historia:', error);
-          alert('Error al publicar la historia: ' + error.message);
-        }
-      });
-
-      closeStoryModal.addEventListener('click', () => {
-        console.log('Cerrando #post-story-modal');
-        if (postStoryModal) postStoryModal.style.display = 'none';
-        taggedProducts = [];
-        storyImageFile = null;
-        if (previewTags) previewTags.innerHTML = '';
-        if (storySourceOptions) storySourceOptions.style.display = 'flex';
-        if (storyPreviewContainer) storyPreviewContainer.style.display = 'none';
-      });
-
-      function handleImageSelect(e, slug) {
-        storyImageFile = e.target.files[0];
-        if (storyImageFile) {
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            if (previewImage) previewImage.src = event.target.result;
-            if (storySourceOptions) storySourceOptions.style.display = 'none';
-            if (storyPreviewContainer) storyPreviewContainer.style.display = 'block';
-            if (storyProductSelect) storyProductSelect.style.display = 'none';
-            if (previewTags) previewTags.innerHTML = '';
-          };
-          reader.readAsDataURL(storyImageFile);
-        }
-      }
-
-      async function populateStoryProductSelect(slug) {
-        const productsSnapshot = await getDocs(collection(db, 'stores', slug, 'products'));
-        if (storyProductSelect) {
-          storyProductSelect.innerHTML = '<option value="">Selecciona un producto</option>';
-          productsSnapshot.forEach((doc) => {
-            const product = doc.data();
-            const option = document.createElement('option');
-            option.value = doc.id;
-            option.textContent = product.name;
-            storyProductSelect.appendChild(option);
-          });
-        }
-      }
-    } else {
-      console.log('Usuario no es propietario, mostrando botones de visitante');
-      const followBtn = document.createElement('button');
-      followBtn.textContent = 'Seguir';
-      followBtn.id = 'follow-btn';
-      storeActions.appendChild(followBtn);
-
-      const whatsappBtn = document.createElement('button');
-      whatsappBtn.textContent = 'WhatsApp';
-      whatsappBtn.id = 'whatsapp-btn';
-      storeActions.appendChild(whatsappBtn);
-
-      if (store.phone) {
-        const phoneNumber = normalizePhoneNumber(store.phone);
-        whatsappBtn.onclick = () => {
-          window.open(`https://wa.me/${phoneNumber}`, '_blank');
-        };
-      } else {
-        whatsappBtn.style.display = 'none';
-      }
-
-      followBtn.addEventListener('click', async () => {
-        const updatedFollowers = (store.followers || 0) + 1;
-        await setDoc(doc(db, 'stores', slug), { followers: updatedFollowers }, { merge: true });
-        storeFollowers.textContent = `${updatedFollowers} seguidores`;
-        followBtn.textContent = 'Siguiendo';
-        followBtn.disabled = true;
-      });
-    }
-
-    const storiesQuery = query(collection(db, 'stores', slug, 'stories'), orderBy('createdAt', 'desc'));
-    const storiesSnapshot = await getDocs(storiesQuery);
-    storiesContainer.innerHTML = '';
-    console.log(`Historias encontradas: ${storiesSnapshot.size}`);
-    storiesSnapshot.forEach((storyDoc) => {
-      const story = storyDoc.data();
-      const storyElement = document.createElement('div');
-      storyElement.classList.add('story');
-      storyElement.innerHTML = `<img src="${story.imageUrl}" alt="Story" loading="lazy"><span>${store.name}</span>`;
-      storyElement.addEventListener('click', async () => {
-        if (storyImage) storyImage.src = story.imageUrl;
-        if (productTags) productTags.innerHTML = '';
-        if (story.taggedProducts && story.taggedProducts.length > 0) {
-          for (const tag of story.taggedProducts) {
-            const productDoc = await getDoc(doc(db, 'stores', slug, 'products', tag.productId));
-            if (productDoc.exists()) {
-              const product = productDoc.data();
-              const tagElement = document.createElement('div');
-              tagElement.classList.add('product-tag');
-              tagElement.style.left = `${tag.x}%`;
-              tagElement.style.top = `${tag.y}%`;
-              tagElement.innerHTML = `
-                <img src="${product.imageUrl}" alt="${product.name}">
-                <h3>${product.name}</h3>
-                <p>$${product.price}</p>
-                <button>Añadir al carrito</button>
-              `;
-              if (productTags) productTags.appendChild(tagElement);
+    if (!slug && user) {
+        console.log('No hay slug en la URL, intentando obtenerlo del usuario:', user.uid);
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists() && userDoc.data().storeId) {
+            slug = userDoc.data().storeId;
+            console.log('Slug obtenido del usuario:', slug);
+            if (window.location.search !== `?slug=${slug}`) {
+                window.history.pushState({}, '', `/${slug}`);
             }
-          }
         }
-        if (storyViewContainer) storyViewContainer.style.display = 'block';
-      });
-      if (storiesContainer) storiesContainer.appendChild(storyElement);
-    });
+    }
 
-    closeStoryView.addEventListener('click', () => {
-      if (storyViewContainer) storyViewContainer.style.display = 'none';
-      if (productTags) productTags.innerHTML = '';
-    });
+    if (!slug) {
+        console.error('No se proporcionó slug y no se pudo obtener del usuario');
+        elements.storeName.textContent = user ? 'Configura tu tienda primero' : 'Error: Tienda no especificada';
+        window.isProfileLoading = false;
+        return;
+    }
 
-    const productsSnapshot = await getDocs(collection(db, 'stores', slug, 'products'));
-    feedContainer.innerHTML = '';
-    console.log(`Productos encontrados: ${productsSnapshot.size}`);
-    productsSnapshot.forEach((productDoc) => {
-      const product = productDoc.data();
-      const productId = productDoc.id;
-      const productElement = document.createElement('div');
-      productElement.classList.add('product', 'store-product');
-      productElement.dataset.productId = productId;
-      productElement.innerHTML = `
-        <div class="product-image-container">
-          <img src="${product.imageUrl}" alt="${product.name}" loading="lazy">
-        </div>
-        <div class="product-actions">
-          <button class="edit-product-btn" style="display: none;"><i class="bi bi-pencil"></i></button>
-          <button class="hide-product-btn" style="display: none;"><i class="bi bi-eye"></i></button>
-          <button class="delete-product-btn" style="display: none;"><i class="bi bi-trash"></i></button>
-        </div>
-        <div class="product-details">
-          <p class="description">${product.description || 'Sin descripción'}</p>
-          <p class="price">$${product.price}</p>
-        </div>
-      `;
-      if (feedContainer) feedContainer.appendChild(productElement);
-    });
-  } catch (error) {
-    console.error('Error en loadStoreProfile:', error.message);
-    const storeName = document.getElementById('store-name');
-    if (storeName) storeName.textContent = 'Error al cargar la tienda: ' + error.message;
-    else console.error('Elemento store-name no encontrado para mostrar el error');
-  }
+    try {
+        console.log('Buscando tienda con slug:', slug);
+        const storeDoc = await getDoc(doc(db, 'stores', slug));
+        if (!storeDoc.exists()) {
+            console.error('Tienda no encontrada:', slug);
+            elements.storeName.textContent = 'Tienda no encontrada';
+            return;
+        }
+        console.log('Datos de la tienda:', storeDoc.data());
+
+        const store = storeDoc.data();
+        elements.storeImage.src = store.imageUrl || 'https://placehold.co/100x100';
+        elements.storeName.textContent = store.name || 'Sin nombre';
+        elements.storeFollowers.textContent = `${store.followers || 0} seguidores`;
+        elements.storeDescription.textContent = store.description || 'Sin descripción';
+
+        const isOwner = user && store.owner === user.uid;
+        console.log('Es propietario:', isOwner);
+        elements.storeActions.innerHTML = '';
+
+        if (isOwner) {
+            // Lógica de propietario (delegada a store-owner.js)
+            await import('./store-owner.js').then(module => {
+                module.loadOwnerFeatures(db, storage, auth, slug, store, elements);
+            });
+        } else {
+            const followBtn = document.createElement('button');
+            followBtn.textContent = 'Seguir';
+            followBtn.id = 'follow-btn';
+            elements.storeActions.appendChild(followBtn);
+
+            const whatsappBtn = document.createElement('button');
+            whatsappBtn.textContent = 'WhatsApp';
+            whatsappBtn.id = 'whatsapp-btn';
+            elements.storeActions.appendChild(whatsappBtn);
+
+            if (store.phone) {
+                whatsappBtn.onclick = () => window.open(`https://wa.me/${normalizePhoneNumber(store.phone)}`, '_blank');
+            } else {
+                whatsappBtn.style.display = 'none';
+            }
+
+            followBtn.addEventListener('click', async () => {
+                const updatedFollowers = (store.followers || 0) + 1;
+                await setDoc(doc(db, 'stores', slug), { followers: updatedFollowers }, { merge: true });
+                elements.storeFollowers.textContent = `${updatedFollowers} seguidores`;
+                followBtn.textContent = 'Siguiendo';
+                followBtn.disabled = true;
+            });
+        }
+
+        // Cargar historias
+        const storiesQuery = query(collection(db, 'stores', slug, 'stories'), orderBy('createdAt', 'desc'));
+        const storiesSnapshot = await getDocs(storiesQuery);
+        elements.storiesContainer.innerHTML = '';
+        console.log(`Historias encontradas: ${storiesSnapshot.size}`);
+        storiesSnapshot.forEach((storyDoc) => {
+            const story = storyDoc.data();
+            const storyElement = document.createElement('div');
+            storyElement.classList.add('story');
+            storyElement.innerHTML = `<img src="${story.imageUrl}" alt="Story" loading="lazy"><span>${store.name}</span>`;
+            storyElement.addEventListener('click', async () => {
+                document.getElementById('story-image').src = story.imageUrl;
+                document.getElementById('product-tags').innerHTML = '';
+                if (story.taggedProducts?.length > 0) {
+                    for (const tag of story.taggedProducts) {
+                        const productDoc = await getDoc(doc(db, 'stores', slug, 'products', tag.productId));
+                        if (productDoc.exists()) {
+                            const product = productDoc.data();
+                            const tagElement = document.createElement('div');
+                            tagElement.classList.add('product-tag');
+                            tagElement.style.left = `${tag.x}%`;
+                            tagElement.style.top = `${tag.y}%`;
+                            tagElement.innerHTML = `
+                                <img src="${product.imageUrl}" alt="${product.name}">
+                                <h3>${product.name}</h3>
+                                <p>$${product.price}</p>
+                                <button class="add-to-cart-btn" data-store-id="${slug}" data-product-id="${tag.productId}">Añadir al carrito</button>
+                            `;
+                            document.getElementById('product-tags').appendChild(tagElement);
+                        }
+                    }
+                    setupCartButtons(slug, db, elements);
+                }
+                elements.storyViewContainer.style.display = 'block';
+            });
+            elements.storiesContainer.appendChild(storyElement);
+        });
+
+        document.getElementById('close-story-view').addEventListener('click', () => {
+            elements.storyViewContainer.style.display = 'none';
+            document.getElementById('product-tags').innerHTML = '';
+        });
+
+        // Cargar el feed de productos (delegado a store-feed.js)
+        await loadStoreFeed(db, slug, auth);
+
+        updateCartBubble(elements);
+        // Eliminado el evento de cartBubble porque ahora el contador está en #cart-btn
+        elements.closeCartModal && elements.closeCartModal.addEventListener('click', () => {
+            elements.cartModal.style.display = 'none';
+        });
+
+    } catch (error) {
+        console.error('Error en loadStoreProfile:', error.message);
+        const storeNameElement = document.getElementById('store-name');
+        if (storeNameElement) {
+            storeNameElement.textContent = 'Error al cargar la tienda: ' + error.message;
+        } else {
+            console.error('No se pudo actualizar el nombre de la tienda: el elemento #store-name no se encontró en el DOM');
+            const main = document.querySelector('main');
+            if (main && !document.getElementById('store-name')) {
+                const newStoreName = document.createElement('h2');
+                newStoreName.id = 'store-name';
+                newStoreName.textContent = 'Error al cargar la tienda: ' + error.message;
+                main.insertBefore(newStoreName, main.firstChild);
+            }
+        }
+    } finally {
+        window.isProfileLoading = false;
+    }
 }
 
-function normalizePhoneNumber(phone) {
-  const cleaned = phone.replace(/\D/g, '');
-  return cleaned.startsWith('52') ? cleaned : '52' + cleaned;
+// Mantener las funciones relacionadas con el carrito
+export function setupCartButtons(slug, db, elements) {
+    const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+    console.log(`Ejecutando setupCartButtons - Botones encontrados: ${addToCartButtons.length}`);
+    addToCartButtons.forEach(button => {
+        if (button.dataset.listenerAdded) {
+            console.log(`Botón ${button.dataset.productId} ya tiene listener, omitiendo`);
+            return;
+        }
+        button.dataset.listenerAdded = 'true';
+
+        button.addEventListener('click', async () => {
+            const productId = button.dataset.productId;
+            const storeId = button.dataset.storeId || slug;
+            const productDoc = await getDoc(doc(db, 'stores', storeId, 'products', productId));
+            if (productDoc.exists()) {
+                const product = productDoc.data();
+                if (!cart[storeId]) cart[storeId] = [];
+                cart[storeId].push({
+                    productId,
+                    name: product.name,
+                    price: product.price
+                });
+                localStorage.setItem('cart', JSON.stringify(cart));
+                updateCartBubble(elements);
+                console.log('Producto añadido al carrito:', { storeId, productId, name: product.name });
+            }
+        });
+    });
+}
+
+export function updateCartBubble(elements) {
+    const totalItems = Object.values(cart).reduce((sum, items) => sum + items.length, 0);
+    if (elements.cartCount) {
+        elements.cartCount.textContent = totalItems;
+        elements.cartCount.classList.toggle('active', totalItems > 0); // Mostrar u ocultar según el total
+    }
+}
+
+export function showCartModal(db, elements, currentSlug, currentStoreName) {
+    elements.cartItems.innerHTML = '';
+    if (Object.keys(cart).length === 0) {
+        elements.cartItems.innerHTML = '<p>El carrito está vacío</p>';
+    } else {
+        Object.entries(cart).forEach(([slug, items]) => {
+            const storeSection = document.createElement('div');
+            storeSection.classList.add('cart-store-section');
+            const storeDocRef = doc(db, 'stores', slug);
+
+            getDoc(storeDocRef).then(storeDoc => {
+                const storeName = storeDoc.exists() ? storeDoc.data().name : slug;
+                storeSection.innerHTML = `<h3>${storeName}</h3>`;
+
+                const itemsList = document.createElement('ul');
+                items.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `${item.name} - $${item.price} <button class="remove-item" data-store-id="${slug}" data-index="${index}">Eliminar</button>`;
+                    itemsList.appendChild(li);
+                });
+                storeSection.appendChild(itemsList);
+
+                const checkoutBtn = document.createElement('button');
+                checkoutBtn.textContent = 'Confirmar';
+                checkoutBtn.className = 'checkout-btn';
+                checkoutBtn.addEventListener('click', () => {
+                    alert(`Checkout para ${storeName} - Total: $${items.reduce((sum, item) => sum + item.price, 0).toFixed(2)}`);
+                });
+                storeSection.appendChild(checkoutBtn);
+
+                const removeButtons = storeSection.querySelectorAll('.remove-item');
+                removeButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const storeId = button.dataset.storeId;
+                        const index = parseInt(button.dataset.index);
+                        cart[storeId].splice(index, 1);
+                        if (cart[storeId].length === 0) delete cart[storeId];
+                        localStorage.setItem('cart', JSON.stringify(cart));
+                        showCartModal(db, elements, currentSlug, currentStoreName);
+                        updateCartBubble(elements);
+                    });
+                });
+            }).catch(error => {
+                console.error('Error al obtener nombre de tienda:', error);
+                storeSection.innerHTML = `<h3>${slug} (Nombre no disponible)</h3>`;
+            });
+
+            elements.cartItems.appendChild(storeSection);
+        });
+    }
+    elements.cartModal.style.display = 'flex';
 }
 
 window.addEventListener('load', () => {
-  console.log('store.js cargado, esperando Firebase...');
-  if (window.db && window.storage && window.auth) {
-    console.log('Firebase inicializado, ejecutando loadStoreProfile');
-    loadStoreProfile(window.db, window.storage, window.auth);
-  } else {
-    console.error('Firebase no está inicializado correctamente');
-    const storeName = document.getElementById('store-name');
-    if (storeName) storeName.textContent = 'Error: Firebase no inicializado';
-    else console.error('Elemento store-name no encontrado para mostrar el error');
-  }
+    console.log('store-profile.js cargado, esperando Firebase...');
+    if (!window.db || !window.storage || !window.auth) {
+        console.error('Firebase no está inicializado, esperando autenticación...');
+        window.auth.onAuthStateChanged((user) => {
+            if (window.db && window.storage && window.auth) {
+                console.log('Firebase inicializado, ejecutando loadStoreProfile');
+                loadStoreProfile(window.db, window.storage, window.auth);
+            } else {
+                console.error('Firebase aún no está completamente inicializado');
+                const storeName = document.getElementById('store-name');
+                if (storeName) {
+                    storeName.textContent = 'Error: Firebase no inicializado';
+                } else {
+                    console.error('Elemento #store-name no encontrado para mostrar el error');
+                }
+            }
+        });
+    } else {
+        console.log('Firebase inicializado, ejecutando loadStoreProfile');
+        loadStoreProfile(window.db, window.storage, window.auth);
+    }
 });
