@@ -47,6 +47,7 @@ function closeStoryModal() {
 }
 
 // Eliminar una historia
+// story-modal.js (deleteStory actualizado)
 async function deleteStory() {
     console.log('Intentando eliminar historia con ID:', currentStoryId, 'en tienda:', currentStoreSlug);
     if (!currentStoryId || !currentStoreSlug) {
@@ -60,6 +61,21 @@ async function deleteStory() {
             console.log('Eliminando documento:', storyRef.path);
             await deleteDoc(storyRef);
             console.log('Historia eliminada de Firestore');
+
+            // Eliminar el elemento del DOM usando data-story-id y data-store-slug
+            const storiesContainer = document.getElementById('stories-container');
+            if (storiesContainer) {
+                const storyElement = storiesContainer.querySelector(
+                    `[data-story-id="${currentStoryId}"][data-store-slug="${currentStoreSlug}"]`
+                );
+                if (storyElement) {
+                    storyElement.remove();
+                    console.log('Elemento de historia eliminado del DOM');
+                } else {
+                    console.warn('No se encontró el elemento de historia en el DOM');
+                }
+            }
+
             closeStoryModal();
         } catch (error) {
             console.error('Error al eliminar historia:', error);
@@ -74,14 +90,25 @@ export function initializeStoryModal(firestoreDb) {
 
     if (closeBtn && deleteBtn) {
         console.log('Botones encontrados, vinculando eventos...');
-        closeBtn.addEventListener('click', () => {
+
+        // Remover listeners previos para evitar duplicados
+        closeBtn.removeEventListener('click', closeStoryModalHandler);
+        deleteBtn.removeEventListener('click', deleteStoryHandler);
+
+        // Definir funciones handlers
+        function closeStoryModalHandler() {
             console.log('Botón cerrar presionado');
             closeStoryModal();
-        });
-        deleteBtn.addEventListener('click', () => {
+        }
+
+        function deleteStoryHandler() {
             console.log('Botón eliminar presionado');
             deleteStory();
-        });
+        }
+
+        // Vincular los eventos
+        closeBtn.addEventListener('click', closeStoryModalHandler);
+        deleteBtn.addEventListener('click', deleteStoryHandler);
     } else {
         console.error('No se encontraron los botones del modal:', { closeBtn, deleteBtn });
     }

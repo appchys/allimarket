@@ -71,29 +71,32 @@ export async function loadHomeContent(db) {
         if (allStories.length === 0) {
             storiesContainer.innerHTML = '<p>No hay historias disponibles</p>';
         } else {
-            allStories.forEach((story) => {
-                const storyElement = document.createElement('div');
-                storyElement.classList.add('story');
-                storyElement.innerHTML = `<img src="${story.imageUrl}" alt="Story" loading="lazy"><span>${story.storeName}</span>`;
-                storyElement.addEventListener('click', async () => {
-                    let tags = '';
-                    if (story.taggedProducts.length > 0) {
-                        const tagPromises = story.taggedProducts.map(async (tag) => {
-                            const productDoc = await getDoc(doc(db, 'stores', story.slug, 'products', tag.productId));
-                            if (productDoc.exists()) {
-                                const product = productDoc.data();
-                                return `${product.name} - $${product.price}`;
-                            }
-                            return '';
-                        });
-                        const tagResults = await Promise.all(tagPromises);
-                        tags = tagResults.filter(tag => tag).join(', ');
-                    }
-                    console.log('Abriendo modal para historia con ID:', story.id);
-                    showStoryModal(story.imageUrl, tags, story.id, story.slug); // Añadir story.slug
-                });
-                storiesContainer.appendChild(storyElement);
+            // loadHomeContent.js (fragmento actualizado)
+allStories.forEach((story) => {
+    const storyElement = document.createElement('div');
+    storyElement.classList.add('story');
+    storyElement.setAttribute('data-story-id', story.id); // Añadir identificador
+    storyElement.setAttribute('data-store-slug', story.slug); // Añadir slug
+    storyElement.innerHTML = `<img src="${story.imageUrl}" alt="Story" loading="lazy"><span>${story.storeName}</span>`;
+    storyElement.addEventListener('click', async () => {
+        let tags = '';
+        if (story.taggedProducts.length > 0) {
+            const tagPromises = story.taggedProducts.map(async (tag) => {
+                const productDoc = await getDoc(doc(db, 'stores', story.slug, 'products', tag.productId));
+                if (productDoc.exists()) {
+                    const product = productDoc.data();
+                    return `${product.name} - $${product.price}`;
+                }
+                return '';
             });
+            const tagResults = await Promise.all(tagPromises);
+            tags = tagResults.filter(tag => tag).join(', ');
+        }
+        console.log('Abriendo modal para historia con ID:', story.id);
+        showStoryModal(story.imageUrl, tags, story.id, story.slug);
+    });
+    storiesContainer.appendChild(storyElement);
+});
         }
 
         feedContainer.innerHTML = '';
