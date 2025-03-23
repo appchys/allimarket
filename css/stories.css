@@ -52,16 +52,19 @@
 
 .story-modal-content {
     position: relative;
-    width: 100%;
-    max-width: 500px;
-    height: 80vh;
+    width: calc((100vh - 40px) * (9/16));
+    height: calc(100vh - 40px);
+    max-height: 90vh;
     background: none;
+    margin: auto;
+    overflow: hidden;
 }
 
 .story-modal img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
+    display: block;
 }
 
 #product-tags {
@@ -114,4 +117,48 @@
 
 .product-tag button:hover {
     background-color: #287acc;
+}
+
+.modal-buttons {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+/* Estilos base para todos los botones del modal */
+.modal-buttons button {
+    width: 32px;
+    height: 32px;
+    border: none;
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+}
+
+.action-btn {
+    background: none;
+}
+
+.close-btn {
+    background-color: rgba(108, 117, 125, 0.7);
+}
+
+.close-btn:hover {
+    background-color: rgba(108, 117, 125, 0.9);
+}
+
+.delete-btn {
+    background-color: rgba(220, 53, 69, 0.7);
+}
+
+.delete-btn:hover {
+    background-color: rgba(220, 53, 69, 0.9);
 }
