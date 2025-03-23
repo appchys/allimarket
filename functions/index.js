@@ -5,12 +5,16 @@ const nodemailer = require("nodemailer");
 // Inicializar Firebase Admin
 initializeApp();
 
+// Depurar las variables de entorno
+console.log("EMAIL_GMAIL:", process.env.email_gmail);
+console.log("PASSWORD_GMAIL:", process.env.password_gmail);
+
 // Configurar el transporte de Nodemailer con Gmail
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.email_gmail, // Usar la clave convertida a email_gmail
-    pass: process.env.password_gmail, // Usar la clave convertida a password_gmail
+    user: process.env.email_gmail || "default@example.com", // Valor por defecto si no se carga
+    pass: process.env.password_gmail || "defaultpassword",
   },
 });
 
@@ -20,7 +24,7 @@ exports.sendOrderNotification = onDocumentCreated("orders/{orderId}", async (eve
   const orderId = event.params.orderId;
 
   try {
-    const storeEmail = "pedro.sanchez.1993@gmail.com"; // Cambia esto por el correo real de la tienda
+    const storeEmail = "appchys.ec@gmail.com"; // Correo real para probar
 
     const itemsList = Object.entries(order.cartItems)
       .map(([itemId, item]) => {
