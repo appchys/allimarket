@@ -2,12 +2,13 @@
 import { db } from './firebase.js';
 import { deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 
-// Variable para almacenar el ID de la historia actual
+// Variable para almacenar el ID de la historia actual y el slug de la tienda
 let currentStoryId = null;
+let currentStoreSlug = null;
 
 // Mostrar el modal
-export function showStoryModal(imageSrc, tags = '', storyId) {
-    console.log('showStoryModal llamado con:', { imageSrc, tags, storyId });
+export function showStoryModal(imageSrc, tags = '', storyId, storeSlug) {
+    console.log('showStoryModal llamado con:', { imageSrc, tags, storyId, storeSlug });
     const modal = document.getElementById('story-view-modal');
     const storyImage = document.getElementById('story-image');
     const productTags = document.getElementById('product-tags');
@@ -21,7 +22,8 @@ export function showStoryModal(imageSrc, tags = '', storyId) {
     productTags.innerHTML = tags;
     modal.style.display = 'flex';
     currentStoryId = storyId;
-    console.log('currentStoryId asignado:', currentStoryId);
+    currentStoreSlug = storeSlug;
+    console.log('currentStoryId asignado:', currentStoryId, 'currentStoreSlug asignado:', currentStoreSlug);
 }
 
 // Cerrar el modal
@@ -40,20 +42,21 @@ function closeStoryModal() {
     storyImage.src = '';
     productTags.innerHTML = '';
     currentStoryId = null;
-    console.log('currentStoryId restablecido a:', currentStoryId);
+    currentStoreSlug = null;
+    console.log('currentStoryId restablecido a:', currentStoryId, 'currentStoreSlug restablecido a:', currentStoreSlug);
 }
 
 // Eliminar una historia
 async function deleteStory() {
-    console.log('Intentando eliminar historia con ID:', currentStoryId);
-    if (!currentStoryId) {
-        console.error('No hay ID de historia definido para eliminar');
+    console.log('Intentando eliminar historia con ID:', currentStoryId, 'en tienda:', currentStoreSlug);
+    if (!currentStoryId || !currentStoreSlug) {
+        console.error('No hay ID de historia o slug de tienda definidos para eliminar');
         return;
     }
 
     if (confirm('¿Estás seguro de que quieres eliminar esta historia?')) {
         try {
-            const storyRef = doc(db, 'stories', currentStoryId);
+            const storyRef = doc(db, 'stores', currentStoreSlug, 'stories', currentStoryId);
             console.log('Eliminando documento:', storyRef.path);
             await deleteDoc(storyRef);
             console.log('Historia eliminada de Firestore');

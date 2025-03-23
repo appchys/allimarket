@@ -1,4 +1,6 @@
+// loadHomeContent.js
 import { getDocs, collection, query, orderBy, doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+import { showStoryModal } from './story-modal.js';
 
 // Variable global movida aquí (o podrías manejarla como parámetro)
 let isContentLoaded = false;
@@ -74,34 +76,21 @@ export async function loadHomeContent(db) {
                 storyElement.classList.add('story');
                 storyElement.innerHTML = `<img src="${story.imageUrl}" alt="Story" loading="lazy"><span>${story.storeName}</span>`;
                 storyElement.addEventListener('click', async () => {
-                    const storyImage = document.getElementById('story-image');
-                    const productTags = document.getElementById('product-tags');
-                    const storyViewModal = document.getElementById('story-view-modal');
-                    if (storyImage && productTags && storyViewModal) {
-                        storyImage.src = story.imageUrl;
-                        productTags.innerHTML = '';
-                        if (story.taggedProducts.length > 0) {
-                            for (const tag of story.taggedProducts) {
-                                const productDoc = await getDoc(doc(db, 'stores', story.slug, 'products', tag.productId));
-                                if (productDoc.exists()) {
-                                    const product = productDoc.data();
-                                    const tagElement = document.createElement('div');
-                                    tagElement.classList.add('product-tag');
-                                    tagElement.style.left = `${tag.x}%`;
-                                    tagElement.style.top = `${tag.y}%`;
-                                    tagElement.innerHTML = `
-                                        <img src="${product.imageUrl}" alt="${product.name}">
-                                        <h3>${product.name}</h3>
-                                        <p>$${product.price}</p>
-                                        <button class="add-to-cart-btn" data-store-id="${story.slug}" data-product-id="${tag.productId}"><i class="bi bi-cart-plus"></i> Añadir al carrito</button>
-                                    `;
-                                    productTags.appendChild(tagElement);
-                                }
+                    let tags = '';
+                    if (story.taggedProducts.length > 0) {
+                        const tagPromises = story.taggedProducts.map(async (tag) => {
+                            const productDoc = await getDoc(doc(db, 'stores', story.slug, 'products', tag.productId));
+                            if (productDoc.exists()) {
+                                const product = productDoc.data();
+                                return `${product.name} - $${product.price}`;
                             }
-                            setupCartButtons(db); // Configurar botones en historias
-                        }
-                        storyViewModal.style.display = 'flex';
+                            return '';
+                        });
+                        const tagResults = await Promise.all(tagPromises);
+                        tags = tagResults.filter(tag => tag).join(', ');
                     }
+                    console.log('Abriendo modal para historia con ID:', story.id);
+                    showStoryModal(story.imageUrl, tags, story.id, story.slug); // Añadir story.slug
                 });
                 storiesContainer.appendChild(storyElement);
             });
