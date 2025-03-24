@@ -1,23 +1,46 @@
-.feed {
-    margin: 20px;
-}
-
+/* Estilos base del grid */
 .grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Siempre 2 columnas */
+    grid-template-columns: repeat(2, 1fr); /* Por defecto 2 columnas */
     gap: 10px;
-    width: 100%; /* Asegura que el contenedor ocupe todo el ancho disponible */
+    width: 100%;
 }
 
-/* Ajustes para pantallas muy pequeñas (menores a 456px) */
+/* Ajuste para pantallas pequeñas (móviles) */
 @media (max-width: 455px) {
     .grid {
-        grid-template-columns: repeat(2, minmax(120px, 1fr)); /* 2 columnas con un ancho mínimo de 120px */
-        gap: 8px; /* Reducir el espacio entre tarjetas */
+        grid-template-columns: repeat(2, minmax(100px, 1fr)); /* Reducimos el mínimo a 100px */
+        gap: 5px; /* Reducimos el espacio entre tarjetas */
+        padding: 0 5px; /* Añadimos un pequeño padding para no pegar al borde */
     }
 
     .product {
-        min-width: 120px; /* Ancho mínimo para cada tarjeta */
+        min-width: 0; /* Permitimos que se encoja más allá de un mínimo fijo */
+        width: 100%; /* Ocupa el espacio disponible */
+        padding: 5px; /* Reducimos el padding interno */
+    }
+
+    .product img {
+        max-width: 100%;
+        height: auto; /* Mantenemos proporciones */
+    }
+
+    .product h3 {
+        font-size: 14px; /* Reducimos tamaño de fuente */
+        margin: 5px 0;
+    }
+
+    .product .description {
+        font-size: 12px; /* Ajustamos descripción */
+    }
+
+    .product .price {
+        font-size: 14px;
+    }
+
+    .product .add-to-cart-btn {
+        padding: 5px 8px; /* Botón más pequeño */
+        font-size: 12px;
     }
 }
 
@@ -35,48 +58,4 @@
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         gap: 20px;
     }
-}
-
-.product {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 10px;
-    text-align: center;
-    background-color: #fff;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 100%; /* Asegura que las tarjetas ocupen el espacio disponible */
-}
-
-.product img {
-    max-width: 100%;
-    border-radius: 8px;
-}
-
-.product h3 {
-    font-size: 18px;
-    margin: 10px 0;
-}
-
-.product .price {
-    font-size: 16px;
-    color: #007bff;
-}
-
-.product .description {
-    font-size: 14px;
-    color: #555;
-}
-
-.product .add-to-cart-btn {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    padding: 8px 12px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.product .add-to-cart-btn:hover {
-    background-color: #0056b3;
 }
