@@ -1,61 +1,37 @@
-/* Estilos base del grid */
+/* Estilos base para el grid del feed */
 .grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Por defecto 2 columnas */
-    gap: 10px;
-    width: 100%;
+    gap: 15px; /* Espacio entre tarjetas */
+    padding: 15px;
 }
 
-/* Ajuste para pantallas pequeñas (móviles) */
-@media (max-width: 455px) {
-    .grid {
-        grid-template-columns: repeat(2, minmax(100px, 1fr)); /* Reducimos el mínimo a 100px */
-        gap: 5px; /* Reducimos el espacio entre tarjetas */
-        padding: 0 5px; /* Añadimos un pequeño padding para no pegar al borde */
-    }
+/* Por defecto en escritorio (puedes ajustar según necesites) */
+#feed-container.grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
 
-    .product {
-        min-width: 0; /* Permitimos que se encoja más allá de un mínimo fijo */
-        width: 100%; /* Ocupa el espacio disponible */
-        padding: 5px; /* Reducimos el padding interno */
-    }
-
-    .product img {
-        max-width: 100%;
-        height: auto; /* Mantenemos proporciones */
-    }
-
-    .product h3 {
-        font-size: 14px; /* Reducimos tamaño de fuente */
-        margin: 5px 0;
-    }
-
-    .product .description {
-        font-size: 12px; /* Ajustamos descripción */
-    }
-
-    .product .price {
-        font-size: 14px;
-    }
-
-    .product .add-to-cart-btn {
-        padding: 5px 8px; /* Botón más pequeño */
-        font-size: 12px;
+/* Media query para celulares */
+@media screen and (max-width: 768px) {
+    #feed-container.grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 columnas de igual ancho */
     }
 }
 
-/* Tablets */
-@media (min-width: 768px) {
-    .grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 15px;
-    }
+/* Estilos sugeridos para las tarjetas (ajusta según tu diseño) */
+.feed .grid > * {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
 }
 
-/* Desktop */
-@media (min-width: 1024px) {
-    .grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 20px;
+/* Ajustes adicionales para móviles */
+@media screen and (max-width: 768px) {
+    .feed .grid > * {
+        margin: 0; /* Elimina márgenes extras si los hay */
+    }
+    
+    .feed {
+        padding: 10px; /* Ajusta padding en móvil si es necesario */
     }
 }
