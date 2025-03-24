@@ -4,38 +4,65 @@
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Forzamos 2 columnas siempre en móviles */
-    gap: 10px; /* Reducimos aún más el gap para que quepan bien */
-    padding: 0 5px; /* Reducimos el padding lateral */
+    grid-template-columns: repeat(2, 1fr); /* Siempre 2 columnas en móviles */
+    gap: 10px;
+    padding: 0 10px;
 }
 
-/* Ajustamos para pantallas más grandes */
+/* Para tablets y escritorio */
 @media (min-width: 768px) {
     .grid {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         gap: 20px;
-        padding: 0;
+        padding: 0 20px;
+    }
+}
+
+/* Para pantallas muy grandes */
+@media (min-width: 1200px) {
+    .grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        max-width: 1400px;
+        margin: 0 auto;
     }
 }
 
 .product {
-    border: 1px solid #ddd;
+    border: 1px solid #eee;
     border-radius: 8px;
-    padding: 6px; /* Reducimos más el padding */
+    padding: 8px;
     text-align: center;
     background-color: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    height: 100%;
 }
 
-.product img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    aspect-ratio: 1 / 1; /* Mantiene una proporción cuadrada para las imágenes */
-    object-fit: cover; /* Asegura que la imagen cubra el espacio sin distorsionarse */
+.product-image-container {
+    position: relative;
+    width: 100%;
+    padding-top: 100%; /* Mantiene proporción 1:1 */
+    margin-bottom: 8px;
+}
+
+.product-image-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.product-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 8px;
 }
 
 .product h3 {
@@ -86,4 +113,37 @@
 .product .popover {
     min-width: 100px;
     font-size: 10px;
+}
+
+/* Estilos específicos para móviles */
+@media (max-width: 767px) {
+    .product {
+        padding: 6px;
+    }
+
+    .product h3 {
+        font-size: 14px;
+        margin: 4px 0;
+    }
+
+    .product .description {
+        font-size: 12px;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 1.2;
+    }
+
+    .product .price {
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .product .add-to-cart-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+        width: 100%;
+    }
 }
