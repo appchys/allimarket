@@ -1,12 +1,21 @@
+/* Estilos generales para el feed */
 .feed {
-    margin: 20px;
+    padding: 20px;
+    margin: 0; /* Eliminamos el margin que se definía en el segundo documento para evitar conflictos */
 }
 
+/* Estilos para el grid general */
 .grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr); /* Siempre 2 columnas en móviles */
     gap: 10px;
-    padding: 0 10px;
+    padding: 0 5px;
+}
+
+/* Estilos específicos para el feed de la tienda */
+#store-feed .grid {
+    grid-template-columns: repeat(2, 1fr); /* Forzamos 2 columnas en móviles */
+    gap: 10px;
 }
 
 /* Para tablets y escritorio */
@@ -15,6 +24,11 @@
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         gap: 20px;
         padding: 0 20px;
+    }
+
+    #store-feed .grid {
+        grid-template-columns: repeat(3, 1fr); /* 3 columnas solo en pantallas más grandes */
+        gap: 15px;
     }
 }
 
@@ -25,25 +39,32 @@
         max-width: 1400px;
         margin: 0 auto;
     }
+
+    #store-feed .grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
 }
 
-.product {
+/* Estilos para los productos */
+.product, .store-product {
+    background-color: #fff;
     border: 1px solid #eee;
     border-radius: 8px;
-    padding: 8px;
+    padding: 6px;
     text-align: center;
-    background-color: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     height: 100%;
+    overflow: hidden;
 }
 
+/* Contenedor de la imagen */
 .product-image-container {
     position: relative;
     width: 100%;
-    padding-top: 100%; /* Mantiene proporción 1:1 */
+    padding-top: 100%; /* Proporción 1:1 para imágenes cuadradas */
     margin-bottom: 8px;
 }
 
@@ -55,64 +76,137 @@
     height: 100%;
     object-fit: cover;
     border-radius: 6px;
+    background: #f0f0f0;
+    loading: lazy;
 }
 
+/* Overlay del nombre de la tienda */
+.store-name-overlay {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    text-decoration: none;
+    padding: 2px 5px;
+    cursor: pointer;
+}
+
+.store-name-overlay:hover {
+    color: #ddd;
+}
+
+/* Detalles del producto */
 .product-details {
     flex: 1;
     display: flex;
     flex-direction: column;
     gap: 4px;
+    padding: 6px;
+    text-align: center;
     margin-bottom: 8px;
 }
 
 .product h3 {
-    font-size: 14px; /* Reducimos aún más el tamaño para que quepa mejor */
-    margin: 6px 0;
+    font-size: 14px;
+    margin: 4px 0;
     line-height: 1.2;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap; /* Evita que el texto se desborde */
+    white-space: nowrap;
+}
+
+.product .description {
+    font-size: 12px;
+    color: #666;
+    margin: 4px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .product .price {
-    font-size: 12px;
+    font-size: 14px;
+    font-weight: bold;
     color: #007bff;
     margin: 4px 0;
 }
 
-.product .description {
-    font-size: 10px;
-    color: #555;
-    margin: 4px 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap; /* Evita que la descripción se desborde */
-}
-
+/* Botón de añadir al carrito */
 .product .add-to-cart-btn {
     background-color: #007bff;
     color: #fff;
     border: none;
     border-radius: 5px;
-    padding: 5px 8px;
+    padding: 6px 12px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    font-size: 10px;
-    margin-top: auto; /* Asegura que el botón esté al final del contenedor */
+    font-size: 12px;
+    margin-top: auto;
+    width: 100%;
 }
 
-/* Ajustamos el popover para móviles */
+.product .add-to-cart-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Botón de opciones (tres puntos) */
 .product .options-btn {
     position: absolute;
     top: 5px;
     right: 5px;
     padding: 2px 6px;
     font-size: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #333;
 }
 
+/* Popover para opciones de edición */
 .product .popover {
     min-width: 100px;
     font-size: 10px;
+    position: absolute;
+    z-index: 10;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Botones de acción (editar, ocultar, eliminar) */
+.edit-product-btn,
+.hide-product-btn,
+.delete-product-btn,
+.action-btn {
+    background: none;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 5px;
+    color: #333;
+    transition: color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.edit-product-btn:hover,
+.hide-product-btn:hover,
+.delete-product-btn:hover,
+.action-btn:hover {
+    color: #3897f0;
+}
+
+/* Contenedor para los botones de acción */
+.product-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 5px 10px;
 }
 
 /* Estilos específicos para móviles */
@@ -145,5 +239,13 @@
         padding: 6px 12px;
         font-size: 12px;
         width: 100%;
+    }
+
+    .product .options-btn {
+        font-size: 12px;
+    }
+
+    .product .popover {
+        font-size: 10px;
     }
 }
