@@ -4,15 +4,21 @@
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2 columnas en móviles */
+    grid-template-columns: repeat(2, 1fr); /* Siempre 2 columnas */
     gap: 10px;
-    overflow-x: auto; /* Permite el desplazamiento horizontal */
-    scroll-snap-type: x mandatory; /* Hace que el desplazamiento sea más suave y se ajuste a las tarjetas */
+    width: 100%; /* Asegura que el contenedor ocupe todo el ancho disponible */
 }
 
-.grid .product {
-    scroll-snap-align: start; /* Asegura que cada producto se alinee correctamente al desplazarse */
-    min-width: 150px; /* Ancho mínimo para cada tarjeta */
+/* Ajustes para pantallas muy pequeñas (menores a 456px) */
+@media (max-width: 455px) {
+    .grid {
+        grid-template-columns: repeat(2, minmax(120px, 1fr)); /* 2 columnas con un ancho mínimo de 120px */
+        gap: 8px; /* Reducir el espacio entre tarjetas */
+    }
+
+    .product {
+        min-width: 120px; /* Ancho mínimo para cada tarjeta */
+    }
 }
 
 /* Tablets */
@@ -20,7 +26,6 @@
     .grid {
         grid-template-columns: repeat(3, 1fr);
         gap: 15px;
-        overflow-x: visible; /* Desactiva el desplazamiento horizontal en tablets */
     }
 }
 
@@ -39,6 +44,7 @@
     text-align: center;
     background-color: #fff;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Asegura que las tarjetas ocupen el espacio disponible */
 }
 
 .product img {
