@@ -100,11 +100,6 @@
     color: #3897f0;
 }
 
-/* Estilos específicos para el feed del perfil de tienda */
-#store-feed .grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-}
 
 .store-product {
     /* Hereda estilos base de .product */

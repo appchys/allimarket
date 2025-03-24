@@ -1,31 +1,38 @@
 /* Estilos generales para el feed */
 .feed {
-    padding: 20px;
-    margin: 0; /* Eliminamos el margin que se definía en el segundo documento para evitar conflictos */
+    padding: 10px; /* Reducimos el padding para evitar desbordamiento */
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box; /* Aseguramos que el padding no afecte el ancho total */
 }
 
 /* Grid específico para el feed de la tienda */
 #store-feed .grid,
 .grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important; /* Fuerza 2 columnas y evita desbordamiento */
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important; /* Fuerza 2 columnas en móviles */
     gap: 8px;
     padding: 0 8px;
     width: 100%;
     max-width: 100%;
+    box-sizing: border-box; /* Aseguramos que el padding no afecte el ancho */
+    overflow-x: hidden; /* Evitamos desbordamiento horizontal */
 }
 
 /* Aseguramos que las tarjetas de productos ocupen el espacio correcto */
 .product {
     width: 100%;
     min-width: 0; /* Evita que las tarjetas se desborden */
+    max-width: 100%;
+    box-sizing: border-box;
 }
-
-/* Estilos específicos para el feed de la tienda */
-/* No es necesario ya que se ha definido arriba */
 
 /* Para tablets y escritorio */
 @media (min-width: 768px) {
+    .feed {
+        padding: 20px;
+    }
+
     #store-feed .grid {
         grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
         gap: 16px;
@@ -207,6 +214,16 @@
 
 /* Estilos específicos para móviles */
 @media (max-width: 767px) {
+    .feed {
+        padding: 10px;
+    }
+
+    #store-feed .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 8px;
+        padding: 0 8px;
+    }
+
     .product {
         padding: 6px;
     }
