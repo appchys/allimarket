@@ -4,37 +4,50 @@
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(2, 1fr); /* 2 columnas fijas en móviles */
+    gap: 15px; /* Reducimos el gap para móviles */
+    padding: 0 10px;
+}
+
+/* Media query para pantallas más grandes */
+@media (min-width: 768px) {
+    .grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+        padding: 0;
+    }
 }
 
 .product {
     border: 1px solid #ddd;
     border-radius: 8px;
-    padding: 10px;
+    padding: 8px; /* Reducimos padding en móviles */
     text-align: center;
     background-color: #fff;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra más sutil */
 }
 
 .product img {
     max-width: 100%;
+    height: auto; /* Mantiene proporciones */
     border-radius: 8px;
 }
 
 .product h3 {
-    font-size: 18px;
-    margin: 10px 0;
+    font-size: 16px; /* Tamaño más pequeño para móviles */
+    margin: 8px 0;
+    line-height: 1.2;
 }
 
 .product .price {
-    font-size: 16px;
+    font-size: 14px;
     color: #007bff;
 }
 
 .product .description {
-    font-size: 14px;
+    font-size: 12px; /* Reducimos tamaño */
     color: #555;
+    margin: 5px 0;
 }
 
 .product .add-to-cart-btn {
@@ -42,11 +55,21 @@
     color: #fff;
     border: none;
     border-radius: 5px;
-    padding: 8px 12px;
+    padding: 6px 10px; /* Botón más pequeño */
     cursor: pointer;
     transition: background-color 0.3s ease;
+    font-size: 12px;
 }
 
-.product .add-to-cart-btn:hover {
-    background-color: #0056b3;
+/* Ajustamos el popover para móviles */
+.product .options-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    padding: 2px 6px;
+}
+
+.product .popover {
+    min-width: 120px;
+    font-size: 12px;
 }

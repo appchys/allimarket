@@ -40,12 +40,12 @@ export async function loadStoreFeed(db, slug, auth) {
 
             productElement.innerHTML = `
                 <div class="product-image-container" style="position: relative;">
-                    <img src="${product.imageUrl || 'https://placehold.co/200x200'}" alt="${product.name}" loading="lazy">
+                    <img src="${product.imageUrl || 'https://placehold.co/150x150'}" alt="${product.name}" loading="lazy">
                     ${isOwner ? `
                         <button class="options-btn" data-product-id="${doc.id}">
                             <i class="bi bi-three-dots"></i>
                         </button>
-                        <div class="popover" style="display: none;">
+                        <div class="popover" style="display: none; position: absolute; z-index: 10;">
                             <button class="edit-product-btn"><i class="bi bi-pencil"></i> Editar</button>
                             <button class="hide-product-btn"><i class="bi bi-eye-slash"></i> Ocultar</button>
                             <button class="delete-product-btn"><i class="bi bi-trash"></i> Eliminar</button>
@@ -54,10 +54,10 @@ export async function loadStoreFeed(db, slug, auth) {
                 </div>
                 <div class="product-details">
                     <h3>${product.name || 'Sin nombre'}</h3>
-                    <p class="description">${product.description || 'Sin descripción'}</p>
-                    <p class="price">$${product.price || '0.00'}</p>
+                    <p class="description">${product.description?.substring(0, 50) || 'Sin descripción'}...</p>
+                    <p class="price">$${product.price?.toFixed(2) || '0.00'}</p>
                 </div>
-                ${!isOwner ? `<button class="add-to-cart-btn" data-product-id="${doc.id}"><i class="bi bi-cart-plus"></i> Añadir al carrito</button>` : ''}
+                ${!isOwner ? `<button class="add-to-cart-btn" data-product-id="${doc.id}"><i class="bi bi-cart-plus"></i> Añadir</button>` : ''}
             `;
 
             feedContainer.appendChild(productElement);
@@ -65,7 +65,7 @@ export async function loadStoreFeed(db, slug, auth) {
 
         const elements = {
             feedContainer: feedContainer,
-            cartCount: document.getElementById('cart-count') // Eliminado cartBubble
+            cartCount: document.getElementById('cart-count')
         };
 
         if (isOwner) {
