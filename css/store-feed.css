@@ -4,8 +4,15 @@
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); 
-    gap: 10px; 
+    grid-template-columns: repeat(2, 1fr); /* 2 columnas en móviles */
+    gap: 10px;
+    overflow-x: auto; /* Permite el desplazamiento horizontal */
+    scroll-snap-type: x mandatory; /* Hace que el desplazamiento sea más suave y se ajuste a las tarjetas */
+}
+
+.grid .product {
+    scroll-snap-align: start; /* Asegura que cada producto se alinee correctamente al desplazarse */
+    min-width: 150px; /* Ancho mínimo para cada tarjeta */
 }
 
 /* Tablets */
@@ -13,6 +20,7 @@
     .grid {
         grid-template-columns: repeat(3, 1fr);
         gap: 15px;
+        overflow-x: visible; /* Desactiva el desplazamiento horizontal en tablets */
     }
 }
 
