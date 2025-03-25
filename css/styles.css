@@ -8,7 +8,6 @@
 @import url('modal.css');
 @import url('nav.css');
 @import url('forms.css');
-@import url('store-feed.css');
 
 /* Barra de navegación inferior */
 .bottom-nav {
@@ -410,73 +409,3 @@ main {
     padding-left: 0;
 }
 
-/* Estilo del contenedor principal */
-.feed {
-    padding: 20px;
-    max-width: 1200px; /* Ancho máximo opcional */
-    margin: 0 auto; /* Centrar el feed */
-}
-
-/* Estilo del grid */
-#feed-container.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px; /* Espacio entre productos */
-}
-
-/* Estilo de los productos */
-.product {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra opcional */
-}
-
-/* Estilo para las imágenes de los productos */
-.product .product-image-container {
-    width: 100%;
-    height: 200px; /* Altura fija para consistencia */
-    overflow: hidden;
-}
-
-.product .product-image-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Ajusta la imagen sin distorsionarla */
-}
-
-/* Estilo para los detalles del producto */
-.product .product-details {
-    padding: 10px;
-}
-
-.product .description {
-    font-size: 14px;
-    color: #666;
-}
-
-.product .price {
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
-}
-
-/* Media query para móviles */
-@media screen and (max-width: 768px) {
-    #feed-container.grid {
-        grid-template-columns: repeat(2, 1fr); /* 2 columnas en móviles */
-        padding: 10px;
-    }
-
-    .product {
-        padding: 8px;
-    }
-
-    .product .product-image-container {
-        height: 150px; /* Reducir altura en móviles */
-    }
-}
