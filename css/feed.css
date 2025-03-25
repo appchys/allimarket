@@ -123,3 +123,84 @@
 .delete-product-btn:hover {
     color: #3897f0; /* Azul al pasar el mouse, igual que el feed de inicio */
 }
+
+/* Botones de acción en el feed (like, comment, add-to-cart) - Reincorporado */
+.product-actions .action-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    padding: 0;
+    color: #333;
+    margin-top: 0;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.product-actions .action-btn:hover,
+.product-actions .action-btn:hover i {
+    background: none;
+    color: #3897f0;
+}
+
+/* Ajuste específico para "Añadir al carrito" en el feed - Reincorporado */
+.product-actions .add-to-cart-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    padding: 0;
+    color: #333;
+    margin-top: 0;
+    transition: color 0.2s ease;
+}
+
+.product-actions .add-to-cart-btn:hover,
+.product-actions .add-to-cart-btn:hover i {
+    background: none;
+    color: #3897f0;
+}
+
+/* Estilos de productos - Reincorporado */
+.store-product {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    width: 200px;
+    position: relative;
+}
+
+.product-image-container {
+    position: relative;
+    width: 100%;
+    padding-top: 100%; /* Imagen cuadrada */
+}
+
+.product-image-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px 8px 0 0;
+}
+
+.product-details {
+    padding: 10px 0;
+}
+
+.product-details h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.description {
+    font-size: 14px;
+    color: #666;
+    margin: 5px 0;
+}
+
+.price {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 5px 0;
+}
