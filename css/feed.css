@@ -2,26 +2,30 @@
     padding: 20px;
 }
 
+/* Diseño de la cuadrícula del feed */
 .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 15px;
 }
 
-/* Estilos para el feed de Inicio */
+/* Tarjetas de productos en el feed */
 .product {
     background-color: #fff;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 8px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    padding: 10px;
+    position: relative;
 }
 
+/* Contenedor de la imagen */
 .product-image-container {
     position: relative;
     width: 100%;
-    padding-top: 100%; /* Imagen cuadrada */
+    padding-top: 100%;
 }
 
 .product-image-container img {
@@ -31,8 +35,10 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 8px 8px 0 0;
 }
 
+/* Nombre de la tienda en la imagen */
 .store-name-overlay {
     position: absolute;
     top: 10px;
@@ -50,6 +56,7 @@
     color: #ddd;
 }
 
+/* Información del producto */
 .product-details {
     padding: 10px;
     display: flex;
@@ -76,131 +83,33 @@
     margin: 0;
 }
 
-/* Contenedor para los botones de edición */
+/* Contenedor de botones de acción */
 .product-actions {
     display: flex;
-    justify-content: flex-end; /* Alinear a la derecha */
+    justify-content: flex-end;
     gap: 15px;
-    padding: 5px 10px; /* Añadí padding-right para no pegarlos al borde */
+    padding: 5px 10px;
 }
 
-/* Estilos para botones en el feed de inicio */
-.action-btn {
-    background: none;
-    border: none;
-    font-size: 18px;
-    cursor: pointer;
-    padding: 0;
-    color: #333;
-    transition: color 0.2s ease;
-}
-
-.action-btn:hover {
-    color: #3897f0;
-}
-
-
-
-.product img[loading="lazy"] {
-    background: #f0f0f0;
-}
-
-/* Estilos para los botones de edición (Bootstrap Icons) */
+/* Estilos para los botones de acción */
+.product-actions .action-btn,
 .edit-product-btn,
 .hide-product-btn,
-.delete-product-btn {
+.delete-product-btn,
+.add-to-cart-btn {
     background: none;
     border: none;
     font-size: 18px;
     cursor: pointer;
-    padding: 0;
-    color: #333; /* Gris oscuro por defecto */
-    transition: color 0.2s ease;
-}
-
-.edit-product-btn:hover,
-.hide-product-btn:hover,
-.delete-product-btn:hover {
-    color: #3897f0; /* Azul al pasar el mouse, igual que el feed de inicio */
-}
-
-/* Botones de acción en el feed (like, comment, add-to-cart) - Reincorporado */
-.product-actions .action-btn {
-    background: none;
-    border: none;
-    font-size: 18px;
     padding: 0;
     color: #333;
-    margin-top: 0;
-    cursor: pointer;
     transition: color 0.2s ease;
 }
 
 .product-actions .action-btn:hover,
-.product-actions .action-btn:hover i {
-    background: none;
+.edit-product-btn:hover,
+.hide-product-btn:hover,
+.delete-product-btn:hover,
+.add-to-cart-btn:hover {
     color: #3897f0;
-}
-
-/* Ajuste específico para "Añadir al carrito" en el feed - Reincorporado */
-.product-actions .add-to-cart-btn {
-    background: none;
-    border: none;
-    font-size: 18px;
-    padding: 0;
-    color: #333;
-    margin-top: 0;
-    transition: color 0.2s ease;
-}
-
-.product-actions .add-to-cart-btn:hover,
-.product-actions .add-to-cart-btn:hover i {
-    background: none;
-    color: #3897f0;
-}
-
-/* Estilos de productos - Reincorporado */
-.store-product {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 10px;
-    width: 200px;
-    position: relative;
-}
-
-.product-image-container {
-    position: relative;
-    width: 100%;
-    padding-top: 100%; /* Imagen cuadrada */
-}
-
-.product-image-container img {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 8px 8px 0 0;
-}
-
-.product-details {
-    padding: 10px 0;
-}
-
-.product-details h3 {
-    margin: 0;
-    font-size: 16px;
-}
-
-.description {
-    font-size: 14px;
-    color: #666;
-    margin: 5px 0;
-}
-
-.price {
-    font-size: 16px;
-    font-weight: bold;
-    margin: 5px 0;
 }

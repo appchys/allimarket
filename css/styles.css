@@ -1,331 +1,150 @@
-/* styles.css */
-
-/* Importaciones (preservadas para mantener el formato de tu app) */
-@import url('base.css');
-@import url('header.css');
-@import url('stories.css');
-@import url('feed.css');
-@import url('modal.css');
-@import url('nav.css');
-@import url('forms.css');
-
-/* Barra de navegación inferior */
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background-color: #fff;
-    border-top: 1px solid #ddd;
-    display: flex;
-    justify-content: space-around;
-    padding: 10px 0;
-    z-index: 1000;
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
     box-sizing: border-box;
+    font-family: Arial, sans-serif;
 }
 
-/* Estilos para los botones de la barra */
-.nav-btn {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    padding: 5px 15px;
+/* Cuerpo general */
+body {
+    background-color: #f8f8f8;
     color: #333;
-    position: relative; /* Para posicionar el contador encima */
+    line-height: 1.6;
 }
 
-.nav-btn.active {
-    color: #3897f0;
-}
-
-/* Contador del carrito en la barra de navegación */
-.cart-count {
-    position: absolute;
-    top: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: red;
-    color: white;
-    border-radius: 50%;
-    width: 18px;
-    height: 18px;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    visibility: hidden;
-    z-index: 10;
-}
-
-.cart-count.active {
-    visibility: visible;
-}
-
-/* Sidebar del carrito */
-.cart-sidebar {
-    position: fixed;
-    top: 0;
-    right: -100%;
-    width: 350px;
-    height: 100%;
-    background-color: #fff;
-    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
-    z-index: 2000;
-    transition: right 0.3s ease;
-    display: flex;
-    flex-direction: column;
-}
-
-.cart-sidebar.open {
-    right: 0;
-}
-
-.cart-sidebar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    border-bottom: 1px solid #ddd;
-}
-
-.cart-sidebar-header h2 {
-    margin: 0;
-    font-size: 20px;
-}
-
-.close-cart-sidebar {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: #333;
-}
-
-.cart-sidebar-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 15px;
-}
-
-.cart-store-section {
-    margin-bottom: 20px;
-}
-
-.cart-store-section h3 {
-    margin: 0 0 10px;
-    font-size: 18px;
-}
-
-.cart-store-section ul {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 10px;
-}
-
-.cart-store-section li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid #eee;
-}
-
-.cart-store-section .item-details {
-    flex: 1;
-}
-
-.cart-store-section .item-details p {
-    margin: 0;
-    font-size: 14px;
-}
-
-.cart-store-section .item-quantity {
-    font-size: 14px;
-    margin: 0 10px;
-}
-
-.cart-store-section .remove-item {
-    background: none;
-    border: none;
-    color: #dc3545;
-    cursor: pointer;
-    font-size: 14px;
-    padding: 0;
-}
-
-.cart-store-section .remove-item:hover {
-    color: #b02a37;
-}
-
-.cart-store-section .store-subtotal {
-    font-size: 14px;
-    font-weight: bold;
-    text-align: right;
-    margin-top: 10px;
-}
-
-.cart-store-section .checkout-btn {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 10px;
-}
-
-.cart-store-section .checkout-btn:hover {
-    background-color: #218838;
-}
-
-.cart-sidebar-footer {
-    padding: 15px;
-    border-top: 1px solid #ddd;
-}
-
-.cart-total {
-    margin: 0;
-    font-size: 16px;
-    font-weight: bold;
-    text-align: right;
-}
-
-/* Ajustar el contenido principal para no superponerse a la barra */
-main {
-    padding-bottom: 70px;
-}
-
-/* Botón "Añadir al carrito" (general) - Reincorporado */
-.add-to-cart-btn {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 14px;
-    margin-top: 10px;
-}
-
-.add-to-cart-btn:hover {
-    background-color: #0056b3;
-}
-
-
-/* Botón de opciones (tres puntos) - Reincorporado */
-.options-btn {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: rgba(255, 255, 255, 0.8);
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-.options-btn i {
-    font-size: 16px;
-    color: #333;
-}
-
-/* Popover - Reincorporado */
-.popover {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background-color: #ffffff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    border-radius: 8px;
-    padding: 8px 0;
-    width: 160px;
-    z-index: 1001;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    display: none;
-}
-
-.popover button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    padding: 8px 12px;
-    background: none;
-    border: none;
-    color: #333;
-    font-size: 14px;
-    text-align: left;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.popover button:hover {
-    background-color: #f5f5f5;
-}
-
-.popover button i {
-    font-size: 16px;
-    color: #007bff;
-}
-
-.popover button[disabled] {
-    color: #999;
-    cursor: not-allowed;
-}
-
-/* Media queries para pantallas pequeñas */
-@media (max-width: 768px) {
-    .bottom-nav {
-        padding: 5px 0;
-    }
-    .nav-btn {
-        font-size: 20px;
-    }
-    .cart-count {
-        top: -8px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 16px;
-        height: 16px;
-        font-size: 10px;
-    }
-    .cart-sidebar {
-        width: 300px;
-    }
-    main {
-        padding-bottom: 60px;
-    }
-}
-
-.orders-grid {
-    display: grid;
-    gap: 20px;
+/* Contenedor principal */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
     padding: 20px;
 }
 
-.order-item {
-    border: 1px solid #ddd;
-    padding: 15px;
+/* Botones generales */
+button {
+    cursor: pointer;
+    padding: 10px 15px;
+    border: none;
     border-radius: 5px;
-    background-color: #f9f9f9;
+    font-size: 16px;
+    transition: background 0.3s ease;
 }
 
-.order-item h3 {
-    margin-top: 0;
+button.primary {
+    background-color: #3897f0;
+    color: #fff;
 }
 
-.order-item ul {
-    list-style-type: none;
-    padding-left: 0;
+button.primary:hover {
+    background-color: #287bc0;
 }
 
+button.secondary {
+    background-color: #ddd;
+    color: #333;
+}
+
+button.secondary:hover {
+    background-color: #bbb;
+}
+
+/* Inputs y formularios */
+input, textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+input:focus, textarea:focus {
+    border-color: #3897f0;
+    outline: none;
+}
+
+/* Contenedores de sección */
+.section {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+/* Estilos de enlaces */
+a {
+    text-decoration: none;
+    color: #3897f0;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: #287bc0;
+}
+
+/* Estilos de títulos */
+h1, h2, h3 {
+    color: #222;
+    margin-bottom: 10px;
+}
+
+h1 {
+    font-size: 24px;
+}
+
+h2 {
+    font-size: 20px;
+}
+
+h3 {
+    font-size: 18px;
+}
+
+/* Navbar */
+.navbar {
+    background: #fff;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar a {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Footer */
+.footer {
+    background: #333;
+    color: #fff;
+    text-align: center;
+    padding: 15px;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+/* Clases utilitarias */
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Carga perezosa de imágenes */
+img[loading="lazy"] {
+    background: #f0f0f0;
+}
