@@ -1,4 +1,5 @@
 import { getDocs, query, where, orderBy, collection, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+import { initializeNavEvents } from './nav.js'; // Importar la función para inicializar la navegación
 
 document.addEventListener('DOMContentLoaded', async () => {
     const auth = window.firebaseAuth;
@@ -7,6 +8,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     const storeId = urlParams.get('store');
     const ordersContainer = document.getElementById('orders-container');
     const logoutBtn = document.getElementById('logout-btn');
+
+    // Inicializar la barra de navegación
+    const navContainer = document.getElementById('nav-container');
+    if (navContainer) {
+        fetch('nav.html')
+            .then(response => response.text())
+            .then(html => {
+                navContainer.innerHTML = html;
+                initializeNavEvents(auth, db, null, null); // Pasar null para storage y provider si no se usan aquí
+            })
+            .catch(error => console.error('Error al cargar nav.html:', error));
+    } else {
+        console.error('No se encontró #nav-container en la página');
+    }
 
     if (!storeId) {
         ordersContainer.innerHTML = '<p>No se especificó una tienda.</p>';
@@ -51,17 +66,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <div class="status-section">
                                 <span class="status-tag">${order.status || 'Pendiente'}</span>
                                 <div class="status-actions">
-                                ${order.status !== 'Entregado' ? `
-                                    <button class="status-btn prepare-btn" data-id="${docSnap.id}">
-                                        ${order.status === 'Despachando' ? 'Entregar' : 'Despachar'}
-                                    </button>
-                                ` : ''}
+                                    ${order.status !== 'Entregado' ? `
+                                        <button class="status-btn prepare-btn" data-id="${docSnap.id}">
+                                            ${order.status === 'Despachando' ? 'Finalizar' : 'Despachar'}
+                                        </button>
+                                    ` : ''}
                                 </div>
                             </div>
                         </div>
                     `;
                     ordersContainer.appendChild(orderElement);
-                
+
                     const mapDiv = document.getElementById(`map-${docSnap.id}`);
                     if (mapDiv && order.customerInfo && order.customerInfo.location) {
                         const map = L.map(mapDiv, {
@@ -88,19 +103,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                         const orderRef = doc(db, 'orders', orderId);
                         const orderSnapshot = await getDocs(query(collection(db, 'orders'), where('__name__', '==', orderId)));
                         const orderData = orderSnapshot.docs[0].data();
-                        
-                        const newStatus = orderData.status === 'Despachando' ? 'Entregado' : 'Despachando';                        
+
+                        const newStatus = orderData.status === 'Despachando' ? 'Entregado' : 'Despachando';
                         await updateDoc(orderRef, { status: newStatus });
-                        
+
                         // Actualizar la UI
                         const statusTag = event.target.closest('.order-card').querySelector('.status-tag');
                         const actionButton = event.target.closest('.order-card').querySelector('.prepare-btn');
-                        
+
                         statusTag.textContent = newStatus;
-                        if(newStatus === 'Entregado') {
+                        if (newStatus === 'Entregado') {
                             event.target.closest('.status-actions').innerHTML = '';
                         } else {
-                            actionButton.textContent = newStatus === 'En preparación' ? 'Entregar' : 'Preparar';
+                            actionButton.textContent = 'Finalizar'; // Cambiar a "Finalizar" cuando pasa a "Despachando"
                         }
                     });
                 });
