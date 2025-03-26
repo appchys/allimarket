@@ -37,22 +37,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const orderElement = document.createElement('div');
                     orderElement.classList.add('order-card');
                     orderElement.innerHTML = `
-                        <div class="order-map">
-                            <i class="bi bi-map" style="font-size: 2rem;"></i>
-                            <small>Mapa de ubicación</small>
-                        </div>
+                        <div class="order-map" id="map-${docSnap.id}"></div>
                         <div class="order-content">
                             <div class="client-info">
                                 <h3 class="client-name">${order.customerInfo.fullName}</h3>
                             </div>
-                            
                             <div class="cart-details">
                                 ${Object.entries(order.cartItems).map(([_, item]) => `
                                     <p>${item.name} (x${item.quantity}) - $${(item.price * item.quantity).toFixed(2)}</p>
                                 `).join('')}
                                 <p><strong>Total: $${order.totalCost.toFixed(2)}</strong></p>
                             </div>
-                            
                             <div class="status-section">
                                 <span class="status-tag">${order.status || 'Pendiente'}</span>
                                 <div class="status-actions">
@@ -66,6 +61,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                         </div>
                     `;
                     ordersContainer.appendChild(orderElement);
+                
+                    const mapDiv = document.getElementById(`map-${docSnap.id}`);
+                    if (mapDiv && order.customerInfo && order.customerInfo.location) {
+                        const map = L.map(mapDiv, {
+                            dragging: false,
+                            touchZoom: false,
+                            doubleClickZoom: false,
+                            scrollWheelZoom: false,
+                            boxZoom: false,
+                            keyboard: false,
+                            zoomControl: false
+                        }).setView([order.customerInfo.location.latitude, order.customerInfo.location.longitude], 13);
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        }).addTo(map);
+                        L.marker([order.customerInfo.location.latitude, order.customerInfo.location.longitude]).addTo(map);
+                    } else {
+                        mapDiv.innerHTML = '<small>No hay ubicación disponible</small>';
+                    }
                 });
 
                 document.querySelectorAll('.prepare-btn').forEach(button => {
