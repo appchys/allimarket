@@ -11,8 +11,20 @@ export function setupAuth(auth, provider, db) {
     if (loginBtn) {
         loginBtn.addEventListener('click', () => {
             signInWithPopup(auth, provider)
-                .then((result) => {
+                .then(async (result) => {
                     console.log('Usuario autenticado:', result.user);
+
+                    const userDoc = await getDoc(doc(db, 'users', result.user.uid));
+
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        if (userData.role === 'store' && userData.storeId) {
+                            // Si el usuario tiene rol de tienda, redirigir a su perfil de tienda
+                            window.location.href = `/${userData.storeId}`;
+                            return;
+                        }
+                    }
+
                     roleModal.style.display = 'flex';
                 })
                 .catch((error) => {
@@ -28,10 +40,20 @@ export function setupAuth(auth, provider, db) {
         });
     }
 
-    auth.onAuthStateChanged((user) => {
+    auth.onAuthStateChanged(async (user) => {
         if (user) {
             if (loginBtn) loginBtn.style.display = 'none';
             if (logoutBtn) logoutBtn.style.display = 'inline-block';
+
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                if (userData.role === 'store' && userData.storeId) {
+                    // Si el usuario ya está logeado como tienda, redirigir a su perfil de tienda
+                    window.location.href = `/${userData.storeId}`;
+                }
+            }
         } else {
             if (loginBtn) loginBtn.style.display = 'inline-block';
             if (logoutBtn) logoutBtn.style.display = 'none';
@@ -45,8 +67,8 @@ export function setupAuth(auth, provider, db) {
             if (!userDoc.exists() || !userDoc.data().storeId) {
                 window.location.href = 'create-store.html';
             } else {
-                const storeDoc = await getDoc(doc(db, 'stores', userDoc.data().storeId));
-                window.location.href = `/${userData.storeId}`;
+                const storeId = userDoc.data().storeId;
+                window.location.href = `/${storeId}`;
             }
         });
     }

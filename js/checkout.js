@@ -169,10 +169,6 @@ document.getElementById('submit-transfer').addEventListener('click', async () =>
         return;
     }
 
-    // Mostrar el ícono de cargando
-    document.getElementById('loading').style.display = 'block';
-    document.getElementById('order-summary').style.display = 'none';
-
     try {
         const formData = {
             fullName: document.getElementById('full-name').value,
@@ -219,14 +215,7 @@ document.getElementById('submit-transfer').addEventListener('click', async () =>
             await setDoc(cartRef, updatedCart, { merge: false }); // Sobrescribir el carrito
         }
 
-        // Ocultar el ícono de cargando
-        document.getElementById('loading').style.display = 'none';
-
-        // Mostrar el resumen de la orden
-        document.getElementById('order-id').textContent = `Orden ID: ${orderId}`;
-        document.getElementById('order-bank').textContent = `Banco: ${bankSelect}`;
-        document.getElementById('order-total').textContent = `Total: $${totalCost.toFixed(2)}`;
-        document.getElementById('order-summary').style.display = 'block';
+        alert(`Compra finalizada con éxito.\nOrden ID: ${orderId}\nBanco: ${bankSelect}\nComprobante subido correctamente.`);
 
         // Limpiar el formulario y la interfaz
         document.getElementById('checkout-form').reset();
@@ -239,7 +228,5 @@ document.getElementById('submit-transfer').addEventListener('click', async () =>
     } catch (error) {
         console.error('Error al finalizar la compra:', error);
         alert('Ocurrió un error al procesar tu compra. Intenta de nuevo.');
-        // Ocultar el ícono de cargando en caso de error
-        document.getElementById('loading').style.display = 'none';
     }
 });
