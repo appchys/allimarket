@@ -1,4 +1,3 @@
-// nav.js
 import { getDoc, doc, updateDoc, deleteField, setDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 import { signInWithPopup } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
 import { initializeAddMenu } from './add-menu.js';
@@ -19,6 +18,7 @@ export function initializeNavEvents(authInstance, dbInstance, storage, provider)
     let homeBtn = document.getElementById('home-btn');
     let cartBtn = document.getElementById('cart-btn');
 
+    // Función para actualizar la interfaz de autenticación
     function updateAuthUI(user) {
         if (user) {
             loginBtn.style.display = 'none';
@@ -29,6 +29,7 @@ export function initializeNavEvents(authInstance, dbInstance, storage, provider)
         }
     }
 
+    // Función para ajustar la navegación según el rol del usuario
     function updateNavBasedOnRole(userData) {
         if (!homeBtn || !cartBtn || !profileBtn) return;
 
@@ -57,6 +58,7 @@ export function initializeNavEvents(authInstance, dbInstance, storage, provider)
         }
     }
 
+    // Escuchar cambios en el estado de autenticación
     auth.onAuthStateChanged(async (user) => {
         updateAuthUI(user);
         if (user) {
@@ -67,12 +69,14 @@ export function initializeNavEvents(authInstance, dbInstance, storage, provider)
         }
     });
 
+    // Evento para iniciar sesión con Google
     loginBtn.addEventListener('click', () => {
         signInWithPopup(auth, provider).catch((error) => {
             console.error('Error al iniciar sesión:', error);
         });
     });
 
+    // Evento para cerrar sesión
     logoutBtn.addEventListener('click', () => {
         auth.signOut().then(() => {
             window.location.href = 'index.html';
@@ -81,6 +85,7 @@ export function initializeNavEvents(authInstance, dbInstance, storage, provider)
         });
     });
 
+    // Evento para el botón de perfil
     if (profileBtn) {
         profileBtn.addEventListener('click', async () => {
             if (auth.currentUser) {
@@ -105,6 +110,7 @@ export function initializeNavEvents(authInstance, dbInstance, storage, provider)
         });
     }
 
+    // Asignar evento al botón de inicio
     function assignHomeButtonEvent() {
         homeBtn = document.getElementById('home-btn');
         if (homeBtn && !homeBtn.dataset.listenerAdded) {
@@ -205,7 +211,7 @@ export function initializeNavEvents(authInstance, dbInstance, storage, provider)
     observer.observe(document.body, { childList: true, subtree: true });
 }
 
-// Función actualizada para actualizar el contenido de la sidebar
+// Función para actualizar el contenido de la sidebar
 async function updateCartSidebar() {
     const cartSidebarContent = document.querySelector('.cart-sidebar-content');
     const cartTotalElement = document.getElementById('cart-total');
@@ -412,4 +418,16 @@ document.addEventListener('click', async (e) => {
             console.error('Error al eliminar el ítem:', error);
         }
     }
+
+    // Agregar evento para los botones de checkout
+    if (e.target.classList.contains('checkout-store-btn')) {
+        const storeId = e.target.dataset.storeId;
+        handleCheckout(storeId);
+    }
 });
+
+// Función para inicializar eventos de productos (si es necesario en otras partes)
+function initializeAddProduct(db, storage, storeId, feedContainer) {
+    // Esta función parece incompleta en el contexto original; aquí se deja como placeholder
+    console.log('Inicializando add-product para', storeId);
+}
