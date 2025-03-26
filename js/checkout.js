@@ -201,7 +201,7 @@ document.getElementById('submit-transfer').addEventListener('click', async () =>
             transferProofUrl: transferUrl,
             shippingCost: shippingCost,
             totalCost: totalCost,
-            status: 'pending',
+            status: 'Pendiente',
             createdAt: new Date().toISOString()
         };
 

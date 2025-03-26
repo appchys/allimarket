@@ -51,11 +51,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <div class="status-section">
                                 <span class="status-tag">${order.status || 'Pendiente'}</span>
                                 <div class="status-actions">
-                                    ${order.status !== 'Entregado' ? `
-                                        <button class="status-btn prepare-btn" data-id="${docSnap.id}">
-                                            ${order.status === 'En preparación' ? 'Entregar' : 'Preparar'}
-                                        </button>
-                                    ` : ''}
+                                ${order.status !== 'Entregado' ? `
+                                    <button class="status-btn prepare-btn" data-id="${docSnap.id}">
+                                        ${order.status === 'Despachando' ? 'Entregar' : 'Despachar'}
+                                    </button>
+                                ` : ''}
                                 </div>
                             </div>
                         </div>
@@ -89,8 +89,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         const orderSnapshot = await getDocs(query(collection(db, 'orders'), where('__name__', '==', orderId)));
                         const orderData = orderSnapshot.docs[0].data();
                         
-                        const newStatus = orderData.status === 'En preparación' ? 'Entregado' : 'En preparación';
-                        
+                        const newStatus = orderData.status === 'Despachando' ? 'Entregado' : 'Despachando';                        
                         await updateDoc(orderRef, { status: newStatus });
                         
                         // Actualizar la UI
