@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <!-- Agregar Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <!-- Estilos locales (asumiendo que estos son necesarios para la barra) -->
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/add-menu.css">
+    <link rel="stylesheet" href="/css/cart.css">
     <style>
         /* Estilos generales */
         body {
@@ -28,7 +32,6 @@
             padding: 15px;
         }
 
-        /* Sección de información del cliente */
         .customer-info {
             background-color: white;
             border-radius: 8px;
@@ -65,7 +68,6 @@
             box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
         }
 
-        /* Mapa */
         #map-container {
             margin-top: 20px;
         }
@@ -75,7 +77,6 @@
             border-radius: 8px;
         }
 
-        /* Resumen del carrito */
         .cart-summary {
             background-color: white;
             border-radius: 8px;
@@ -105,7 +106,6 @@
             color: #495057;
         }
 
-        /* Sección de pago */
         .payment-section {
             background-color: white;
             border-radius: 8px;
@@ -154,7 +154,6 @@
             background-color: #0056b3;
         }
 
-        /* Media queries para dispositivos móviles */
         @media (max-width: 768px) {
             main {
                 padding: 10px;
@@ -193,7 +192,6 @@
                 <label for="references"><i class="bi bi-info-circle"></i> Referencias</label>
                 <textarea id="references" name="references" placeholder="Ingresa referencias adicionales" rows="3"></textarea>
 
-                <!-- Campos ocultos para las coordenadas -->
                 <input type="hidden" id="latitude" name="latitude">
                 <input type="hidden" id="longitude" name="longitude">
 
@@ -206,9 +204,7 @@
 
         <section class="cart-summary">
             <h2><i class="bi bi-bag"></i> Detalle del Carrito</h2>
-            <div id="cart-details">
-                <!-- Los productos del carrito se cargarán dinámicamente aquí -->
-            </div>
+            <div id="cart-details"></div>
             <div class="summary">
                 <p>Valor de Envío: <span id="shipping-cost">$0.00</span></p>
                 <p>Total: <span id="total-cost">$0.00</span></p>
@@ -239,12 +235,13 @@
     <!-- Punto de inserción para la barra de navegación -->
     <div id="nav-container"></div>
 
-    <!-- Importar Firebase y Leaflet como módulos -->
+    <!-- Inicialización de Firebase -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
         import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
         import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
         import { getStorage } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js';
+        import { GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyAAAFDJ_utlimCezUR-_i8Y2yUare9yZ1k",
@@ -259,16 +256,21 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const storage = getStorage(app);
+        const provider = new GoogleAuthProvider();
 
+        // Exportar Firebase al ámbito global para que app.js y otros scripts lo usen
+        window.firebaseApp = app;
         window.firebaseAuth = auth;
         window.firebaseDb = db;
         window.firebaseStorage = storage;
+        window.firebaseProvider = provider;
     </script>
+
     <!-- Importar Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <!-- Importar scripts necesarios -->
-    <script type="module" src="js/app.js"></script>
-    <script type="module" src="js/checkout.js"></script>
+    <script type="module" src="/js/app.js"></script>
+    <script type="module" src="/js/checkout.js"></script>
     <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'926996b0f8556db3',t:'MTc0MzAyMjk0Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
