@@ -4,104 +4,199 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/checkout.css">
-    <!-- Agregar Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #f0f2f5;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui;
+            background: var(--secondary-color);
+            margin: 0;
+            padding: 15px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 {
+            color: #1a1a1a;
+            margin: 0 0 20px 0;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            color: #666;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 15px 12px 40px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        #map {
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 10px;
+            width: 100%;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .bank-details {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+                max-width: 500px;
+                margin: 0 auto;
+            }
+        }
+    </style>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 </head>
 <body>
-    <header>
-        <h1>Checkout</h1>
+    <header class="card" style="background: var(--primary-color); color: white;">
+        <h1><i class="bi bi-cart-check"></i> Checkout Social</h1>
     </header>
+
     <main>
-        <section class="customer-info">
-            <h2>Datos del Cliente</h2>
+        <!-- Sección de información del cliente -->
+        <div class="card">
+            <h2><i class="bi bi-person-circle"></i> Tus Datos</h2>
             <form id="checkout-form">
-                <label for="full-name">Nombres y Apellidos</label>
-                <input type="text" id="full-name" name="full-name" placeholder="Ingresa tus nombres y apellidos" required>
+                <div class="input-group">
+                    <i class="bi bi-person"></i>
+                    <input type="text" id="full-name" placeholder="Nombre completo" required>
+                </div>
 
-                <label for="phone">Celular</label>
-                <input type="tel" id="phone" name="phone" placeholder="Ingresa tu número de celular" required>
+                <div class="input-group">
+                    <i class="bi bi-phone"></i>
+                    <input type="tel" id="phone" placeholder="Número de celular" required>
+                </div>
 
-                <label for="email">Correo Electrónico</label>
-                <input type="email" id="email" name="email" placeholder="Ingresa tu correo electrónico" required>
+                <div class="input-group">
+                    <i class="bi bi-envelope"></i>
+                    <input type="email" id="email" placeholder="Correo electrónico" required>
+                </div>
 
-                <label for="address">Dirección</label>
-                <input type="text" id="address" name="address" placeholder="Ingresa tu dirección" required>
+                <div class="input-group">
+                    <i class="bi bi-geo-alt"></i>
+                    <input type="text" id="address" placeholder="Dirección de entrega" required>
+                </div>
 
-                <label for="references">Referencias</label>
-                <textarea id="references" name="references" placeholder="Ingresa referencias adicionales" rows="3"></textarea>
-
-                <!-- Campos ocultos para las coordenadas -->
-                <input type="hidden" id="latitude" name="latitude">
-                <input type="hidden" id="longitude" name="longitude">
-
-                <div id="map-container">
-                    <h3>Ubicación en el Mapa</h3>
-                    <div id="map" style="width: 100%; height: 300px;"></div>
+                <div class="input-group">
+                    <i class="bi bi-chat-text"></i>
+                    <textarea id="references" placeholder="Referencias adicionales" rows="2"></textarea>
                 </div>
             </form>
-        </section>
+        </div>
 
-        <section class="cart-summary">
-            <h2>Detalle del Carrito</h2>
-            <div id="cart-details">
-                <!-- Los productos del carrito se cargarán dinámicamente aquí -->
-            </div>
-            <div class="summary">
-                <p>Valor de Envío: <span id="shipping-cost">$0.00</span></p>
-                <p>Total: <span id="total-cost">$0.00</span></p>
-            </div>
-        </section>
+        <!-- Sección del mapa -->
+        <div class="card">
+            <h2><i class="bi bi-geo"></i> Ubicación en Tiempo Real</h2>
+            <div id="map" style="height: 200px;"></div>
+            <small class="text-muted">Mueve el marcador para ajustar tu ubicación</small>
+            <input type="hidden" id="latitude" name="latitude">
+            <input type="hidden" id="longitude" name="longitude">
+        </div>
 
-        <section class="payment-section">
-            <h2>Método de Pago</h2>
-            <label for="bank-select">Transferencia Bancaria</label>
-            <select id="bank-select" name="bank-select">
-                <option value="">Selecciona un banco</option>
-                <option value="pichincha">Banco Pichincha</option>
-                <option value="guayaquil">Banco Guayaquil</option>
-                <option value="pacifico">Banco Pacífico</option>
-                <option value="produbanco">Banco Produbanco</option>
-            </select>
-        
-            <div id="bank-details" style="display: none; margin-top: 20px;">
-                <h3>Datos Bancarios</h3>
+        <!-- Método de pago -->
+        <div class="card">
+            <h2><i class="bi bi-credit-card"></i> Pago</h2>
+            <div class="input-group">
+                <i class="bi bi-bank"></i>
+                <select id="bank-select">
+                    <option value="">Selecciona tu banco</option>
+                    <option value="pichincha">Banco Pichincha</option>
+                    <option value="guayaquil">Banco Guayaquil</option>
+                    <option value="pacifico">Banco Pacífico</option>
+                    <option value="produbanco">Produbanco</option>
+                </select>
+            </div>
+
+            <div id="bank-details" class="bank-details" style="display: none;">
+                <h3><i class="bi bi-info-circle"></i> Datos para Transferencia</h3>
                 <p id="bank-info"></p>
-                <label for="transfer-proof">Subir captura de la transferencia:</label>
-                <input type="file" id="transfer-proof" name="transfer-proof" accept="image/*" required>
-                <button id="submit-transfer" class="btn-primary">Finalizar Compra</button>
+                
+                <div class="input-group">
+                    <i class="bi bi-image"></i>
+                    <input type="file" id="transfer-proof" accept="image/*" style="padding-left: 40px;">
+                </div>
+                
+                <button id="submit-transfer" class="btn-primary">
+                    <i class="bi bi-check2-circle"></i> Confirmar Compra
+                </button>
             </div>
-        </section>
+        </div>
+
+        <!-- Resumen del carrito -->
+        <div class="card">
+            <h2><i class="bi bi-receipt"></i> Resumen</h2>
+            <div id="cart-details"></div>
+            <div style="margin-top: 15px;">
+                <div class="cart-item">
+                    <span>Envío:</span>
+                    <span id="shipping-cost">$0.00</span>
+                </div>
+                <div class="cart-item" style="font-weight: bold;">
+                    <span>Total:</span>
+                    <span id="total-cost">$0.00</span>
+                </div>
+            </div>
+        </div>
     </main>
 
-    <!-- Importar Firebase y Leaflet como módulos -->
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-        import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
-        import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
-        import { getStorage } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js';
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAAAFDJ_utlimCezUR-_i8Y2yUare9yZ1k",
-            authDomain: "multitienda-69778.firebaseapp.com",
-            projectId: "multitienda-69778",
-            storageBucket: "multitienda-69778.firebasestorage.app",
-            messagingSenderId: "939925630795",
-            appId: "1:939925630795:web:713aca499392bfa36482ce"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
-
-        window.firebaseAuth = auth;
-        window.firebaseDb = db;
-        window.firebaseStorage = storage;
-    </script>
-    <!-- Importar Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <script type="module" src="js/checkout.js"></script>
+    <!-- Firebase y Leaflet JS (mantener igual) -->
+    <script type="module" src="checkout.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </body>
 </html>
