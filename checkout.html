@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <!-- Agregar Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    <!-- Estilos locales (asumiendo que estos son necesarios para la barra) -->
+    <!-- Estilos locales -->
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="/css/add-menu.css">
     <link rel="stylesheet" href="/css/cart.css">
@@ -232,41 +232,17 @@
         </section>
     </main>
 
-    <!-- Punto de inserción para la barra de navegación -->
-    <div id="nav-container">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="#">Multitienda</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#">Inicio</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Tienda</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Carrito</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Checkout</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </div>
+    <!-- Punto de inserción para la barra de navegación inferior -->
+    <div id="nav-container"></div>
 
-    <!-- Inicialización de Firebase -->
+    <!-- Inicialización de Firebase y barra de navegación -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
         import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
         import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
         import { getStorage } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js';
         import { GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+        import { initializeNavEvents } from '/js/nav.js'; // Importar nav.js explícitamente
 
         const firebaseConfig = {
             apiKey: "AIzaSyAAAFDJ_utlimCezUR-_i8Y2yUare9yZ1k",
@@ -283,12 +259,17 @@
         const storage = getStorage(app);
         const provider = new GoogleAuthProvider();
 
-        // Exportar Firebase al ámbito global para que app.js y otros scripts lo usen
+        // Exportar Firebase al ámbito global
         window.firebaseApp = app;
         window.firebaseAuth = auth;
         window.firebaseDb = db;
         window.firebaseStorage = storage;
         window.firebaseProvider = provider;
+
+        // Inicializar la barra de navegación inferior
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeNavEvents(auth, db, storage, provider);
+        });
     </script>
 
     <!-- Importar Leaflet JS -->
@@ -298,6 +279,8 @@
     <script type="module" src="/js/nav.js"></script>
     <script type="module" src="/js/auth.js"></script>
     <script type="module" src="/js/checkout.js"></script>
+    <!-- Scripts adicionales de Cloudflare (si los necesitas) -->
     <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'926996b0f8556db3',t:'MTc0MzAyMjk0Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'926f774da88e7bd6',t:'MTc0MzA4NDU3MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
