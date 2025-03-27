@@ -4,87 +4,142 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout</title>
-    <!-- Bootstrap Icons -->
+    <!-- Agregar Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <!-- Leaflet CSS -->
+    <!-- Agregar Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    <!-- Estilos locales -->
-    <link rel="stylesheet" href="/css/styles.css">
-    <link rel="stylesheet" href="/css/add-menu.css">
-    <link rel="stylesheet" href="/css/cart.css">
     <style>
-        /* Estilos inline existentes */
+        /* Estilos generales */
         body {
             font-family: Arial, sans-serif;
             background-color: #f8f9fa;
             margin: 0;
             padding: 0;
         }
+
         header {
             background-color: #343a40;
             color: white;
             padding: 15px;
             text-align: center;
         }
+
         main {
             padding: 15px;
         }
-        .customer-info, .cart-summary, .payment-section {
+
+        /* Sección de información del cliente */
+        .customer-info {
             background-color: white;
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .customer-info h2, .cart-summary h2, .payment-section h2 {
+
+        .customer-info h2 {
             margin-top: 0;
             color: #343a40;
         }
+
         .customer-info form {
             display: flex;
             flex-direction: column;
         }
-        .customer-info label, .payment-section label {
+
+        .customer-info label {
             margin-top: 10px;
             color: #495057;
         }
-        .customer-info input, .customer-info textarea, .payment-section select, .payment-section input[type="file"] {
+
+        .customer-info input, .customer-info textarea {
             padding: 10px;
             border: 1px solid #ced4da;
             border-radius: 4px;
             margin-top: 5px;
         }
-        .customer-info input:focus, .customer-info textarea:focus, .payment-section select:focus, .payment-section input[type="file"]:focus {
+
+        .customer-info input:focus, .customer-info textarea:focus {
             outline: none;
             border-color: #80bdff;
             box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
         }
+
+        /* Mapa */
         #map-container {
             margin-top: 20px;
         }
+
         #map {
             height: 200px;
             border-radius: 8px;
         }
+
+        /* Resumen del carrito */
+        .cart-summary {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .cart-summary h2 {
+            margin-top: 0;
+            color: #343a40;
+        }
+
         .cart-item {
             display: flex;
             align-items: center;
             margin-bottom: 10px;
         }
+
         .cart-item p {
             margin: 0;
             color: #495057;
         }
+
         .summary p {
             margin: 5px 0;
             color: #495057;
         }
+
+        /* Sección de pago */
+        .payment-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .payment-section h2 {
+            margin-top: 0;
+            color: #343a40;
+        }
+
+        .payment-section select, .payment-section input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+
+        .payment-section select:focus, .payment-section input[type="file"]:focus {
+            outline: none;
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+        }
+
         #bank-details {
             margin-top: 20px;
         }
+
         #bank-info {
             color: #495057;
         }
+
         .btn-primary {
             background-color: #007bff;
             color: white;
@@ -94,16 +149,21 @@
             cursor: pointer;
             margin-top: 20px;
         }
+
         .btn-primary:hover {
             background-color: #0056b3;
         }
+
+        /* Media queries para dispositivos móviles */
         @media (max-width: 768px) {
             main {
                 padding: 10px;
             }
+
             .customer-info, .cart-summary, .payment-section {
                 padding: 15px;
             }
+
             #map {
                 height: 150px;
             }
@@ -113,11 +173,6 @@
 <body>
     <header>
         <h1><i class="bi bi-cart"></i> Checkout</h1>
-        <!-- Botones de autenticación necesarios para nav.js -->
-        <div id="auth-section" style="position: absolute; top: 15px; right: 15px;">
-            <button id="login-btn" style="display: inline-block;">Iniciar Sesión</button>
-            <button id="logout-btn" style="display: none;"><i class="bi bi-box-arrow-right"></i></button>
-        </div>
     </header>
     <main>
         <section class="customer-info">
@@ -125,16 +180,23 @@
             <form id="checkout-form">
                 <label for="full-name"><i class="bi bi-person"></i> Nombres y Apellidos</label>
                 <input type="text" id="full-name" name="full-name" placeholder="Ingresa tus nombres y apellidos" required>
+
                 <label for="phone"><i class="bi bi-telephone"></i> Celular</label>
                 <input type="tel" id="phone" name="phone" placeholder="Ingresa tu número de celular" required>
+
                 <label for="email"><i class="bi bi-envelope"></i> Correo Electrónico</label>
                 <input type="email" id="email" name="email" placeholder="Ingresa tu correo electrónico" required>
+
                 <label for="address"><i class="bi bi-house"></i> Dirección</label>
                 <input type="text" id="address" name="address" placeholder="Ingresa tu dirección" required>
+
                 <label for="references"><i class="bi bi-info-circle"></i> Referencias</label>
                 <textarea id="references" name="references" placeholder="Ingresa referencias adicionales" rows="3"></textarea>
+
+                <!-- Campos ocultos para las coordenadas -->
                 <input type="hidden" id="latitude" name="latitude">
                 <input type="hidden" id="longitude" name="longitude">
+
                 <div id="map-container">
                     <h3><i class="bi bi-geo-alt"></i> Ubicación en el Mapa</h3>
                     <div id="map" style="width: 100%; height: 200px;"></div>
@@ -144,7 +206,9 @@
 
         <section class="cart-summary">
             <h2><i class="bi bi-bag"></i> Detalle del Carrito</h2>
-            <div id="cart-details"></div>
+            <div id="cart-details">
+                <!-- Los productos del carrito se cargarán dinámicamente aquí -->
+            </div>
             <div class="summary">
                 <p>Valor de Envío: <span id="shipping-cost">$0.00</span></p>
                 <p>Total: <span id="total-cost">$0.00</span></p>
@@ -161,6 +225,7 @@
                 <option value="pacifico">Banco Pacífico</option>
                 <option value="produbanco">Banco Produbanco</option>
             </select>
+
             <div id="bank-details" style="display: none; margin-top: 20px;">
                 <h3>Datos Bancarios</h3>
                 <p id="bank-info"></p>
@@ -171,17 +236,12 @@
         </section>
     </main>
 
-    <!-- Punto de inserción para la barra de navegación inferior -->
-    <div id="nav-container"></div>
-
-    <!-- Inicialización de Firebase y barra de navegación -->
+    <!-- Importar Firebase y Leaflet como módulos -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
         import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
         import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
         import { getStorage } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js';
-        import { GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
-        import { initializeNavEvents } from '/js/nav.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyAAAFDJ_utlimCezUR-_i8Y2yUare9yZ1k",
@@ -196,26 +256,13 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const storage = getStorage(app);
-        const provider = new GoogleAuthProvider();
 
-        // Exportar Firebase al ámbito global
-        window.firebaseApp = app;
         window.firebaseAuth = auth;
         window.firebaseDb = db;
         window.firebaseStorage = storage;
-        window.firebaseProvider = provider;
-
-        // Inicializar la barra de navegación
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeNavEvents(auth, db, storage, provider);
-        });
     </script>
-
-    <!-- Leaflet JS -->
+    <!-- Importar Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <!-- Scripts necesarios -->
-    <script type="module" src="/js/nav.js"></script>
-    <script type="module" src="/js/auth.js"></script>
-    <script type="module" src="/js/checkout.js"></script>
+    <script type="module" src="js/checkout.js"></script>
 </body>
 </html>
