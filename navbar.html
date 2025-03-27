@@ -1,7 +1,59 @@
-<nav style="background-color: #343a40; padding: 10px; color: white; display: flex; justify-content: space-between; align-items: center;">
-    <h2>Mi Tienda</h2>
-    <ul style="list-style: none; display: flex; gap: 15px; margin: 0; padding: 0;">
-        <li><a href="index.html" style="color: white; text-decoration: none;">Inicio</a></li>
-        <li><a href="checkout.html" style="color: white; text-decoration: none;">Checkout</a></li>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navbar</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        .navbar-custom {
+            background-color: white;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 10px 20px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .navbar-custom a {
+            color: black;
+            text-decoration: none;
+            font-size: 18px;
+        }
+        .navbar-custom a:hover {
+            color: #007bff;
+        }
+    </style>
+</head>
+<body style="padding-top: 60px;"> <!-- Espaciado para que no tape el contenido -->
+
+<nav class="navbar-custom d-flex justify-content-between align-items-center">
+    <h2 class="m-0">Mi Tienda</h2>
+    <ul class="nav m-0">
+        <li class="nav-item">
+            <a class="nav-link" href="index.html">
+                <i class="fas fa-compass"></i> Explorar
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="checkout.html">
+                <i class="fas fa-shopping-cart"></i> Carrito
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="add.html">
+                <i class="fas fa-plus-circle"></i> Añadir
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="profile.html">
+                <i class="fas fa-user"></i> Perfil
+            </a>
+        </li>
     </ul>
 </nav>
+
+</body>
+</html>
