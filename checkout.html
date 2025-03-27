@@ -239,8 +239,21 @@
     <!-- Punto de inserción para la barra de navegación -->
     <div id="nav-container"></div>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("navbar.html")
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById("nav-container").innerHTML = data;
+                })
+                .catch(error => console.error("Error cargando la barra de navegación:", error));
+        });
+    </script>
+    
+
     <!-- Importar Firebase y Leaflet como módulos -->
-    <script type="module">
+   
+   <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
         import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
         import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
