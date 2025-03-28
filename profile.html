@@ -6,159 +6,58 @@
     <title>All I Market - Mi Perfil</title>
     <style>
         /* Estilos generales */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-
-        header {
-            background-color: #333;
-            color: white;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        #search-container input {
-            padding: 5px;
-            border: none;
-            border-radius: 3px;
-        }
-
-        #search-toggle-btn, #login-btn, #logout-btn {
-            padding: 5px 10px;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-
-        #login-btn {
-            background-color: #4285f4;
-            color: white;
-        }
-
-        #logout-btn {
-            background-color: #ff4444;
-            color: white;
-        }
-
-        main {
-            padding: 20px;
-        }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+        header { background-color: #333; color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { margin: 0; font-size: 24px; }
+        .header-right { display: flex; align-items: center; gap: 10px; }
+        #search-container input { padding: 5px; border: none; border-radius: 3px; }
+        #search-toggle-btn, #login-btn, #logout-btn { padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; }
+        #login-btn { background-color: #4285f4; color: white; }
+        #logout-btn { background-color: #ff4444; color: white; }
+        main { padding: 20px; }
 
         /* Estilos para la sección de pedidos */
-        .orders-section {
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
+        .orders-section { padding: 20px; max-width: 800px; margin: 0 auto; }
+        .order-item { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px; background-color: #f9f9f9; }
+        .order-item h3 { margin: 0 0 10px; font-size: 1.2em; }
+        .order-item p { margin: 5px 0; }
 
-        .order-item {
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-        }
+        /* Estilos para el perfil de la tienda */
+        .store-profile { max-width: 800px; margin: 20px auto; background-color: white; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        #store-image { border-radius: 50%; width: 100px; height: 100px; object-fit: cover; }
+        #store-name { margin: 0 0 10px; font-size: 1.5em; }
+        #store-followers, #store-description { margin: 5px 0; color: #555; }
+        #store-actions button { padding: 8px 15px; margin-right: 10px; border: none; border-radius: 3px; cursor: pointer; }
+        #follow-btn { background-color: #007bff; color: white; }
+        #whatsapp-btn { background-color: #25d366; color: white; }
+        #store-actions button:hover { opacity: 0.9; }
 
-        .order-item h3 {
-            margin: 0 0 10px;
-            font-size: 1.2em;
-        }
+        /* Estilos para historias */
+        #stories-container { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; }
+        .story { cursor: pointer; text-align: center; }
+        .story img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; }
+        .story span { display: block; font-size: 12px; margin-top: 5px; }
 
-        .order-item p {
-            margin: 5px 0;
-        }
+        /* Estilos para el visor de historias */
+        #story-view-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); z-index: 1000; }
+        #story-image { max-width: 90%; max-height: 80%; margin: auto; display: block; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        #product-tags { position: absolute; width: 100%; height: 100%; top: 0; left: 0; }
+        .product-tag { position: absolute; background: white; padding: 5px; border-radius: 3px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .product-tag img { width: 50px; height: 50px; }
+        .product-tag h3 { margin: 5px 0; font-size: 14px; }
+        .product-tag p { margin: 5px 0; }
+        .product-tag button { background-color: #28a745; color: white; border: none; padding: 5px; cursor: pointer; }
+        #close-story-view { position: absolute; top: 10px; right: 10px; color: white; font-size: 20px; cursor: pointer; background: none; border: none; }
 
-        /* Estilos para el perfil */
-        .store-profile {
-            max-width: 800px;
-            margin: 20px auto;
-            display: flex;
-            gap: 20px;
-            background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
+        /* Estilos para el feed */
+        #feed-container { margin-top: 20px; }
 
-        .store-profile img {
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .store-info {
-            flex: 1;
-        }
-
-        .store-info h2 {
-            margin: 0 0 10px;
-            font-size: 1.5em;
-        }
-
-        .store-info p {
-            margin: 5px 0;
-            color: #555;
-        }
-
-        #edit-profile-btn {
-            padding: 8px 15px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-
-        #edit-profile-btn:hover {
-            background-color: #0056b3;
-        }
-
-        /* Estilos para el modal del carrito */
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-            position: relative;
-            max-width: 500px;
-            width: 100%;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            border: none;
-            background: none;
-            font-size: 20px;
-            cursor: pointer;
-        }
+        /* Estilos para el carrito */
+        #cart-count { background: #ff4444; color: white; border-radius: 50%; width: 20px; height: 20px; text-align: center; line-height: 20px; display: none; }
+        #cart-count.active { display: inline-block; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; }
+        .modal-content { background-color: white; padding: 20px; border-radius: 5px; position: relative; max-width: 500px; width: 100%; }
+        .close-btn { position: absolute; top: 10px; right: 10px; border: none; background: none; font-size: 20px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -172,36 +71,44 @@
             <div id="auth-section">
                 <button id="login-btn">Iniciar Sesión con Google</button>
                 <button id="logout-btn" style="display:none;"><i class="bi bi-box-arrow-right"></i></button>
+                <span id="cart-count">0</span>
             </div>
         </div>
     </header>
     <main>
-        <!-- Sección de pedidos realizados -->
+        <!-- Sección de pedidos realizados (perfil de cliente) -->
         <section id="user-orders" class="orders-section">
             <h2>Mis Pedidos</h2>
             <div id="orders-list"></div>
         </section>
 
-        <!-- Sección del perfil del usuario -->
-        <section id="user-profile" class="store-profile">
-            <img id="profile-image" src="https://placehold.co/100x100" alt="Foto de perfil">
-            <div class="store-info">
-                <h2 id="profile-name">Nombre</h2>
-                <p id="profile-slug">@usuario</p>
-                <p id="profile-description">Descripción</p>
-                <p id="profile-phone">Celular: No disponible</p>
-                <div id="profile-actions">
-                    <button id="edit-profile-btn">Editar Perfil</button>
-                </div>
+        <!-- Sección del perfil de la tienda -->
+        <section id="store-profile" class="store-profile">
+            <img id="store-image" src="https://placehold.co/100x100" alt="Foto de la tienda">
+            <div>
+                <h2 id="store-name">Nombre de la Tienda</h2>
+                <p id="store-followers">0 seguidores</p>
+                <p id="store-description">Descripción de la tienda</p>
+                <div id="store-actions"></div>
             </div>
         </section>
+
+        <!-- Contenedor de historias -->
+        <div id="stories-container"></div>
+
+        <!-- Contenedor del feed -->
+        <div id="feed-container"></div>
+
+        <!-- Visor de historias -->
+        <div id="story-view-container">
+            <img id="story-image" src="" alt="Historia">
+            <div id="product-tags"></div>
+            <button id="close-story-view">✖</button>
+        </div>
     </main>
 
-    <!-- Punto de inserción para la barra de navegación -->
-    <div id="nav-container"></div>
-
     <!-- Modal del carrito -->
-    <div id="cart-modal" class="modal" style="display:none;">
+    <div id="cart-modal" class="modal">
         <div class="modal-content">
             <h2>Carrito de Compras</h2>
             <div id="cart-items"></div>
@@ -209,10 +116,15 @@
         </div>
     </div>
 
+    <!-- Punto de inserción para la barra de navegación -->
+    <div id="nav-container"></div>
+
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
         import { getFirestore, doc, getDoc, collection, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
         import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+        import { getStorage } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js';
+        import { loadStoreProfile } from './store-profile.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyAAAFDJ_utlimCezUR-_i8Y2yUare9yZ1k",
@@ -226,24 +138,27 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
+        const storage = getStorage(app);
+
+        // Hacer Firebase accesible globalmente para store-profile.js
+        window.db = db;
+        window.auth = auth;
+        window.storage = storage;
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
-                // Cargar datos del perfil
+                // Cargar datos del perfil de cliente
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
-                    document.getElementById('profile-name').textContent = userData.name;
-                    document.getElementById('profile-slug').textContent = `@${userData.slug}`;
-                    document.getElementById('profile-description').textContent = userData.description;
-                    document.getElementById('profile-phone').textContent = `Celular: ${userData.phone || 'No disponible'}`;
-                    if (userData.imageUrl) {
-                        document.getElementById('profile-image').src = userData.imageUrl;
-                    }
+                    // Aquí podrías agregar un contenedor para datos del cliente si lo deseas
                 }
 
                 // Cargar pedidos realizados
                 await loadUserOrders(user.uid);
+
+                // Cargar perfil de la tienda
+                await loadStoreProfile(db, storage, auth);
             }
         });
 
@@ -263,12 +178,9 @@
                     const orderData = orderDoc.data();
                     const orderElement = document.createElement('div');
                     orderElement.classList.add('order-item');
-
-                    // Mostrar información básica de la orden
                     const itemsList = Object.values(orderData.cartItems)
                         .map(item => `${item.name} (x${item.quantity}) - $${(item.price * item.quantity).toFixed(2)}`)
                         .join('<br>');
-
                     orderElement.innerHTML = `
                         <h3>Orden ID: ${orderDoc.id}</h3>
                         <p><strong>Tienda:</strong> ${orderData.storeId}</p>
@@ -282,11 +194,11 @@
                 });
             } catch (error) {
                 console.error('Error al cargar los pedidos:', error);
-                ordersList.innerHTML = '<p>Error al cargar los pedidos. Intenta de nuevo más tarde.</p>';
+                ordersList.innerHTML = '<p>Error al cargar los pedidos: ' + error.message + '</p>';
             }
         }
     </script>
     <script type="module" src="js/app.js"></script>
-    <!-- Scripts de Cloudflare omitidos por brevedad -->
+    <script type="module" src="store-profile.js"></script>
 </body>
 </html>
