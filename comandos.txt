@@ -1,4 +1,4 @@
 git status
 git add .
-git commit -m "Correccion carrito"
+git commit -m "Correccion Añadir productos"
 git push -u origin main
