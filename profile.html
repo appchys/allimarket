@@ -41,26 +41,19 @@
 
     <!-- Nueva sección para las órdenes -->
     <section id="user-orders">
-        <h2>Mis Pedidos</h2>
-        <div class="order-group">
-            <h3 class="order-group-title">Pendientes</h3>
-            <div class="orders-grid" id="pending-orders"></div>
-        </div>
-        <div class="order-group">
-            <h3 class="order-group-title">En Despacho</h3>
-            <div class="orders-grid" id="dispatching-orders"></div>
-        </div>
-        <div class="order-group">
-            <h3 class="order-group-title">Finalizados</h3>
-            <div class="orders-grid" id="completed-orders"></div>
+        <h2>Mis Órdenes</h2>
+        <div id="orders-list">
+            <p>Cargando órdenes...</p>
         </div>
     </section>
+
+    <div id="nav-container"></div>
 
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
         import { getFirestore, doc, getDoc, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyAAAFDJ_utlimCezUR-_i8Y2yUare9yZ1k",
@@ -72,8 +65,8 @@
         };
 
         const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -96,87 +89,35 @@
         });
 
         async function loadUserOrders(userId) {
-    const containers = {
-        pending: document.getElementById('pending-orders'),
-        dispatching: document.getElementById('dispatching-orders'),
-        completed: document.getElementById('completed-orders')
-    };
+            const ordersList = document.getElementById('orders-list');
+            try {
+                const ordersQuery = query(collection(db, 'orders'), where('userId', '==', userId));
+                const querySnapshot = await getDocs(ordersQuery);
 
-    // Limpiar contenedores
-    Object.values(containers).forEach(container => container.innerHTML = '');
+                if (querySnapshot.empty) {
+                    ordersList.innerHTML = '<p>No tienes órdenes registradas.</p>';
+                    return;
+                }
 
-    try {
-        const ordersQuery = query(collection(db, 'orders'), where('userId', '==', userId));
-        const querySnapshot = await getDocs(ordersQuery);
-
-        if (querySnapshot.empty) {
-            containers.pending.innerHTML = '<p>No tienes órdenes registradas.</p>';
-            return;
-        }
-
-        // Ordenar y agrupar órdenes
-        const orders = [];
-        querySnapshot.forEach(doc => {
-            const order = doc.data();
-            order.id = doc.id;
-            orders.push(order);
-        });
-
-        // Ordenar por fecha y estado
-        orders.sort((a, b) => b.createdAt - a.createdAt);
-        orders.sort((a, b) => {
-            const statusOrder = { 'pending': 0, 'dispatching': 1, 'completed': 2 };
-            return statusOrder[a.status] - statusOrder[b.status];
-        });
-
-        // Agregar al DOM
-        orders.forEach(order => {
-            const orderElement = document.createElement('div');
-            orderElement.classList.add('order-card');
-            orderElement.innerHTML = `
-    <div class="order-content">
-        <div class="store-info">
-            <p class="store-name"><i class="bi bi-shop"></i>${order.storeName || 'Tienda no especificada'}</p>
-            <div class="order-details">
-                <div class="order-detail-item">
-                    <span>N° Orden:</span>
-                    <span>${order.id}</span>
-                </div>
-                <div class="order-detail-item">
-                    <span>Fecha:</span>
-                    <span>${new Date(order.createdAt?.toDate()).toLocaleDateString()}</span>
-                </div>
-                <div class="order-products">
-                    ${(order.items || []).map(item => `
-                        ${item.quantity}x ${item.name}
-                    `).join(', ')}
-                </div>
-            </div>
-            <div class="status-section">
-                <div class="status-tag status-${order.status}">${order.status}</div>
-                <div class="order-price">$${(order.totalCost || 0).toFixed(2)}</div>
-            </div>
-        </div>
-    </div>
-`;
-            switch(order.status) {
-                case 'pending':
-                    containers.pending.appendChild(orderElement);
-                    break;
-                case 'dispatching':
-                    containers.dispatching.appendChild(orderElement);
-                    break;
-                case 'completed':
-                    containers.completed.appendChild(orderElement);
-                    break;
+                ordersList.innerHTML = ''; // Limpiar mensaje de "Cargando..."
+                querySnapshot.forEach((doc) => {
+                    const order = doc.data();
+                    const orderElement = document.createElement('div');
+                    orderElement.classList.add('order-item');
+                    orderElement.innerHTML = `
+                        <h3>Orden ${doc.id}</h3>
+                        <p>Tienda: ${order.storeId}</p>
+                        <p>Total: $${order.totalCost.toFixed(2)}</p>
+                        <p>Estado: ${order.status}</p>
+                        <p>Fecha: ${new Date(order.createdAt).toLocaleDateString()}</p>
+                    `;
+                    ordersList.appendChild(orderElement);
+                });
+            } catch (error) {
+                console.error('Error al cargar las órdenes:', error);
+                ordersList.innerHTML = '<p>Error al cargar las órdenes. Intenta de nuevo más tarde.</p>';
             }
-        });
-
-    } catch (error) {
-        console.error('Error al cargar las órdenes:', error);
-        containers.pending.innerHTML = '<p>Error al cargar las órdenes. Intenta de nuevo más tarde.</p>';
-    }
-}
+        }
     </script>
     <script type="module" src="js/app.js"></script>
     <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'922984197d4abf7d',t:'MTc0MjM1MTA5Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
