@@ -27,7 +27,6 @@
             box-sizing: border-box;
         }
 
-        /* Estilos para los íconos */
         .nav-btn {
             background: none;
             border: none;
@@ -51,10 +50,10 @@
             padding-bottom: 70px;
         }
 
-        /* Popover para añadir */
+        /* Popover */
         .popover-menu {
             position: absolute;
-            bottom: 50px;
+            bottom: 70px;
             left: 50%;
             transform: translateX(-50%);
             background: white;
@@ -108,56 +107,54 @@
     <a href="checkout.html" class="nav-btn">
         <i class="bi bi-cart"></i>
     </a>
-
-    <!-- Botón Añadir con popover -->
-    <div class="nav-btn" id="add-btn-container">
-        <button id="add-btn" class="nav-btn">
-            <i class="bi bi-plus-circle"></i>
-        </button>
-        <!-- Popover para elegir opción -->
-        <div id="popover-menu" class="popover-menu">
-            <button id="add-product">
-                <i class="bi bi-box"></i> Producto
-            </button>
-            <button id="add-story">
-                <i class="bi bi-image"></i> Historia
-            </button>
-        </div>
-    </div>
-
+    <button id="add-btn" class="nav-btn">
+        <i class="bi bi-plus-circle"></i>
+    </button>
     <a href="profile.html" class="nav-btn">
         <i class="bi bi-person"></i>
     </a>
 </nav>
 
+<!-- Popover para elegir opción -->
+<div id="popover-menu" class="popover-menu">
+    <button id="add-product">
+        <i class="bi bi-box"></i> Producto
+    </button>
+    <button id="add-story">
+        <i class="bi bi-image"></i> Historia
+    </button>
+</div>
+
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const addBtn = document.getElementById("add-btn");
         const popoverMenu = document.getElementById("popover-menu");
-        const addBtnContainer = document.getElementById("add-btn-container");
 
-        // Alternar visibilidad del popover
+        if (!addBtn || !popoverMenu) {
+            console.error("No se encontraron los elementos");
+            return;
+        }
+
         addBtn.addEventListener("click", (event) => {
-            event.stopPropagation();
+            console.log("Botón de añadir clickeado"); // Para depurar
+            event.stopPropagation(); 
             popoverMenu.style.display = popoverMenu.style.display === "flex" ? "none" : "flex";
         });
 
-        // Cerrar el popover si se hace clic fuera de él
         document.addEventListener("click", (event) => {
-            if (!addBtnContainer.contains(event.target)) {
-                popoverMenu.style.display = "none";
+            if (!popoverMenu.contains(event.target) && event.target !== addBtn) {
+                popoverMenu.style.display = "none"; 
             }
         });
 
-        // Opciones del popover
         document.getElementById("add-product").addEventListener("click", () => {
             alert("Abrir modal para añadir Producto");
-            popoverMenu.style.display = "none";
+            popoverMenu.style.display = "none"; 
         });
 
         document.getElementById("add-story").addEventListener("click", () => {
             alert("Abrir modal para añadir Historia");
-            popoverMenu.style.display = "none";
+            popoverMenu.style.display = "none"; 
         });
     });
 </script>
