@@ -1,14 +1,133 @@
 <!-- add-product.html -->
 <div id="add-product-modal" class="modal" style="display:none;">
-    <div class="modal-content">
-        <h2>Añadir Producto</h2>
-        <form id="add-product-form">
-            <input type="text" id="product-name" placeholder="Nombre del producto" required>
-            <input type="number" id="product-price" placeholder="Precio" step="0.01" required>
-            <textarea id="product-description" placeholder="Descripción" required></textarea>
-            <input type="file" id="product-image" accept="image/*" required>
-            <button type="submit">Añadir</button>
+    <div class="modal-content" style="
+        max-width: 500px;
+        width: 90%;
+        margin: 20px auto;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        position: relative;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+    ">
+        <h2 style="
+            margin: 0 0 20px;
+            color: #333;
+            font-size: 24px;
+            text-align: center;
+        ">
+            <i class="bi bi-plus-circle" style="margin-right: 10px;"></i>Añadir Producto
+        </h2>
+        
+        <form id="add-product-form" style="display: flex; flex-direction: column; gap: 15px;">
+            <div style="position: relative;">
+                <i class="bi bi-tag" style="
+                    position: absolute;
+                    left: 10px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: #666;
+                "></i>
+                <input type="text" id="product-name" placeholder="Nombre del producto" required style="
+                    width: 100%;
+                    padding: 10px 10px 10px 35px;
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                    font-size: 16px;
+                    box-sizing: border-box;
+                ">
+            </div>
+
+            <div style="position: relative;">
+                <i class="bi bi-currency-dollar" style="
+                    position: absolute;
+                    left: 10px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: #666;
+                "></i>
+                <input type="number" id="product-price" placeholder="Precio" step="0.01" required style="
+                    width: 100%;
+                    padding: 10px 10px 10px 35px;
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                    font-size: 16px;
+                    box-sizing: border-box;
+                ">
+            </div>
+
+            <div style="position: relative;">
+                <i class="bi bi-textarea" style="
+                    position: absolute;
+                    left: 10px;
+                    top: 15px;
+                    color: #666;
+                "></i>
+                <textarea id="product-description" placeholder="Descripción" required style="
+                    width: 100%;
+                    padding: 10px 10px 10px 35px;
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                    font-size: 16px;
+                    min-height: 100px;
+                    resize: vertical;
+                    box-sizing: border-box;
+                "></textarea>
+            </div>
+
+            <div style="position: relative;">
+                <i class="bi bi-image" style="
+                    position: absolute;
+                    left: 10px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: #666;
+                "></i>
+                <input type="file" id="product-image" accept="image/*" required style="
+                    width: 100%;
+                    padding: 8px 8px 8px 35px;
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                    font-size: 16px;
+                    box-sizing: border-box;
+                ">
+            </div>
+
+            <button type="submit" style="
+                background: #007bff;
+                color: white;
+                border: none;
+                padding: 12px;
+                border-radius: 5px;
+                font-size: 16px;
+                cursor: pointer;
+                transition: background 0.3s;
+            " onmouseover="this.style.background='#0056b3'" 
+              onmouseout="this.style.background='#007bff'">
+                <i class="bi bi-check-circle" style="margin-right: 5px;"></i>Añadir
+            </button>
         </form>
-        <button id="close-product-modal" class="close-btn">✖</button>
+
+        <button id="close-product-modal" class="close-btn" style="
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            transition: color 0.3s;
+        " onmouseover="this.style.color='#ff0000'" 
+          onmouseout="this.style.color='#666'">✖</button>
     </div>
 </div>
+
+<!-- Para usar los íconos de Bootstrap Icons, agrega este enlace en el head de tu HTML -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">

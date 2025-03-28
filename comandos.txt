@@ -1,4 +1,4 @@
 git status
 git add .
-git commit -m "Ordenes en perfil de cliente"
+git commit -m "Correccion carrito"
 git push -u origin main
