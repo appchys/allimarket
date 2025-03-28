@@ -135,26 +135,35 @@
             return;
         }
 
+        // Mostrar/ocultar popover al hacer clic en el botón de añadir
         addBtn.addEventListener("click", (event) => {
-            console.log("Botón de añadir clickeado"); // Para depurar
-            event.stopPropagation(); 
-            popoverMenu.style.display = popoverMenu.style.display === "flex" ? "none" : "flex";
-        });
-
-        document.addEventListener("click", (event) => {
-            if (!popoverMenu.contains(event.target) && event.target !== addBtn) {
-                popoverMenu.style.display = "none"; 
+            event.preventDefault();
+            event.stopPropagation();
+            
+            // Alternar la visualización del popover
+            if (popoverMenu.style.display === "flex") {
+                popoverMenu.style.display = "none";
+            } else {
+                popoverMenu.style.display = "flex";
             }
         });
 
+        // Ocultar popover al hacer clic en cualquier parte fuera de él
+        document.addEventListener("click", (event) => {
+            if (!popoverMenu.contains(event.target)) {
+                popoverMenu.style.display = "none";
+            }
+        });
+
+        // Manejar clic en las opciones del popover
         document.getElementById("add-product").addEventListener("click", () => {
             alert("Abrir modal para añadir Producto");
-            popoverMenu.style.display = "none"; 
+            popoverMenu.style.display = "none";
         });
 
         document.getElementById("add-story").addEventListener("click", () => {
             alert("Abrir modal para añadir Historia");
-            popoverMenu.style.display = "none"; 
+            popoverMenu.style.display = "none";
         });
     });
 </script>
