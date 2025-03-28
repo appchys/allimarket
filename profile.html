@@ -4,26 +4,260 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All I Market - Mi Perfil</title>
-    <link rel="stylesheet" href="css/profile.css">
-    <link rel="stylesheet" href="css/add-menu.css">
     <style>
-        .orders-section {
-            margin: 20px 0;
+        /* Importar Bootstrap Icons */
+        @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css');
+
+        /* Estilos generales */
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+
+        /* Estilos del encabezado (de profile.css) */
+        header {
+            padding: 20px;
+            background-color: #fff;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .status-group {
-            margin-bottom: 30px;
+        header h1 {
+            font-size: 24px;
+            margin: 0;
         }
-        .status-group h3 {
-            color: #333;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        .order-item {
+        #search-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #search-input {
+            padding: 8px;
             border: 1px solid #ddd;
-            padding: 15px;
-            margin: 10px 0;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 200px;
+        }
+        #search-toggle-btn {
+            padding: 8px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            color: #333;
+            cursor: pointer;
+        }
+        #search-toggle-btn:hover {
+            color: #3897f0;
+        }
+        #auth-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #3897f0;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #287acc;
+        }
+        #logout-btn {
+            font-size: 20px;
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 0;
+        }
+        #logout-btn:hover {
+            color: #333;
+        }
+
+        /* Estilos para el perfil del cliente (inspirado en orders.html) */
+        .client-profile {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .profile-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        #profile-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .client-info {
+            flex: 1;
+        }
+        .client-info h2 {
+            font-size: 24px;
+            margin: 0 0 5px;
+            color: #333;
+        }
+        .client-info p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        #edit-profile-btn {
+            padding: 8px 16px;
+            background-color: #3897f0;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #edit-profile-btn:hover {
+            background-color: #287acc;
+        }
+
+        /* Estilos para la sección de pedidos (de orders.html y profile.css) */
+        #user-orders {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+        #user-orders h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 1rem;
+        }
+        .order-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .order-content {
+            padding: 1.2rem;
+        }
+        .store-info {
+            margin-bottom: 1rem;
+        }
+        .store-name {
+            font-weight: bold;
+            margin: 0;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .store-name i {
+            color: #3897f0;
+        }
+        .order-details {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        .order-detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        .status-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+        .status-tag {
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        .status-pending {
+            background: #fff3e0;
+            color: #fb8c00;
+        }
+        .status-dispatching {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .status-completed {
+            background: #e8f5e9;
+            color: #43a047;
+        }
+        .order-price {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+        }
+        .order-date {
+            font-size: 0.8em;
+            color: #999;
+            margin-top: 0.5rem;
+        }
+        .order-products {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        /* Estilos para el modal de selección de rol */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
             border-radius: 5px;
-            background: #fff;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .modal-content h2 {
+            font-size: 20px;
+            margin: 0 0 15px;
+            color: #333;
+        }
+        .modal-content button {
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #3897f0;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .modal-content button:hover {
+            background-color: #287acc;
         }
     </style>
 </head>
@@ -41,47 +275,44 @@
             </div>
         </div>
     </header>
-
     <main>
-        <section id="user-profile" class="store-profile">
-            <img id="profile-image" src="https://placehold.co/100x100" alt="Foto de perfil">
-            <div class="store-info">
-                <h2 id="profile-name">Nombre</h2>
-                <p id="profile-slug">@usuario</p>
-                <p id="profile-description">Descripción</p>
-                <p id="profile-phone">Celular: No disponible</p>
-                <div id="profile-actions">
-                    <button id="edit-profile-btn">Editar Perfil</button>
+        <!-- Sección del perfil del cliente -->
+        <section id="client-profile" class="client-profile">
+            <div class="profile-card">
+                <img id="profile-image" src="https://placehold.co/100x100" alt="Foto de perfil">
+                <div class="client-info">
+                    <h2 id="profile-name">Nombre</h2>
+                    <p id="profile-slug">@usuario</p>
+                    <p id="profile-description">Descripción</p>
+                    <p id="profile-phone">Celular: No disponible</p>
+                    <div id="profile-actions">
+                        <button id="edit-profile-btn">Editar Perfil</button>
+                    </div>
                 </div>
             </div>
         </section>
+
+        <!-- Sección de pedidos realizados -->
+        <section id="user-orders">
+            <h2>Mis Pedidos</h2>
+            <div id="orders-list" class="orders-grid"></div>
+        </section>
     </main>
 
-    <!-- Sección para las órdenes agrupadas por estado -->
-    <section id="user-orders" class="orders-section">
-        <h2>Mis Órdenes</h2>
-        <div id="orders-list">
-            <div class="status-group" id="pending-orders">
-                <h3>Pendiente</h3>
-                <div id="pending-list"></div>
-            </div>
-            <div class="status-group" id="dispatching-orders">
-                <h3>Despachando</h3>
-                <div id="dispatching-list"></div>
-            </div>
-            <div class="status-group" id="delivered-orders">
-                <h3>Entregado</h3>
-                <div id="delivered-list"></div>
-            </div>
+    <!-- Modal de selección de rol -->
+    <div id="role-modal" class="modal">
+        <div class="modal-content">
+            <h2>Selecciona tu rol</h2>
+            <button id="role-store">Soy dueño de una tienda</button>
+            <button id="role-client">Soy cliente</button>
         </div>
-    </section>
-
-    <div id="nav-container"></div>
+    </div>
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-        import { getFirestore, doc, getDoc, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
-        import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+        import { getFirestore, doc, getDoc, collection, getDocs, query, where } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+        import { getAuth, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+        import { setupAuth } from './auth.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyAAAFDJ_utlimCezUR-_i8Y2yUare9yZ1k",
@@ -95,89 +326,88 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        // Configurar autenticación
+        setupAuth(auth, provider, db);
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
-                // Cargar datos del perfil
+                // Cargar datos del perfil del cliente
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
-                    document.getElementById('profile-name').textContent = userData.name;
-                    document.getElementById('profile-slug').textContent = `@${userData.slug}`;
-                    document.getElementById('profile-description').textContent = userData.description;
+                    document.getElementById('profile-name').textContent = userData.name || 'Sin nombre';
+                    document.getElementById('profile-slug').textContent = `@${userData.slug || user.uid}`;
+                    document.getElementById('profile-description').textContent = userData.description || 'Sin descripción';
                     document.getElementById('profile-phone').textContent = `Celular: ${userData.phone || 'No disponible'}`;
                     if (userData.imageUrl) {
                         document.getElementById('profile-image').src = userData.imageUrl;
                     }
+                } else {
+                    console.log('Usuario no tiene datos en Firestore aún');
                 }
 
-                // Cargar órdenes del usuario
+                // Cargar pedidos realizados
                 await loadUserOrders(user.uid);
+            } else {
+                document.getElementById('orders-list').innerHTML = '<p>Inicia sesión para ver tus pedidos.</p>';
+                document.getElementById('client-profile').style.display = 'none';
             }
         });
 
         async function loadUserOrders(userId) {
-            const pendingList = document.getElementById('pending-list');
-            const dispatchingList = document.getElementById('dispatching-list');
-            const deliveredList = document.getElementById('delivered-list');
-
+            const ordersList = document.getElementById('orders-list');
             try {
                 const ordersQuery = query(collection(db, 'orders'), where('userId', '==', userId));
                 const querySnapshot = await getDocs(ordersQuery);
 
                 if (querySnapshot.empty) {
-                    pendingList.innerHTML = '<p>No hay órdenes pendientes.</p>';
-                    dispatchingList.innerHTML = '<p>No hay órdenes en despacho.</p>';
-                    deliveredList.innerHTML = '<p>No hay órdenes entregadas.</p>';
+                    ordersList.innerHTML = '<p>No tienes pedidos realizados aún.</p>';
                     return;
                 }
 
-                // Limpiar las listas antes de agregar nuevos elementos
-                pendingList.innerHTML = '';
-                dispatchingList.innerHTML = '';
-                deliveredList.innerHTML = '';
-
-                querySnapshot.forEach((doc) => {
-                    const order = doc.data();
+                ordersList.innerHTML = '';
+                querySnapshot.forEach(orderDoc => {
+                    const orderData = orderDoc.data();
                     const orderElement = document.createElement('div');
-                    orderElement.classList.add('order-item');
+                    orderElement.classList.add('order-card');
+                    const itemsList = Object.values(orderData.cartItems)
+                        .map(item => `${item.name} (x${item.quantity})`)
+                        .join('<br>');
+                    const statusClass = {
+                        'Pendiente': 'status-pending',
+                        'Despachando': 'status-dispatching',
+                        'Completado': 'status-completed'
+                    }[orderData.status] || '';
                     orderElement.innerHTML = `
-                        <h4>Orden ${doc.id}</h4>
-                        <p>Tienda: ${order.storeId}</p>
-                        <p>Total: $${order.totalCost.toFixed(2)}</p>
-                        <p>Fecha: ${new Date(order.createdAt).toLocaleDateString()}</p>
+                        <div class="order-content">
+                            <div class="store-info">
+                                <p class="store-name"><i class="bi bi-shop"></i> ${orderData.storeId}</p>
+                            </div>
+                            <div class="order-details">
+                                <div class="order-detail-item">
+                                    <span>ID:</span>
+                                    <span>${orderDoc.id}</span>
+                                </div>
+                                <div class="order-products">${itemsList}</div>
+                                <div class="order-date">${new Date(orderData.createdAt).toLocaleString()}</div>
+                            </div>
+                            <div class="status-section">
+                                <span class="status-tag ${statusClass}">${orderData.status}</span>
+                                <span class="order-price">$${orderData.totalCost.toFixed(2)}</span>
+                            </div>
+                        </div>
                     `;
-
-                    // Agrupar según el estado
-                    switch (order.status.toLowerCase()) {
-                        case 'pendiente':
-                            pendingList.appendChild(orderElement);
-                            break;
-                        case 'despachando':
-                            dispatchingList.appendChild(orderElement);
-                            break;
-                        case 'entregado':
-                            deliveredList.appendChild(orderElement);
-                            break;
-                        default:
-                            console.warn(`Estado desconocido: ${order.status}`);
-                    }
+                    ordersList.appendChild(orderElement);
                 });
-
-                // Mostrar mensaje si alguna sección está vacía
-                if (!pendingList.hasChildNodes()) pendingList.innerHTML = '<p>No hay órdenes pendientes.</p>';
-                if (!dispatchingList.hasChildNodes()) dispatchingList.innerHTML = '<p>No hay órdenes en despacho.</p>';
-                if (!deliveredList.hasChildNodes()) deliveredList.innerHTML = '<p>No hay órdenes entregadas.</p>';
-
             } catch (error) {
-                console.error('Error al cargar las órdenes:', error);
-                pendingList.innerHTML = '<p>Error al cargar las órdenes.</p>';
-                dispatchingList.innerHTML = '';
-                deliveredList.innerHTML = '';
+                console.error('Error al cargar los pedidos:', error);
+                ordersList.innerHTML = '<p>Error al cargar los pedidos: ' + error.message + '</p>';
             }
         }
     </script>
     <script type="module" src="js/app.js"></script>
-    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'922984197d4abf7d',t:'MTc0MjM1MTA5Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+    <script type="module" src="auth.js"></script>
 </body>
 </html>
