@@ -112,7 +112,7 @@
         <div class="modal-content">
             <h2>Carrito de Compras</h2>
             <div id="cart-items"></div>
-            <button id="close-cart-modal" class="close-btn">✖</button>
+            <div id="close-cart-modal" class="close-btn">✖</div>
         </div>
     </div>
 
@@ -121,7 +121,7 @@
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-        import { getFirestore, doc, getDoc, collection, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+        import { getFirestore, doc, getDoc, collection, getDocs, query, where } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
         import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
         import { getStorage } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js';
         import { loadStoreProfile } from './store-profile.js';
@@ -165,16 +165,17 @@
         async function loadUserOrders(userId) {
             const ordersList = document.getElementById('orders-list');
             try {
-                const ordersQuery = await getDocs(collection(db, 'orders'));
-                const userOrders = ordersQuery.docs.filter(doc => doc.data().userId === userId);
+                // Consulta filtrada para obtener solo los pedidos del usuario autenticado
+                const ordersQuery = query(collection(db, 'orders'), where('userId', '==', userId));
+                const querySnapshot = await getDocs(ordersQuery);
 
-                if (userOrders.length === 0) {
+                if (querySnapshot.empty) {
                     ordersList.innerHTML = '<p>No tienes pedidos realizados aún.</p>';
                     return;
                 }
 
                 ordersList.innerHTML = '';
-                userOrders.forEach(orderDoc => {
+                querySnapshot.forEach(orderDoc => {
                     const orderData = orderDoc.data();
                     const orderElement = document.createElement('div');
                     orderElement.classList.add('order-item');
