@@ -224,50 +224,127 @@ button:hover {
     margin-top: 20px;
 }
 
-/* Nuevos estilos para la sección de órdenes */
+/* Nuevos estilos mejorados para las órdenes */
 #user-orders {
     padding: 20px;
-    max-width: 800px;
-    margin: 0 auto;
-    background-color: #fff;
-    border-bottom: 1px solid #ddd;
+    max-width: 1000px;
+    margin: 20px auto;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
 }
 
 #user-orders h2 {
-    font-size: 24px;
-    margin: 0 0 15px;
-    color: #333;
+    font-size: 26px;
+    margin: 0 0 25px;
+    color: #2c3e50;
+    font-weight: 600;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #3897f0;
+    display: inline-block;
 }
 
 #orders-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    display: grid;
+    gap: 20px;
 }
 
 .order-item {
-    background-color: #fafafa;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    padding: 15px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border-left: 4px solid #3897f0;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: start;
+    position: relative;
+    overflow: hidden;
+}
+
+.order-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.order-item::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #3897f0 0%, rgba(56,151,240,0.1) 100%);
 }
 
 .order-item h3 {
     font-size: 18px;
-    margin: 0 0 10px;
-    color: #3897f0;
+    margin: 0 0 12px;
+    color: #2c3e50;
+    font-weight: 500;
 }
 
-.order-item p {
-    margin: 5px 0;
+.order-details {
+    display: grid;
+    gap: 8px;
     font-size: 14px;
-    color: #666;
 }
 
-/* Estilo para cuando no hay órdenes o hay un error */
-#orders-list p {
-    font-size: 16px;
-    color: #666;
+.order-detail {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #5a6b7c;
+}
+
+.order-detail i {
+    color: #3897f0;
+    width: 18px;
     text-align: center;
+}
+
+.order-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-completed {
+    background: #e8f5e9;
+    color: #43a047;
+}
+
+.status-pending {
+    background: #fff3e0;
+    color: #fb8c00;
+}
+
+.status-cancelled {
+    background: #ffebee;
+    color: #e53935;
+}
+
+.order-price {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+    text-align: right;
+}
+
+.order-date {
+    font-size: 12px;
+    color: #7f8c8d;
+    margin-top: 8px;
+}
+
+.order-id {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #7f8c8d;
+    margin-bottom: 8px;
 }

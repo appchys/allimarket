@@ -41,13 +41,38 @@
 
     <!-- Nueva sección para las órdenes -->
     <section id="user-orders">
-        <h2>Mis Órdenes</h2>
+        <h2>Historial de Pedidos</h2>
         <div id="orders-list">
-            <p>Cargando órdenes...</p>
+            <!-- Ejemplo de una orden -->
+            <div class="order-item">
+                <div class="order-main">
+                    <div class="order-id">Orden #: ABC123456</div>
+                    <h3>🍔 Hamburguesas Premium</h3>
+                    <div class="order-details">
+                        <div class="order-detail">
+                            <i class="bi bi-shop"></i>
+                            <span>Tienda: Burger House</span>
+                        </div>
+                        <div class="order-detail">
+                            <i class="bi bi-clock-history"></i>
+                            <span>Estado: <span class="order-status status-completed">Completado</span></span>
+                        </div>
+                        <div class="order-detail">
+                            <i class="bi bi-list-check"></i>
+                            <span>Productos: 3 items</span>
+                        </div>
+                    </div>
+                    <div class="order-date">
+                        <i class="bi bi-calendar"></i>
+                        15 Mayo 2024 - 18:30
+                    </div>
+                </div>
+                <div class="order-price">
+                    $24.99
+                </div>
+            </div>
         </div>
     </section>
-
-    <div id="nav-container"></div>
 
 
     <script type="module">
