@@ -6,6 +6,26 @@
     <title>All I Market - Mi Perfil</title>
     <link rel="stylesheet" href="css/profile.css">
     <link rel="stylesheet" href="css/add-menu.css">
+    <style>
+        .orders-section {
+            margin: 20px 0;
+        }
+        .status-group {
+            margin-bottom: 30px;
+        }
+        .status-group h3 {
+            color: #333;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .order-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background: #fff;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -22,8 +42,6 @@
         </div>
     </header>
 
-
-
     <main>
         <section id="user-profile" class="store-profile">
             <img id="profile-image" src="https://placehold.co/100x100" alt="Foto de perfil">
@@ -39,16 +57,26 @@
         </section>
     </main>
 
-    <!-- Nueva sección para las órdenes -->
-    <section id="user-orders">
+    <!-- Sección para las órdenes agrupadas por estado -->
+    <section id="user-orders" class="orders-section">
         <h2>Mis Órdenes</h2>
         <div id="orders-list">
-            <p>Cargando órdenes...</p>
+            <div class="status-group" id="pending-orders">
+                <h3>Pendiente</h3>
+                <div id="pending-list"></div>
+            </div>
+            <div class="status-group" id="dispatching-orders">
+                <h3>Despachando</h3>
+                <div id="dispatching-list"></div>
+            </div>
+            <div class="status-group" id="delivered-orders">
+                <h3>Entregado</h3>
+                <div id="delivered-list"></div>
+            </div>
         </div>
     </section>
 
     <div id="nav-container"></div>
-
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
@@ -89,33 +117,63 @@
         });
 
         async function loadUserOrders(userId) {
-            const ordersList = document.getElementById('orders-list');
+            const pendingList = document.getElementById('pending-list');
+            const dispatchingList = document.getElementById('dispatching-list');
+            const deliveredList = document.getElementById('delivered-list');
+
             try {
                 const ordersQuery = query(collection(db, 'orders'), where('userId', '==', userId));
                 const querySnapshot = await getDocs(ordersQuery);
 
                 if (querySnapshot.empty) {
-                    ordersList.innerHTML = '<p>No tienes órdenes registradas.</p>';
+                    pendingList.innerHTML = '<p>No hay órdenes pendientes.</p>';
+                    dispatchingList.innerHTML = '<p>No hay órdenes en despacho.</p>';
+                    deliveredList.innerHTML = '<p>No hay órdenes entregadas.</p>';
                     return;
                 }
 
-                ordersList.innerHTML = ''; // Limpiar mensaje de "Cargando..."
+                // Limpiar las listas antes de agregar nuevos elementos
+                pendingList.innerHTML = '';
+                dispatchingList.innerHTML = '';
+                deliveredList.innerHTML = '';
+
                 querySnapshot.forEach((doc) => {
                     const order = doc.data();
                     const orderElement = document.createElement('div');
                     orderElement.classList.add('order-item');
                     orderElement.innerHTML = `
-                        <h3>Orden ${doc.id}</h3>
+                        <h4>Orden ${doc.id}</h4>
                         <p>Tienda: ${order.storeId}</p>
                         <p>Total: $${order.totalCost.toFixed(2)}</p>
-                        <p>Estado: ${order.status}</p>
                         <p>Fecha: ${new Date(order.createdAt).toLocaleDateString()}</p>
                     `;
-                    ordersList.appendChild(orderElement);
+
+                    // Agrupar según el estado
+                    switch (order.status.toLowerCase()) {
+                        case 'pendiente':
+                            pendingList.appendChild(orderElement);
+                            break;
+                        case 'despachando':
+                            dispatchingList.appendChild(orderElement);
+                            break;
+                        case 'entregado':
+                            deliveredList.appendChild(orderElement);
+                            break;
+                        default:
+                            console.warn(`Estado desconocido: ${order.status}`);
+                    }
                 });
+
+                // Mostrar mensaje si alguna sección está vacía
+                if (!pendingList.hasChildNodes()) pendingList.innerHTML = '<p>No hay órdenes pendientes.</p>';
+                if (!dispatchingList.hasChildNodes()) dispatchingList.innerHTML = '<p>No hay órdenes en despacho.</p>';
+                if (!deliveredList.hasChildNodes()) deliveredList.innerHTML = '<p>No hay órdenes entregadas.</p>';
+
             } catch (error) {
                 console.error('Error al cargar las órdenes:', error);
-                ordersList.innerHTML = '<p>Error al cargar las órdenes. Intenta de nuevo más tarde.</p>';
+                pendingList.innerHTML = '<p>Error al cargar las órdenes.</p>';
+                dispatchingList.innerHTML = '';
+                deliveredList.innerHTML = '';
             }
         }
     </script>
