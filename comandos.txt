@@ -1,4 +1,4 @@
 git status
 git add .
-git commit -m "Implementa funcionalidad para eliminar historias desde el visor"
+git commit -m "Ordenes en perfil de cliente"
 git push -u origin main
