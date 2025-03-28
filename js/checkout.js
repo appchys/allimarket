@@ -146,6 +146,7 @@ document.getElementById('bank-select').addEventListener('change', (event) => {
 });
 
 document.getElementById('submit-transfer').addEventListener('click', async () => {
+    const submitButton = document.getElementById('submit-transfer');
     const db = window.firebaseDb;
     const storage = window.firebaseStorage;
     const bankSelect = document.getElementById('bank-select').value;
@@ -154,18 +155,24 @@ document.getElementById('submit-transfer').addEventListener('click', async () =>
     const urlParams = new URLSearchParams(window.location.search);
     const storeId = urlParams.get('store');
 
+    // Deshabilitar el botón al inicio
+    submitButton.disabled = true;
+
     if (!bankSelect) {
         alert('Por favor, selecciona un banco.');
+        submitButton.disabled = false; // Rehabilitar si hay error
         return;
     }
 
     if (!transferProof) {
         alert('Por favor, sube la captura de la transferencia.');
+        submitButton.disabled = false; // Rehabilitar si hay error
         return;
     }
 
     if (!user) {
         alert('Usuario no autenticado. Por favor, inicia sesión.');
+        submitButton.disabled = false; // Rehabilitar si hay error
         return;
     }
 
@@ -211,8 +218,8 @@ document.getElementById('submit-transfer').addEventListener('click', async () =>
         // Limpiar el carrito para esa tienda después de completar la compra
         if (cartDoc.exists()) {
             const updatedCart = cartDoc.data();
-            delete updatedCart[storeId]; // Eliminar los ítems de esa tienda
-            await setDoc(cartRef, updatedCart, { merge: false }); // Sobrescribir el carrito
+            delete updatedCart[storeId];
+            await setDoc(cartRef, updatedCart, { merge: false });
         }
 
         alert(`Compra finalizada con éxito.\nOrden ID: ${orderId}\nBanco: ${bankSelect}\nComprobante subido correctamente.`);
@@ -225,8 +232,13 @@ document.getElementById('submit-transfer').addEventListener('click', async () =>
         document.getElementById('cart-details').innerHTML = '<p>Carrito vacío.</p>';
         document.getElementById('shipping-cost').textContent = '$0.00';
         document.getElementById('total-cost').textContent = '$0.00';
+
+        // Redirigir a profile.html
+        window.location.href = '/profile.html';
+
     } catch (error) {
         console.error('Error al finalizar la compra:', error);
         alert('Ocurrió un error al procesar tu compra. Intenta de nuevo.');
+        submitButton.disabled = false; // Rehabilitar el botón si hay error
     }
 });
