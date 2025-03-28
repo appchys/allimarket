@@ -21,24 +21,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const isIndexPage = window.location.pathname === '/' || window.location.pathname.includes('index.html');
-    const isStorePage = window.location.pathname.includes('store.html'); // Ajusta según la página de tienda real
-    const isProfilePage = window.location.pathname.includes('profile.html');
-
+    const isStorePage = window.location.pathname !== '/' && !window.location.pathname.includes('index.html');
+    
     if (isIndexPage) {
         console.log('Cargando contenido de Inicio en DOMContentLoaded...');
         loadHomeContent(db);
-        initializeStoryModal(db); // Solo en la página de inicio
     }
     
     if (isStorePage && !window.isProfileLoaded) {
         console.log('Cargando perfil de tienda desde DOMContentLoaded...');
         loadStoreProfile(db, storage, auth);
         window.isProfileLoaded = true;
-        initializeStoryModal(db); // Solo en la página de tienda
     }
 
-    if (isProfilePage) {
-        console.log('Página de perfil detectada, usando lógica inline...');
-        // No llamamos a loadStoreProfile ni initializeStoryModal aquí
-    }
+    // Inicializar el modal de historias
+    initializeStoryModal(db);
 });
