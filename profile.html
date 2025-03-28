@@ -1,145 +1,130 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>All I Market - Mi Perfil</title>
-  <link rel="stylesheet" href="css/profile.css">
-  <link rel="stylesheet" href="css/add-menu.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All I Market - Mi Perfil</title>
+    <link rel="stylesheet" href="css/profile.css">
+    <link rel="stylesheet" href="css/add-menu.css">
 </head>
 <body>
-  <header>
-    <h1>All I Market</h1>
-    <div class="header-right">
-      <div id="search-container" style="display: none;">
-        <input type="text" id="search-input" placeholder="Buscar...">
-        <button id="search-toggle-btn"><i class="bi bi-search"></i></button>
-      </div>
-      <div id="auth-section">
-        <button id="login-btn">Iniciar Sesión con Google</button>
-        <button id="logout-btn" style="display:none;"><i class="bi bi-box-arrow-right"></i></button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Sección de Órdenes -->
-  <section id="orders-section">
-    <h2>Tus Órdenes</h2>
-    <div id="user-orders">
-      <p>Cargando órdenes...</p>
-    </div>
-  </section>
-
-  <main>
-    <section id="user-profile" class="store-profile">
-      <img id="profile-image" src="https://placehold.co/100x100" alt="Foto de perfil">
-      <div class="store-info">
-        <h2 id="profile-name">Nombre</h2>
-        <p id="profile-slug">@usuario</p>
-        <p id="profile-description">Descripción</p>
-        <p id="profile-phone">Celular: No disponible</p>
-        <div id="profile-actions">
-          <button id="edit-profile-btn">Editar Perfil</button>
+    <header>
+        <h1>All I Market</h1>
+        <div class="header-right">
+            <div id="search-container" style="display: none;">
+                <input type="text" id="search-input" placeholder="Buscar...">
+                <button id="search-toggle-btn"><i class="bi bi-search"></i></button>
+            </div>
+            <div id="auth-section">
+                <button id="login-btn">Iniciar Sesión con Google</button>
+                <button id="logout-btn" style="display:none;"><i class="bi bi-box-arrow-right"></i></button>
+            </div>
         </div>
-      </div>
+    </header>
+
+    <!-- Nueva sección para las órdenes -->
+    <section id="user-orders">
+        <h2>Mis Órdenes</h2>
+        <div id="orders-list">
+            <p>Cargando órdenes...</p>
+        </div>
     </section>
-  </main>
 
-  <!-- Punto de inserción para la barra de navegación -->
-  <div id="nav-container"></div>
+    <main>
+        <section id="user-profile" class="store-profile">
+            <img id="profile-image" src="https://placehold.co/100x100" alt="Foto de perfil">
+            <div class="store-info">
+                <h2 id="profile-name">Nombre</h2>
+                <p id="profile-slug">@usuario</p>
+                <p id="profile-description">Descripción</p>
+                <p id="profile-phone">Celular: No disponible</p>
+                <div id="profile-actions">
+                    <button id="edit-profile-btn">Editar Perfil</button>
+                </div>
+            </div>
+        </section>
+    </main>
 
-  <!-- Modal del carrito -->
-  <div id="cart-modal" class="modal" style="display:none;">
-    <div class="modal-content">
-      <h2>Carrito de Compras</h2>
-      <div id="cart-items"></div>
-      <button id="close-cart-modal" class="close-btn">✖</button>
+    <div id="nav-container"></div>
+
+    <div id="cart-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h2>Carrito de Compras</h2>
+            <div id="cart-items"></div>
+            <button id="close-cart-modal" class="close-btn">✖</button>
+        </div>
     </div>
-  </div>
 
-  <!-- Scripts -->
-  <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-    import { getFirestore, doc, getDoc, collection, query, where, orderBy, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
-    import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { getFirestore, doc, getDoc, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAAAFDJ_utlimCezUR-_i8Y2yUare9yZ1k",
-      authDomain: "multitienda-69778.firebaseapp.com",
-      projectId: "multitienda-69778",
-      storageBucket: "multitienda-69778.firebasestorage.app",
-      messagingSenderId: "939925630795",
-      appId: "1:939925630795:web:713aca499392bfa36482ce"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyAAAFDJ_utlimCezUR-_i8Y2yUare9yZ1k",
+            authDomain: "multitienda-69778.firebaseapp.com",
+            projectId: "multitienda-69778",
+            storageBucket: "multitienda-69778.firebasestorage.app",
+            messagingSenderId: "939925630795",
+            appId: "1:939925630795:web:713aca499392bfa36482ce"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
 
-    // Exponer globalmente para otros módulos
-    window.firebaseApp = app;
-    window.firebaseDb = db;
-    window.firebaseAuth = auth;
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // Cargar datos del perfil
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    document.getElementById('profile-name').textContent = userData.name;
+                    document.getElementById('profile-slug').textContent = `@${userData.slug}`;
+                    document.getElementById('profile-description').textContent = userData.description;
+                    document.getElementById('profile-phone').textContent = `Celular: ${userData.phone || 'No disponible'}`;
+                    if (userData.imageUrl) {
+                        document.getElementById('profile-image').src = userData.imageUrl;
+                    }
+                }
 
-    // Cargar datos del perfil
-    auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        // Cargar datos del usuario en el perfil
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          document.getElementById('profile-name').textContent = userData.name;
-          document.getElementById('profile-slug').textContent = `@${userData.slug}`;
-          document.getElementById('profile-description').textContent = userData.description;
-          document.getElementById('profile-phone').textContent = `Celular: ${userData.phone || 'No disponible'}`;
-          if (userData.imageUrl) {
-            document.getElementById('profile-image').src = userData.imageUrl;
-          }
+                // Cargar órdenes del usuario
+                await loadUserOrders(user.uid);
+            }
+        });
+
+        async function loadUserOrders(userId) {
+            const ordersList = document.getElementById('orders-list');
+            try {
+                const ordersQuery = query(collection(db, 'orders'), where('userId', '==', userId));
+                const querySnapshot = await getDocs(ordersQuery);
+
+                if (querySnapshot.empty) {
+                    ordersList.innerHTML = '<p>No tienes órdenes registradas.</p>';
+                    return;
+                }
+
+                ordersList.innerHTML = ''; // Limpiar mensaje de "Cargando..."
+                querySnapshot.forEach((doc) => {
+                    const order = doc.data();
+                    const orderElement = document.createElement('div');
+                    orderElement.classList.add('order-item');
+                    orderElement.innerHTML = `
+                        <h3>Orden ${doc.id}</h3>
+                        <p>Tienda: ${order.storeId}</p>
+                        <p>Total: $${order.totalCost.toFixed(2)}</p>
+                        <p>Estado: ${order.status}</p>
+                        <p>Fecha: ${new Date(order.createdAt).toLocaleDateString()}</p>
+                    `;
+                    ordersList.appendChild(orderElement);
+                });
+            } catch (error) {
+                console.error('Error al cargar las órdenes:', error);
+                ordersList.innerHTML = '<p>Error al cargar las órdenes. Intenta de nuevo más tarde.</p>';
+            }
         }
-
-        // Cargar órdenes del usuario
-        const ordersContainer = document.getElementById('user-orders');
-        try {
-          const ordersQuery = query(
-            collection(db, 'orders'),
-            where('userId', '==', user.uid),
-            orderBy('createdAt', 'desc')
-          );
-          const ordersSnapshot = await getDocs(ordersQuery);
-          if (ordersSnapshot.empty) {
-            ordersContainer.innerHTML = '<p>No tienes órdenes aún.</p>';
-          } else {
-            ordersContainer.innerHTML = '';
-            ordersSnapshot.forEach((docSnap) => {
-              const order = docSnap.data();
-              const orderElement = document.createElement('div');
-              orderElement.classList.add('order-card');
-              orderElement.innerHTML = `
-                <h3>Orden ID: ${docSnap.id}</h3>
-                <p><strong>Estado:</strong> ${order.status}</p>
-                <p><strong>Total:</strong> $${order.totalCost.toFixed(2)}</p>
-                <h4>Productos:</h4>
-                <ul>
-                  ${Object.entries(order.cartItems).map(([_, item]) => `
-                    <li>${item.name} (x${item.quantity}) - $${(item.price * item.quantity).toFixed(2)}</li>
-                  `).join('')}
-                </ul>
-              `;
-              ordersContainer.appendChild(orderElement);
-            });
-          }
-        } catch (error) {
-          console.error('Error al cargar las órdenes del usuario:', error);
-          ordersContainer.innerHTML = '<p>Error al cargar tus órdenes.</p>';
-        }
-      } else {
-        // Si no está autenticado, redirige a la página principal
-        document.getElementById('user-orders').innerHTML = '<p>Debes iniciar sesión para ver tus órdenes.</p>';
-        window.location.href = '/';
-      }
-    });
-  </script>
-  <script type="module" src="js/app.js"></script>
-  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'922984197d4abf7d',t:'MTc0MjM1MTA5Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+    </script>
+    <script type="module" src="js/app.js"></script>
+    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'922984197d4abf7d',t:'MTc0MjM1MTA5Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
