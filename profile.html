@@ -59,8 +59,8 @@
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
         import { getFirestore, doc, getDoc, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
-        import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyAAAFDJ_utlimCezUR-_i8Y2yUare9yZ1k",
@@ -72,8 +72,8 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -134,32 +134,31 @@
             const orderElement = document.createElement('div');
             orderElement.classList.add('order-card');
             orderElement.innerHTML = `
-                <div class="order-content">
-                    <div class="store-info">
-                        <p class="store-name"><i class="bi bi-shop"></i>${order.storeName}</p>
-                        <div class="order-details">
-                            <div class="order-detail-item">
-                                <span>N° Orden:</span>
-                                <span>${order.id}</span>
-                            </div>
-                            <div class="order-detail-item">
-                                <span>Fecha:</span>
-                                <span>${new Date(order.createdAt).toLocaleDateString()}</span>
-                            </div>
-                            <div class="order-products">
-                                ${order.items.map(item => `
-                                    ${item.quantity}x ${item.name}
-                                `).join(', ')}
-                            </div>
-                        </div>
-                        <div class="status-section">
-                            <div class="status-tag status-${order.status}">${order.status}</div>
-                            <div class="order-price">$${order.totalCost.toFixed(2)}</div>
-                        </div>
-                    </div>
+    <div class="order-content">
+        <div class="store-info">
+            <p class="store-name"><i class="bi bi-shop"></i>${order.storeName || 'Tienda no especificada'}</p>
+            <div class="order-details">
+                <div class="order-detail-item">
+                    <span>N° Orden:</span>
+                    <span>${order.id}</span>
                 </div>
-            `;
-
+                <div class="order-detail-item">
+                    <span>Fecha:</span>
+                    <span>${new Date(order.createdAt?.toDate()).toLocaleDateString()}</span>
+                </div>
+                <div class="order-products">
+                    ${(order.items || []).map(item => `
+                        ${item.quantity}x ${item.name}
+                    `).join(', ')}
+                </div>
+            </div>
+            <div class="status-section">
+                <div class="status-tag status-${order.status}">${order.status}</div>
+                <div class="order-price">$${(order.totalCost || 0).toFixed(2)}</div>
+            </div>
+        </div>
+    </div>
+`;
             switch(order.status) {
                 case 'pending':
                     containers.pending.appendChild(orderElement);
