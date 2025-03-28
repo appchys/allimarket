@@ -1,6 +1,7 @@
 import { getDoc, doc, updateDoc, deleteField, setDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 import { signInWithPopup } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
 import { initializeAddMenu } from './add-menu.js';
+import { initializeCart } from './cart.js';
 
 // Variables globales para almacenar db y auth
 let db = null;
@@ -134,6 +135,54 @@ export function initializeNavEvents(authInstance, dbInstance, storage, provider)
         })
         .catch(error => console.error('Error al cargar add-menu.html:', error));
 
+    // Cargar el carrito dinámicamente
+    fetch('cart.html')
+        .then(response => response.text())
+        .then(html => {
+            const body = document.body;
+            body.insertAdjacentHTML('beforeend', html);
+            initializeCart(db);
+            initializeSidebarEvents();
+        })
+        .catch(error => console.error('Error al cargar cart.html:', error));
+
+    // Nueva función para manejar eventos de la sidebar
+    function initializeSidebarEvents() {
+        const waitForElements = setInterval(() => {
+            const cartBtn = document.getElementById('cart-btn');
+            const cartSidebar = document.getElementById('cart-sidebar');
+            const closeCartSidebar = document.getElementById('close-cart-sidebar');
+
+            if (cartBtn && cartSidebar && closeCartSidebar) {
+                clearInterval(waitForElements);
+
+                cartBtn.removeEventListener('click', openSidebarHandler);
+                closeCartSidebar.removeEventListener('click', closeSidebarHandler);
+                document.removeEventListener('click', outsideClickHandler);
+
+                cartBtn.addEventListener('click', openSidebarHandler);
+                function openSidebarHandler(e) {
+                    e.stopPropagation();
+                    cartSidebar.classList.add('open');
+                    updateCartSidebar();
+                }
+
+                closeCartSidebar.addEventListener('click', closeSidebarHandler);
+                function closeSidebarHandler(e) {
+                    e.stopPropagation();
+                    cartSidebar.classList.remove('open');
+                }
+
+                document.addEventListener('click', outsideClickHandler);
+                function outsideClickHandler(e) {
+                    if (!cartSidebar.contains(e.target) && e.target !== cartBtn && !cartBtn.contains(e.target)) {
+                        cartSidebar.classList.remove('open');
+                    }
+                }
+            }
+        }, 100);
+    }
+
     // Cargar el modal de productos dinámicamente
     fetch('add-product.html')
         .then(response => response.text())
@@ -144,45 +193,6 @@ export function initializeNavEvents(authInstance, dbInstance, storage, provider)
             initializeAddProduct(db, storage, auth.currentUser ? auth.currentUser.storeId : 'unknown', feedContainer);
         })
         .catch(error => console.error('Error al cargar add-product.html:', error));
-
-    // Cargar la sidebar del carrito dinámicamente
-    fetch('cart.html')
-        .then(response => response.text())
-        .then(html => {
-            document.body.insertAdjacentHTML('beforeend', html);
-            initializeCartSidebar(); // Inicializar eventos después de cargar
-        })
-        .catch(error => console.error('Error al cargar cart.html:', error));
-
-    // Función para inicializar los eventos de la sidebar del carrito
-    function initializeCartSidebar() {
-        const cartSidebar = document.getElementById('cart-sidebar');
-        const closeCartBtn = document.getElementById('close-cart-sidebar');
-        cartBtn = document.getElementById('cart-btn');
-
-        // Función para abrir/cerrar la sidebar
-        function toggleCartSidebar() {
-            if (cartSidebar) {
-                cartSidebar.classList.toggle('open');
-            }
-        }
-
-        // Evento para abrir la sidebar al hacer clic en el botón del carrito
-        if (cartBtn) {
-            cartBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                toggleCartSidebar();
-            });
-        }
-
-        // Evento para cerrar la sidebar al hacer clic en el botón de cerrar
-        if (closeCartBtn) {
-            closeCartBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                toggleCartSidebar();
-            });
-        }
-    }
 
     assignHomeButtonEvent();
 
@@ -201,7 +211,223 @@ export function initializeNavEvents(authInstance, dbInstance, storage, provider)
     observer.observe(document.body, { childList: true, subtree: true });
 }
 
+// Función para actualizar el contenido de la sidebar
+async function updateCartSidebar() {
+    const cartSidebarContent = document.querySelector('.cart-sidebar-content');
+    const cartTotalElement = document.getElementById('cart-total');
+    const cartCountElement = document.getElementById('cart-count');
+    let totalItems = 0;
+    let totalPrice = 0;
+
+    if (!cartSidebarContent || !cartTotalElement || !cartCountElement) {
+        console.error('Elementos de la sidebar no encontrados');
+        return;
+    }
+
+    // Limpiar el contenido actual
+    cartSidebarContent.innerHTML = '';
+
+    // Obtener los datos del carrito
+    const cart = await getCartData();
+
+    if (!cart || Object.keys(cart).length === 0) {
+        cartSidebarContent.innerHTML = '<p>El carrito está vacío.</p>';
+        cartTotalElement.textContent = '$0.00';
+        cartCountElement.textContent = '0';
+        cartCountElement.classList.remove('active');
+        return;
+    }
+
+    // Iterar sobre cada tienda en el carrito
+    for (const storeId in cart) {
+        const storeItems = cart[storeId];
+        let storeSubtotal = 0;
+        const itemCount = Object.keys(storeItems).length;
+
+        // Solo crear la sección si hay ítems en la tienda
+        if (itemCount > 0) {
+            const storeSection = document.createElement('div');
+            storeSection.classList.add('cart-store-section');
+            storeSection.dataset.storeId = storeId;
+
+            // Título de la tienda
+            const storeTitle = document.createElement('h3');
+            storeTitle.textContent = `Tienda: ${storeId}`;
+            storeSection.appendChild(storeTitle);
+
+            // Lista de productos
+            const itemList = document.createElement('ul');
+            for (const itemId in storeItems) {
+                const item = storeItems[itemId];
+                const itemTotal = item.price * item.quantity;
+                storeSubtotal += itemTotal;
+                totalPrice += itemTotal;
+                totalItems += item.quantity;
+
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <div class="item-details">
+                        <p>${item.name}</p>
+                    </div>
+                    <span class="item-quantity">x${item.quantity}</span>
+                    <span class="item-total">$${(itemTotal).toFixed(2)}</span>
+                    <button class="remove-item" data-store="${storeId}" data-item="${itemId}">Eliminar</button>
+                `;
+                itemList.appendChild(listItem);
+            }
+            storeSection.appendChild(itemList);
+
+            // Subtotal de la tienda
+            const storeSubtotalElement = document.createElement('p');
+            storeSubtotalElement.classList.add('store-subtotal');
+            storeSubtotalElement.textContent = `Subtotal: $${storeSubtotal.toFixed(2)}`;
+            storeSection.appendChild(storeSubtotalElement);
+
+            // Botón de checkout para la tienda
+            const checkoutBtn = document.createElement('button');
+            checkoutBtn.classList.add('checkout-store-btn');
+            checkoutBtn.setAttribute('data-store-id', storeId);
+            checkoutBtn.textContent = 'Checkout';
+            storeSection.appendChild(checkoutBtn);
+
+            cartSidebarContent.appendChild(storeSection);
+        }
+    }
+
+    // Actualizar el total general y el contador
+    cartTotalElement.textContent = `$${totalPrice.toFixed(2)}`;
+    cartCountElement.textContent = totalItems;
+    if (totalItems > 0) {
+        cartCountElement.classList.add('active');
+    } else {
+        cartCountElement.classList.remove('active');
+    }
+}
+
+// Función para obtener los datos del carrito desde Firebase
+async function getCartData() {
+    try {
+        if (!auth.currentUser) {
+            console.error('Usuario no autenticado');
+            return {};
+        }
+
+        const userId = auth.currentUser.uid;
+        console.log('Obteniendo carrito para el usuario:', userId);
+
+        const cartRef = doc(db, 'carts', userId);
+        const cartDoc = await getDoc(cartRef);
+
+        if (cartDoc.exists()) {
+            const cartData = cartDoc.data();
+            console.log('Datos del carrito obtenidos:', cartData);
+
+            // Limpiar tiendas vacías del objeto cartData
+            for (const storeId in cartData) {
+                if (Object.keys(cartData[storeId]).length === 0) {
+                    delete cartData[storeId];
+                }
+            }
+            return cartData;
+        } else {
+            console.log('El carrito está vacío o no existe');
+            return {};
+        }
+    } catch (error) {
+        console.error('Error al obtener los datos del carrito:', error);
+        return {};
+    }
+}
+
+// Función para agregar un producto al carrito
+export async function addToCart(storeId, product) {
+    try {
+        if (!auth.currentUser) {
+            console.error('Usuario no autenticado');
+            return;
+        }
+
+        const userId = auth.currentUser.uid;
+        const cartRef = doc(db, 'carts', userId);
+
+        // Verificar si el producto ya está en el carrito
+        const cartDoc = await getDoc(cartRef);
+        let cartData = cartDoc.exists() ? cartDoc.data() : {};
+
+        if (cartData[storeId] && cartData[storeId][product.id]) {
+            cartData[storeId][product.id].quantity += 1;
+        } else {
+            if (!cartData[storeId]) {
+                cartData[storeId] = {};
+            }
+            cartData[storeId][product.id] = {
+                name: product.name,
+                price: product.price,
+                quantity: 1
+            };
+        }
+
+        await setDoc(cartRef, cartData, { merge: true });
+        console.log(`Producto ${product.id} añadido al carrito para la tienda ${storeId}`);
+        updateCartSidebar();
+    } catch (error) {
+        console.error('Error al añadir el producto al carrito:', error);
+    }
+}
+
+// Función para manejar el checkout por tienda
+function handleCheckout(storeId) {
+    console.log(`Iniciando checkout para la tienda: ${storeId}`);
+    window.location.href = `/checkout.html?store=${storeId}`;
+}
+
+// Agregar evento para eliminar ítems
+document.addEventListener('click', async (e) => {
+    if (e.target.classList.contains('remove-item')) {
+        const storeId = e.target.dataset.store;
+        const itemId = e.target.dataset.item;
+
+        try {
+            if (!auth.currentUser) {
+                console.error('Usuario no autenticado');
+                return;
+            }
+
+            const userId = auth.currentUser.uid;
+            const cartRef = doc(db, 'carts', userId);
+
+            // Eliminar el ítem del carrito
+            await updateDoc(cartRef, {
+                [`${storeId}.${itemId}`]: deleteField()
+            });
+
+            // Obtener datos actualizados del carrito
+            const cartDoc = await getDoc(cartRef);
+            const cartData = cartDoc.exists() ? cartDoc.data() : {};
+
+            // Si la tienda no tiene más ítems, eliminarla completamente
+            if (cartData[storeId] && Object.keys(cartData[storeId]).length === 0) {
+                await updateDoc(cartRef, {
+                    [storeId]: deleteField()
+                });
+            }
+
+            console.log(`Ítem ${itemId} eliminado de la tienda ${storeId}`);
+            updateCartSidebar();
+        } catch (error) {
+            console.error('Error al eliminar el ítem:', error);
+        }
+    }
+
+    // Agregar evento para los botones de checkout
+    if (e.target.classList.contains('checkout-store-btn')) {
+        const storeId = e.target.dataset.storeId;
+        handleCheckout(storeId);
+    }
+});
+
 // Función para inicializar eventos de productos (si es necesario en otras partes)
 function initializeAddProduct(db, storage, storeId, feedContainer) {
+    // Esta función parece incompleta en el contexto original; aquí se deja como placeholder
     console.log('Inicializando add-product para', storeId);
 }
