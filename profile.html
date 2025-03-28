@@ -5,88 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All I Market - Mi Perfil</title>
     <style>
-        /* Estilos generales */
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
-        header { background-color: #333; color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
-        header h1 { margin: 0; font-size: 24px; }
-        .header-right { display: flex; align-items: center; gap: 10px; }
-        #search-container input { padding: 5px; border: none; border-radius: 3px; }
-        #search-toggle-btn, #login-btn, #logout-btn { padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; }
-        #login-btn { background-color: #4285f4; color: white; }
-        #logout-btn { background-color: #ff4444; color: white; }
-        main { padding: 20px; }
-
-        /* Estilos para la sección de pedidos */
-        .orders-section { padding: 20px; max-width: 800px; margin: 0 auto; }
-        .order-item { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px; background-color: #f9f9f9; }
-        .order-item h3 { margin: 0 0 10px; font-size: 1.2em; }
-        .order-item p { margin: 5px 0; }
-
-        /* Estilos para el perfil del cliente */
-        .client-profile { max-width: 800px; margin: 20px auto; background-color: white; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; gap: 20px; }
-        #profile-image { border-radius: 50%; width: 100px; height: 100px; object-fit: cover; }
-        .client-info h2 { margin: 0 0 10px; font-size: 1.5em; }
-        .client-info p { margin: 5px 0; color: #555; }
-        #edit-profile-btn { padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
-        #edit-profile-btn:hover { background-color: #0056b3; }
-
-        /* Estilos para el modal de selección de rol */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; }
-        .modal-content { background-color: white; padding: 20px; border-radius: 5px; position: relative; max-width: 400px; width: 100%; text-align: center; }
-        .modal-content button { padding: 10px 20px; margin: 10px; background-color: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
-        .modal-content button:hover { background-color: #0056b3; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #333; color: white; }
+        #user-profile { display: flex; align-items: center; padding: 20px; }
+        #profile-image { border-radius: 50%; margin-right: 20px; }
+        #orders-section { padding: 20px; }
+        .order { border-bottom: 1px solid #ddd; padding: 10px 0; }
     </style>
 </head>
 <body>
     <header>
         <h1>All I Market</h1>
         <div class="header-right">
-            <div id="search-container" style="display: none;">
-                <input type="text" id="search-input" placeholder="Buscar...">
-                <button id="search-toggle-btn"><i class="bi bi-search"></i></button>
-            </div>
-            <div id="auth-section">
-                <button id="login-btn">Iniciar Sesión con Google</button>
-                <button id="logout-btn" style="display:none;"><i class="bi bi-box-arrow-right"></i></button>
-            </div>
+            <button id="logout-btn" style="display:none;">Cerrar Sesión</button>
         </div>
     </header>
     <main>
-        <!-- Sección de pedidos realizados -->
-        <section id="user-orders" class="orders-section">
-            <h2>Mis Pedidos</h2>
-            <div id="orders-list"></div>
-        </section>
-
-        <!-- Sección del perfil del cliente -->
-        <section id="client-profile" class="client-profile">
+        <section id="user-profile" class="store-profile">
             <img id="profile-image" src="https://placehold.co/100x100" alt="Foto de perfil">
-            <div class="client-info">
+            <div class="store-info">
                 <h2 id="profile-name">Nombre</h2>
                 <p id="profile-slug">@usuario</p>
                 <p id="profile-description">Descripción</p>
                 <p id="profile-phone">Celular: No disponible</p>
-                <div id="profile-actions">
-                    <button id="edit-profile-btn">Editar Perfil</button>
-                </div>
             </div>
         </section>
+        <section id="orders-section">
+            <h2>Mis Órdenes</h2>
+            <div id="orders-list">Cargando órdenes...</div>
+        </section>
     </main>
-
-    <!-- Modal de selección de rol -->
-    <div id="role-modal" class="modal">
-        <div class="modal-content">
-            <h2>Selecciona tu rol</h2>
-            <button id="role-store">Soy dueño de una tienda</button>
-            <button id="role-client">Soy cliente</button>
-        </div>
-    </div>
-
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-        import { getFirestore, doc, getDoc, collection, getDocs, query, where } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
-        import { getAuth, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
-        import { setupAuth } from './auth.js';
+        import { getFirestore, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyAAAFDJ_utlimCezUR-_i8Y2yUare9yZ1k",
@@ -100,73 +52,28 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
-
-        // Configurar autenticación
-        setupAuth(auth, provider, db);
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
-                // Cargar datos del perfil del cliente
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    document.getElementById('profile-name').textContent = userData.name || 'Sin nombre';
-                    document.getElementById('profile-slug').textContent = `@${userData.slug || user.uid}`;
-                    document.getElementById('profile-description').textContent = userData.description || 'Sin descripción';
-                    document.getElementById('profile-phone').textContent = `Celular: ${userData.phone || 'No disponible'}`;
-                    if (userData.imageUrl) {
-                        document.getElementById('profile-image').src = userData.imageUrl;
-                    }
-                } else {
-                    console.log('Usuario no tiene datos en Firestore aún');
-                }
-
-                // Cargar pedidos realizados
-                await loadUserOrders(user.uid);
-            } else {
-                document.getElementById('orders-list').innerHTML = '<p>Inicia sesión para ver tus pedidos.</p>';
-                document.getElementById('client-profile').style.display = 'none';
-            }
-        });
-
-        async function loadUserOrders(userId) {
-            const ordersList = document.getElementById('orders-list');
-            try {
-                const ordersQuery = query(collection(db, 'orders'), where('userId', '==', userId));
-                const querySnapshot = await getDocs(ordersQuery);
-
-                if (querySnapshot.empty) {
-                    ordersList.innerHTML = '<p>No tienes pedidos realizados aún.</p>';
-                    return;
-                }
-
+                const ordersRef = collection(db, 'orders');
+                const q = query(ordersRef, where("userId", "==", user.uid));
+                const querySnapshot = await getDocs(q);
+                const ordersList = document.getElementById('orders-list');
                 ordersList.innerHTML = '';
-                querySnapshot.forEach(orderDoc => {
-                    const orderData = orderDoc.data();
+                
+                querySnapshot.forEach((doc) => {
+                    const orderData = doc.data();
                     const orderElement = document.createElement('div');
-                    orderElement.classList.add('order-item');
-                    const itemsList = Object.values(orderData.cartItems)
-                        .map(item => `${item.name} (x${item.quantity}) - $${(item.price * item.quantity).toFixed(2)}`)
-                        .join('<br>');
+                    orderElement.classList.add('order');
                     orderElement.innerHTML = `
-                        <h3>Orden ID: ${orderDoc.id}</h3>
-                        <p><strong>Tienda:</strong> ${orderData.storeId}</p>
-                        <p><strong>Productos:</strong><br>${itemsList}</p>
-                        <p><strong>Costo de envío:</strong> $${orderData.shippingCost.toFixed(2)}</p>
-                        <p><strong>Total:</strong> $${orderData.totalCost.toFixed(2)}</p>
-                        <p><strong>Estado:</strong> ${orderData.status}</p>
-                        <p><strong>Fecha:</strong> ${new Date(orderData.createdAt).toLocaleString()}</p>
+                        <p><strong>Orden ID:</strong> ${doc.id}</p>
+                        <p><strong>Fecha:</strong> ${orderData.date}</p>
+                        <p><strong>Total:</strong> $${orderData.total}</p>
                     `;
                     ordersList.appendChild(orderElement);
                 });
-            } catch (error) {
-                console.error('Error al cargar los pedidos:', error);
-                ordersList.innerHTML = '<p>Error al cargar los pedidos: ' + error.message + '</p>';
             }
-        }
+        });
     </script>
-    <script type="module" src="js/app.js"></script>
-    <script type="module" src="auth.js"></script>
 </body>
 </html>
