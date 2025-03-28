@@ -46,7 +46,7 @@ export function initializeNavEvents(authInstance, dbInstance, storage, provider)
             newBtn.style.display = 'block';
         } else if (userData && userData.role === 'client') {
             homeBtn.style.display = 'block';
-            cartBtn.style.display = 'block'; // Mantenemos el ícono del carrito visible para clientes
+            cartBtn.style.display = 'block';
             profileBtn.style.display = 'block';
             newBtn.style.display = 'none';
         } else {
@@ -144,6 +144,45 @@ export function initializeNavEvents(authInstance, dbInstance, storage, provider)
             initializeAddProduct(db, storage, auth.currentUser ? auth.currentUser.storeId : 'unknown', feedContainer);
         })
         .catch(error => console.error('Error al cargar add-product.html:', error));
+
+    // Cargar la sidebar del carrito dinámicamente
+    fetch('cart.html')
+        .then(response => response.text())
+        .then(html => {
+            document.body.insertAdjacentHTML('beforeend', html);
+            initializeCartSidebar(); // Inicializar eventos después de cargar
+        })
+        .catch(error => console.error('Error al cargar cart.html:', error));
+
+    // Función para inicializar los eventos de la sidebar del carrito
+    function initializeCartSidebar() {
+        const cartSidebar = document.getElementById('cart-sidebar');
+        const closeCartBtn = document.getElementById('close-cart-sidebar');
+        cartBtn = document.getElementById('cart-btn');
+
+        // Función para abrir/cerrar la sidebar
+        function toggleCartSidebar() {
+            if (cartSidebar) {
+                cartSidebar.classList.toggle('open');
+            }
+        }
+
+        // Evento para abrir la sidebar al hacer clic en el botón del carrito
+        if (cartBtn) {
+            cartBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                toggleCartSidebar();
+            });
+        }
+
+        // Evento para cerrar la sidebar al hacer clic en el botón de cerrar
+        if (closeCartBtn) {
+            closeCartBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                toggleCartSidebar();
+            });
+        }
+    }
 
     assignHomeButtonEvent();
 
