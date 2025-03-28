@@ -4,53 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Navbar Inferior</title>
-    
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-    
     <style>
-        /* Barra de navegación inferior */
         .bottom-nav {
             position: fixed;
             bottom: 0;
-            left: 0;
             width: 100%;
             background-color: #fff;
-            border-top: 1px solid #ddd;
             display: flex;
             justify-content: space-around;
             padding: 10px 0;
-            z-index: 1000;
-            box-sizing: border-box;
         }
-
         .nav-btn {
             background: none;
             border: none;
             font-size: 24px;
             cursor: pointer;
-            padding: 5px 15px;
             color: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            position: relative;
         }
-
-        .nav-btn.active {
-            color: #3897f0;
-        }
-
-        /* Espaciado para evitar solapamiento con la barra */
-        body {
-            padding-bottom: 70px;
-        }
-
-        /* Popover */
         .popover-menu {
             position: absolute;
             bottom: 70px;
@@ -63,101 +34,40 @@
             display: none;
             flex-direction: column;
             width: 160px;
-            z-index: 1100;
         }
-
         .popover-menu button {
-            background: none;
-            border: none;
             padding: 10px;
-            width: 100%;
             text-align: left;
-            font-size: 16px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .popover-menu button:hover {
-            background: #f1f1f1;
-        }
-
-        /* Ajuste para pantallas pequeñas */
-        @media (max-width: 768px) {
-            .bottom-nav {
-                padding: 5px 0;
-            }
-            .nav-btn {
-                font-size: 20px;
-            }
-            body {
-                padding-bottom: 60px;
-            }
         }
     </style>
 </head>
 <body>
+    <nav class="bottom-nav">
+        <button id="add-btn" class="nav-btn">
+            <i class="bi bi-plus-circle"></i>
+        </button>
+    </nav>
+    <div id="Popover-menu" class="popover-menu">
+        <button>Producto</button>
+        <button>Historia</button>
+    </div>
 
-<!-- Barra de navegación inferior -->
-<nav class="bottom-nav">
-    <a href="index.html" class="nav-btn">
-        <i class="bi bi-compass"></i>
-    </a>
-    <a href="checkout.html" class="nav-btn">
-        <i class="bi bi-cart"></i>
-    </a>
-    <button id="add-btn" class="nav-btn">
-        <i class="bi bi-plus-circle"></i>
-    </button>
-    <a href="profile.html" class="nav-btn">
-        <i class="bi bi-person"></i>
-    </a>
-</nav>
-
-<!-- Popover para elegir opción -->
-<div id="popover-menu" class="popover-menu">
-    <button id="add-product">
-        <i class="bi bi-box"></i> Producto
-    </button>
-    <button id="add-story">
-        <i class="bi bi-image"></i> Historia
-    </button>
-</div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
+    <script>
         const addBtn = document.getElementById("add-btn");
         const popoverMenu = document.getElementById("popover-menu");
 
-        if (!addBtn || !popoverMenu) {
-            console.error("No se encontraron los elementos");
-            return;
-        }
-
-        addBtn.addEventListener("click", (event) => {
-            console.log("Botón de añadir clickeado"); // Para depurar
-            event.stopPropagation(); 
+        addBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
             popoverMenu.style.display = popoverMenu.style.display === "flex" ? "none" : "flex";
+            console.log("Botón clicado, popover:", popoverMenu.style.display);
         });
 
-        document.addEventListener("click", (event) => {
-            if (!popoverMenu.contains(event.target) && event.target !== addBtn) {
-                popoverMenu.style.display = "none"; 
+        document.addEventListener("click", (e) => {
+            if (!popoverMenu.contains(e.target) && e.target !== addBtn) {
+                popoverMenu.style.display = "none";
             }
         });
-
-        document.getElementById("add-product").addEventListener("click", () => {
-            alert("Abrir modal para añadir Producto");
-            popoverMenu.style.display = "none"; 
-        });
-
-        document.getElementById("add-story").addEventListener("click", () => {
-            alert("Abrir modal para añadir Historia");
-            popoverMenu.style.display = "none"; 
-        });
-    });
-</script>
-
+    </script>
 </body>
 </html>
