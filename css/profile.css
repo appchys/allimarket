@@ -223,3 +223,51 @@ button:hover {
 #cart-items {
     margin-top: 20px;
 }
+
+/* Nuevos estilos para la sección de órdenes */
+#user-orders {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #fff;
+    border-bottom: 1px solid #ddd;
+}
+
+#user-orders h2 {
+    font-size: 24px;
+    margin: 0 0 15px;
+    color: #333;
+}
+
+#orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.order-item {
+    background-color: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.order-item h3 {
+    font-size: 18px;
+    margin: 0 0 10px;
+    color: #3897f0;
+}
+
+.order-item p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #666;
+}
+
+/* Estilo para cuando no hay órdenes o hay un error */
+#orders-list p {
+    font-size: 16px;
+    color: #666;
+    text-align: center;
+}
