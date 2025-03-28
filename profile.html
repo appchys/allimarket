@@ -3,86 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All I Market - Mi Perfil</title>
-    <link rel="stylesheet" href="css/profile.css">
-    <link rel="stylesheet" href="css/add-menu.css">
+    <title>Perfil de la Tienda</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js"></script>
+    <style>
+        /* Agrega aquí tus estilos */
+    </style>
 </head>
 <body>
-    <header>
-        <h1>All I Market</h1>
-        <div class="header-right">
-            <div id="search-container" style="display: none;">
-                <input type="text" id="search-input" placeholder="Buscar...">
-                <button id="search-toggle-btn"><i class="bi bi-search"></i></button>
-            </div>
-            <div id="auth-section">
-                <button id="login-btn">Iniciar Sesión con Google</button>
-                <button id="logout-btn" style="display:none;"><i class="bi bi-box-arrow-right"></i></button>
-            </div>
-        </div>
-    </header>
-    <main>
-        <section id="user-profile" class="store-profile">
-            <img id="profile-image" src="https://placehold.co/100x100" alt="Foto de perfil">
-            <div class="store-info">
-                <h2 id="profile-name">Nombre</h2>
-                <p id="profile-slug">@usuario</p>
-                <p id="profile-description">Descripción</p>
-                <p id="profile-phone">Celular: No disponible</p>
-                <div id="profile-actions">
-                    <button id="edit-profile-btn">Editar Perfil</button>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Punto de inserción para la barra de navegación -->
-    <div id="nav-container"></div>
-
-    <!-- Modal del carrito -->
-    <div id="cart-modal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <h2>Carrito de Compras</h2>
-            <div id="cart-items"></div>
-            <button id="close-cart-modal" class="close-btn">✖</button>
-        </div>
+    <div id="store-profile">
+        <img id="store-image" src="" alt="Imagen de la tienda">
+        <h1 id="store-name">Cargando...</h1>
+        <p id="store-followers">0 seguidores</p>
+        <p id="store-description">Descripción de la tienda</p>
+        <div id="store-actions"></div>
+        <div id="stories-container"></div>
+        <div id="feed-container"></div>
     </div>
-
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-        import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
-        import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
-
+    <script>
+        // Inicializar Firebase
         const firebaseConfig = {
-            apiKey: "AIzaSyAAAFDJ_utlimCezUR-_i8Y2yUare9yZ1k",
-            authDomain: "multitienda-69778.firebaseapp.com",
-            projectId: "multitienda-69778",
-            storageBucket: "multitienda-69778.firebasestorage.app",
-            messagingSenderId: "939925630795",
-            appId: "1:939925630795:web:713aca499392bfa36482ce"
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_AUTH_DOMAIN",
+            projectId: "TU_PROJECT_ID",
+            storageBucket: "TU_STORAGE_BUCKET",
+            messagingSenderId: "TU_MESSAGING_SENDER_ID",
+            appId: "TU_APP_ID"
         };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+        const auth = firebase.auth();
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+        document.addEventListener('DOMContentLoaded', async () => {
+            const storeNameElement = document.getElementById('store-name');
+            const storeImageElement = document.getElementById('store-image');
+            const storeFollowersElement = document.getElementById('store-followers');
+            const storeDescriptionElement = document.getElementById('store-description');
+            const storeActionsElement = document.getElementById('store-actions');
+            
+            let slug = window.location.pathname.split('/').filter(Boolean)[0];
+            if (!slug) {
+                storeNameElement.textContent = 'Error: Tienda no especificada';
+                return;
+            }
 
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    document.getElementById('profile-name').textContent = userData.name;
-                    document.getElementById('profile-slug').textContent = `@${userData.slug}`;
-                    document.getElementById('profile-description').textContent = userData.description;
-                    document.getElementById('profile-phone').textContent = `Celular: ${userData.phone || 'No disponible'}`;
-                    if (userData.imageUrl) {
-                        document.getElementById('profile-image').src = userData.imageUrl;
-                    }
+            try {
+                const storeDoc = await db.collection('stores').doc(slug).get();
+                if (!storeDoc.exists) {
+                    storeNameElement.textContent = 'Tienda no encontrada';
+                    return;
                 }
+                const storeData = storeDoc.data();
+                storeNameElement.textContent = storeData.name || 'Sin nombre';
+                storeImageElement.src = storeData.imageUrl || 'https://placehold.co/100x100';
+                storeFollowersElement.textContent = `${storeData.followers || 0} seguidores`;
+                storeDescriptionElement.textContent = storeData.description || 'Sin descripción';
+
+                const followButton = document.createElement('button');
+                followButton.textContent = 'Seguir';
+                followButton.addEventListener('click', async () => {
+                    const newFollowers = (storeData.followers || 0) + 1;
+                    await db.collection('stores').doc(slug).set({ followers: newFollowers }, { merge: true });
+                    storeFollowersElement.textContent = `${newFollowers} seguidores`;
+                    followButton.disabled = true;
+                    followButton.textContent = 'Siguiendo';
+                });
+                storeActionsElement.appendChild(followButton);
+            } catch (error) {
+                storeNameElement.textContent = 'Error al cargar la tienda';
+                console.error('Error:', error);
             }
         });
     </script>
-    <script type="module" src="js/app.js"></script>
-    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'922984197d4abf7d',t:'MTc0MjM1MTA5Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
