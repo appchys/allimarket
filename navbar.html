@@ -130,23 +130,42 @@
         const addBtn = document.getElementById("add-btn");
         const popoverMenu = document.getElementById("popover-menu");
 
-        if (!addBtn || !popoverMenu) {
-            console.error("No se encontraron los elementos");
+        // Verificar si los elementos existen
+        if (!addBtn) {
+            console.error("No se encontró el botón 'add-btn'");
+            return;
+        }
+        if (!popoverMenu) {
+            console.error("No se encontró el 'popover-menu'");
             return;
         }
 
+        console.log("Todo listo, esperando eventos...");
+
+        // Evento para abrir el popover
         addBtn.addEventListener("click", (event) => {
-            console.log("Botón de añadir clickeado"); // Para depurar
-            event.stopPropagation(); 
-            popoverMenu.style.display = popoverMenu.style.display === "flex" ? "none" : "flex";
+            console.log("Botón '+' clickeado");
+            event.stopPropagation(); // Evita que se cierre inmediatamente
+
+            // Alternar visibilidad del popover
+            if (popoverMenu.style.display === "none" || popoverMenu.style.display === "") {
+                console.log("Mostrando popover");
+                popoverMenu.style.display = "flex";
+            } else {
+                console.log("Ocultando popover");
+                popoverMenu.style.display = "none";
+            }
         });
 
+        // Cerrar el popover si se hace clic fuera
         document.addEventListener("click", (event) => {
             if (!popoverMenu.contains(event.target) && event.target !== addBtn) {
+                console.log("Clic fuera del popover, cerrando...");
                 popoverMenu.style.display = "none"; 
             }
         });
 
+        // Eventos para los botones dentro del popover
         document.getElementById("add-product").addEventListener("click", () => {
             alert("Abrir modal para añadir Producto");
             popoverMenu.style.display = "none"; 
