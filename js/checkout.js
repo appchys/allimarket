@@ -1190,10 +1190,24 @@ document.addEventListener('DOMContentLoaded', () => {
     function toggleAddressSection() {
         const selected = document.querySelector('input[name="deliveryType"]:checked');
         if (!selected || !deliveryAddressSection) return;
+
+        const confirmBtn = document.getElementById('confirm-btn');
+        
         if (selected.value === 'delivery') {
             deliveryAddressSection.classList.remove('hidden');
+            console.log('Delivery seleccionado');
         } else {
             deliveryAddressSection.classList.add('hidden');
+            console.log('Retiro seleccionado');
+            
+            // Fuerza habilitar el botón para Retiro
+            if (confirmBtn) {
+                confirmBtn.disabled = false;
+            }
+        }
+
+        if (confirmBtn) {
+            console.log('Botón de confirmar está: ' + (confirmBtn.disabled ? 'deshabilitado' : 'habilitado'));
         }
     }
 
